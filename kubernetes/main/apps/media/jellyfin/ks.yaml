@@ -12,6 +12,8 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: traefik
+    - name: volsync
+    - name: kopia
   path: ./kubernetes/main/apps/media/jellyfin/app
   prune: true
   sourceRef:
@@ -24,3 +26,4 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      VOLSYNC_CAPACITY: 4Gi
