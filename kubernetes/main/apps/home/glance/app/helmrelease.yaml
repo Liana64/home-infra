@@ -88,7 +88,7 @@ spec:
         name: glance-config
         globalMounts:
           - subPath: glance.yml
-            path: /app/glance.yml
+            path: /app/config/glance.yml
             readOnly: true
       tmp:
         type: emptyDir
