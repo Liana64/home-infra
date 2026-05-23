@@ -13,6 +13,8 @@ spec:
   dependsOn:
     - name: traefik
     - name: generic-device-plugin
+    - name: volsync
+    - name: kopia
   path: ./kubernetes/main/apps/media/qbittorrent/app
   prune: true
   sourceRef:
@@ -25,6 +27,7 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      VOLSYNC_CAPACITY: 1Gi
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fluxcd-community/flux2-schemas/main/kustomization-kustomize-v1.json
 apiVersion: kustomize.toolkit.fluxcd.io/v1

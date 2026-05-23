@@ -2,6 +2,8 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+components:
+  - ../../../../components/volsync
 resources:
   - ./secret.sops.yaml
   - ./helmrelease.yaml
@@ -13,3 +15,22 @@ generatorOptions:
   disableNameSuffixHash: true
   annotations:
     kustomize.toolkit.fluxcd.io/substitute: disabled
+patches:
+  - target:
+      group: volsync.backube
+      version: v1alpha1
+      kind: ReplicationSource
+    patch: |
+      - op: replace
+        path: /spec/trigger
+        value:
+          schedule: "0 4 * * 6"
+      - op: replace
+        path: /spec/sourcePVC
+        value: qbittorrent-config
+  - patch: |
+      $patch: delete
+      apiVersion: volsync.backube/v1alpha1
+      kind: ReplicationDestination
+      metadata:
+        name: ${APP}-dst
