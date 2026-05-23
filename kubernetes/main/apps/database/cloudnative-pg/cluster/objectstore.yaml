@@ -16,8 +16,10 @@ spec:
         key: ACCESS_SECRET_KEY
     wal:
       compression: gzip
+      encryption: AES256
       maxParallel: 2
     data:
       compression: gzip
+      encryption: AES256
       jobs: 2
   retentionPolicy: "30d"
