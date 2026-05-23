@@ -11,3 +11,4 @@ resources:
   - ./syncthing/ks.yaml
   - ./grocy/ks.yaml
   - ./radicale/ks.yaml
+  - ./immich/ks.yaml

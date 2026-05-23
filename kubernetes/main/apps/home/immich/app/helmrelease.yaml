@@ -11,21 +11,30 @@ spec:
     name: app-template
     namespace: flux-system
   values:
+    defaultPodOptions:
+      enableServiceLinks: false
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: ["n2"]
+
     controllers:
-      server:
+      immich:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
           secret.reloader.stakater.com/reload: immich-secret
           configmap.reloader.stakater.com/reload: immich-configmap
-        pod:
-          enableServiceLinks: false
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            runAsNonRoot: true
-            fsGroup: 1000
-            fsGroupChangePolicy: OnRootMismatch
         initContainers:
           init-db:
             image:
@@ -54,80 +63,53 @@ spec:
           main:
             image:
               repository: ghcr.io/immich-app/immich-server
-              tag: v2.2.1@sha256:2c951a4063b55ec2de197fdf6a85e32b05872d3a18a18eaf851b827ff2622814
+              tag: v2.7.5@sha256:c15bff75068effb03f4355997d03dc7e0fc58720c2b54ad6f7f10d1bc57efaa5
             envFrom:
               - secretRef:
-                  name: immich-secret
+                  name: *secret
               - configMapRef:
                   name: immich-configmap
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 4Gi
+
       machine-learning:
         strategy: RollingUpdate
         annotations:
+          reloader.stakater.com/auto: "true"
           secret.reloader.stakater.com/reload: immich-secret
           configmap.reloader.stakater.com/reload: immich-configmap
-          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
         pod:
-          enableServiceLinks: false
-          securityContext:
-            runAsUser: 1000
-            runAsGroup: 1000
-            runAsNonRoot: true
-            fsGroup: 1000
-            fsGroupChangePolicy: OnRootMismatch
+          runtimeClassName: nvidia
+          nodeSelector:
+            feature.node.kubernetes.io/pci-10de.present: "true"
         containers:
           main:
             image:
               repository: ghcr.io/immich-app/immich-machine-learning
-              tag: v2.2.1@sha256:590a76bba3d88ccf78b03cde0c0fb8788f7d76ae6caf90ad33a34b5b4cc35f11
+              tag: v2.7.5-cuda@sha256:304142175e345f0155d7642f637cfdceae60e89075ff03938cb2886d52c65a62
             envFrom:
               - secretRef:
-                  name: immich-secret
+                  name: *secret
               - configMapRef:
                   name: immich-configmap
             env:
-              MPLCONFIGDIR: "/cache/matplotlib"
-      valkey:
-        containers:
-          app:
-            image:
-              repository: ghcr.io/valkey-io/valkey
-              tag: 9.0.0@sha256:4503e204c900a00ad393bec83c8c7c4c76b0529cd629e23b34b52011aefd1d27
-            probes:
-              liveness:
-                enabled: true
-                custom: true
-                spec:
-                  exec:
-                    &probe-exec {
-                      command: ["sh", "-c", "valkey-cli ping | grep PONG"],
-                    }
-                  initialDelaySeconds: 30
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 3
-              readiness:
-                enabled: true
-                custom: true
-                spec:
-                  exec: *probe-exec
-                  initialDelaySeconds: 5
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 3
-              startup:
-                enabled: true
-                custom: true
-                spec:
-                  exec: *probe-exec
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 5
-                  failureThreshold: 30
+              MPLCONFIGDIR: /cache/matplotlib
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+                nvidia.com/gpu: 1
+              limits:
+                memory: 4Gi
+                nvidia.com/gpu: 1
 
     service:
-      server:
-        controller: server
+      immich:
+        controller: immich
         ports:
           http:
             port: &port 2283
@@ -136,54 +118,38 @@ spec:
         ports:
           http:
             port: 3003
-      valkey:
-        controller: valkey
-        ports:
-          http:
-            port: 6379
 
     ingress:
-      server:
+      immich:
         className: traefik
         annotations:
-          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          cert-manager.io/cluster-issuer: letsencrypt-production
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Home
           gethomepage.dev/name: Immich
-          gethomepage.dev/description: Photo managed
+          gethomepage.dev/description: Photo management
           gethomepage.dev/icon: immich
         hosts:
           - host: &host "{{ .Release.Name }}.${SECRET_INTERNAL_DOMAIN}"
             paths:
               - path: /
                 service:
-                  identifier: server
+                  identifier: immich
                   port: *port
         tls:
           - secretName: immich-tls
             hosts: [*host]
 
     persistence:
-      matplotlib:
-        type: emptyDir
-        advancedMounts:
-          server:
-            main:
-              - path: /config/matplotlib
-      library:
-        existingClaim: syncthing
-        advancedMounts:
-          server:
-            main:
-              - path: /library
       data:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 1Gi
+        size: 256Gi
+        retain: true
         advancedMounts:
-          server:
+          immich:
             main:
-              - path: /data
+              - path: /library
       machine-learning-cache:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
@@ -195,10 +161,16 @@ spec:
                 subPath: cache
               - path: /.cache
                 subPath: dotCache
+      matplotlib:
+        type: emptyDir
+        advancedMounts:
+          machine-learning:
+            main:
+              - path: /cache/matplotlib
       tmpfs:
         type: emptyDir
         advancedMounts:
-          server:
+          immich:
             main:
               - path: /usr/src/app/.reverse-geocoding-dump
                 subPath: geocoding
