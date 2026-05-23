@@ -8,3 +8,15 @@ resources:
   - ./externalsecret.yaml
   - ../../../database/cloudnative-pg/app/secret.sops.yaml
   - ./helmrelease.yaml
+# RD is dormant; a literal token avoids the manual="" loop and matches
+# lastManualSync after one no-op reconcile. Bump VOLSYNC_RESTORE_TRIGGER
+# in ks.yaml to fire an actual restore.
+patches:
+  - target:
+      group: volsync.backube
+      version: v1alpha1
+      kind: ReplicationDestination
+    patch: |
+      - op: replace
+        path: /spec/trigger/manual
+        value: bootstrap
