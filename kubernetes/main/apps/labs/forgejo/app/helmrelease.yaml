@@ -12,6 +12,7 @@ spec:
   values:
     image:
       rootless: true
+      # renovate: datasource=docker depName=code.forgejo.org/forgejo/forgejo
       tag: 15.0.2-rootless
     redis-cluster:
       enabled: false
@@ -25,11 +26,8 @@ spec:
       enabled: false
     persistence:
       enabled: true
-      create: true
+      create: false
       claimName: *app
-      storageClass: cluster-nvme
-      size: 20Gi
-      accessModes: [ReadWriteOnce]
     gitea:
       admin:
         username: ""
@@ -48,7 +46,7 @@ spec:
           OFFLINE_MODE: true
         database:
           DB_TYPE: postgres
-          HOST: postgres-1-rw.database.svc.cluster.local:5432
+          HOST: ${POSTGRES_HOST}:5432
           NAME: forgejo
           USER: forgejo
           SSL_MODE: disable
@@ -73,6 +71,7 @@ spec:
           MODE: console
           LEVEL: info
           LOGGER_ROUTER_MODE: console
+          ROOT_PATH: /data/gitea/log
         security:
           INSTALL_LOCK: true
           PASSWORD_HASH_ALGO: argon2
@@ -91,6 +90,12 @@ spec:
         enabled: true
         serviceMonitor:
           enabled: true
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        memory: 1Gi
     service:
       http:
         type: ClusterIP
@@ -162,7 +167,7 @@ spec:
                           - name: INIT_POSTGRES_DBNAME
                             value: forgejo
                           - name: INIT_POSTGRES_HOST
-                            value: postgres-1-rw.database.svc.cluster.local
+                            value: ${POSTGRES_HOST}
                           - name: INIT_POSTGRES_SUPER_PASS
                             valueFrom:
                               secretKeyRef:

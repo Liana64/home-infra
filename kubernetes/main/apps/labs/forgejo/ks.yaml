@@ -13,6 +13,8 @@ spec:
   dependsOn:
     - name: traefik
     - name: cloudnative-pg
+    - name: volsync
+    - name: kopia
   path: ./kubernetes/main/apps/labs/forgejo/app
   prune: true
   sourceRef:
@@ -25,3 +27,6 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
+      VOLSYNC_CAPACITY: 20Gi
+      VOLSYNC_STORAGECLASS: cluster-nvme
