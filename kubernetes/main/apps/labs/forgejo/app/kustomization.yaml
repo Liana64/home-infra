@@ -22,3 +22,11 @@ patches:
       - op: replace
         path: /spec/trigger/manual
         value: bootstrap
+  - target:
+      group: volsync.backube
+      version: v1alpha1
+      kind: ReplicationSource
+    patch: |
+      - op: replace
+        path: /spec/trigger/schedule
+        value: "30 */6 * * *"
