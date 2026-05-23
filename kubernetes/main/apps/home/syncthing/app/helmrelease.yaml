@@ -110,7 +110,6 @@ spec:
               - *host
             secretName: syncthing-tls
     persistence:
-      # TODO: volsync
       data:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce

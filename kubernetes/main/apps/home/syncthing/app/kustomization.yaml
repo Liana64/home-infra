@@ -2,5 +2,19 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+components:
+  - ../../../../components/volsync
 resources:
   - ./helmrelease.yaml
+# Dormant initial trigger: bump the manual token to fire the first
+# 700Gi sync, then switch to schedule once the upload completes.
+patches:
+  - target:
+      group: volsync.backube
+      version: v1alpha1
+      kind: ReplicationSource
+    patch: |
+      - op: replace
+        path: /spec/trigger
+        value:
+          manual: ""
