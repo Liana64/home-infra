@@ -31,7 +31,6 @@ spec:
     service:
       annotations:
         io.cilium/lb-ipam-ips: ${LB_TRAEFIK}
-        lbipam.cilium.io/sharing-key: "git"
     env:
       - name: TZ
         value: "${TIMEZONE}"
@@ -76,6 +75,12 @@ spec:
       metrics:
         expose:
           default: false
+      ssh:
+        port: 2222
+        exposedPort: 22
+        protocol: TCP
+        expose:
+          default: true
     metrics:
       serviceMonitor:
         enabled: true

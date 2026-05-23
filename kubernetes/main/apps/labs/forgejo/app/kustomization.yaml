@@ -6,4 +6,5 @@ resources:
   - ./secret.sops.yaml
   - ./helmrelease.yaml
   - ./networkpolicy.yaml
+  - ./ingressroutetcp.yaml
   - ../../../database/cloudnative-pg/app/secret.sops.yaml

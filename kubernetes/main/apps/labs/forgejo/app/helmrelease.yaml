@@ -12,6 +12,7 @@ spec:
   values:
     image:
       rootless: true
+      tag: 15.0.2-rootless
     redis-cluster:
       enabled: false
     valkey-cluster:
@@ -55,7 +56,7 @@ spec:
           ROOT: /data/git/repositories
           DEFAULT_BRANCH: main
         service:
-          DISABLE_REGISTRATION: false
+          DISABLE_REGISTRATION: true
           REQUIRE_SIGNIN_VIEW: true
           REGISTER_EMAIL_CONFIRM: false
           ENABLE_NOTIFY_MAIL: false
@@ -84,6 +85,8 @@ spec:
           ENABLED: true
         actions:
           ENABLED: false
+        other:
+          SHOW_FOOTER_VERSION: false
       metrics:
         enabled: true
         serviceMonitor:
@@ -93,12 +96,8 @@ spec:
         type: ClusterIP
         port: 3000
       ssh:
-        type: LoadBalancer
+        type: ClusterIP
         port: 22
-        annotations:
-          lbipam.cilium.io/ips: "${LB_TRAEFIK}"
-          lbipam.cilium.io/sharing-key: "git"
-        externalTrafficPolicy: Local
     ingress:
       enabled: true
       className: traefik
@@ -151,6 +150,8 @@ spec:
               kind: Deployment
               metadata:
                 name: forgejo
+                annotations:
+                  reloader.stakater.com/auto: "true"
               spec:
                 template:
                   spec:
