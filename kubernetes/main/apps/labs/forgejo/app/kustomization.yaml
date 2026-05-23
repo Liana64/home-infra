@@ -10,3 +10,14 @@ resources:
   - ./networkpolicy.yaml
   - ./ingressroutetcp.yaml
   - ../../../database/cloudnative-pg/app/secret.sops.yaml
+# Component default `${VOLSYNC_RESTORE_TRIGGER:=}` renders as null
+# under Flux envsubst; replace with a literal empty string.
+patches:
+  - target:
+      group: volsync.backube
+      version: v1alpha1
+      kind: ReplicationDestination
+    patch: |
+      - op: replace
+        path: /spec/trigger/manual
+        value: ""
