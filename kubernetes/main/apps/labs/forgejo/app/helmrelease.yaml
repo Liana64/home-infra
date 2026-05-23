@@ -26,8 +26,11 @@ spec:
       enabled: false
     persistence:
       enabled: true
-      create: false
+      create: true
       claimName: *app
+      storageClass: cluster-nvme
+      size: 20Gi
+      accessModes: [ReadWriteOnce]
     gitea:
       admin:
         username: ""
