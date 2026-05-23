@@ -7,6 +7,7 @@ components:
 resources:
   - ./externalsecret.yaml
   - ../../../database/cloudnative-pg/app/secret.sops.yaml
+  - ../../../../components/volsync/pvc.yaml
   - ./helmrelease.yaml
 # RD is dormant; a literal token avoids the manual="" loop and matches
 # lastManualSync after one no-op reconcile. Bump VOLSYNC_RESTORE_TRIGGER
