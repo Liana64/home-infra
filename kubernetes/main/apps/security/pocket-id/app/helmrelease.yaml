@@ -1,0 +1,133 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app pocket-id
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      pocket-id:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/liana64/postgres-init
+              tag: 16
+            env:
+              - name: INIT_POSTGRES_HOST
+                value: "postgres-1-rw.database.svc.cluster.local"
+              - name: INIT_POSTGRES_DBNAME
+                value: pocket-id
+              - name: INIT_POSTGRES_SUPER_PASS
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudnative-pg-secret
+                    key: password
+              - name: INIT_POSTGRES_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: &secret pocket-id-secret
+                    key: POCKET_ID_POSTGRES_USER
+              - name: INIT_POSTGRES_PASS
+                valueFrom:
+                  secretKeyRef:
+                    name: *secret
+                    key: POCKET_ID_POSTGRES_PASSWORD
+        containers:
+          app:
+            image:
+              repository: ghcr.io/pocket-id/pocket-id
+              tag: v2.7.0@sha256:45bdeaf3fcd6d07cf8721e98785d93324bb8e65b586498874c05a3d489c8094e
+            env:
+              APP_URL: "https://id.${PUBLIC_DOMAIN}"
+              DB_PROVIDER: postgres
+              ENCRYPTION_KEY_FILE: /encryption/ENCRYPTION_KEY
+              KEYS_PATH: /data/keys
+              UPLOAD_PATH: /data/uploads
+              ANALYTICS_DISABLED: "true"
+              TRUST_PROXY: "true"
+              TZ: "${TIMEZONE}"
+            envFrom:
+              - secretRef:
+                  name: *secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: &port 1411
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+        pod:
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        className: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Security
+          gethomepage.dev/name: Pocket ID
+          gethomepage.dev/description: OIDC provider
+          gethomepage.dev/icon: pocket-id
+        hosts:
+          - host: &host "id.${PUBLIC_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: pocket-id-tls
+            hosts: [*host]
+    persistence:
+      data:
+        existingClaim: *app
+        globalMounts:
+          - path: /data
+      var:
+        type: emptyDir
+        sizeLimit: 1Gi
+      encryption:
+        type: secret
+        name: pocket-id-encryption-secret
+        globalMounts:
+          - path: /encryption
+            readOnly: true
