@@ -18,3 +18,13 @@ patches:
         path: /spec/trigger
         value:
           manual: ""
+  # Component default `${VOLSYNC_RESTORE_TRIGGER:=}` renders as null
+  # under Flux envsubst; replace with a literal empty string.
+  - target:
+      group: volsync.backube
+      version: v1alpha1
+      kind: ReplicationDestination
+    patch: |
+      - op: replace
+        path: /spec/trigger/manual
+        value: ""
