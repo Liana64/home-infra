@@ -6,3 +6,4 @@ resources:
   - ./anubis/ks.yaml
   - ./lldap/ks.yaml
   - ./pocket-id/ks.yaml
+  - ./tinyauth/ks.yaml
