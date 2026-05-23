@@ -34,6 +34,9 @@ includes:
   ansible:
     taskfile: .taskfiles/ansible.yaml
     aliases: [a]
+  volsync:
+    taskfile: .taskfiles/volsync.yaml
+    aliases: [v]
   precommit: .taskfiles/precommit.yaml
 
 tasks:

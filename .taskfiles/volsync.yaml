@@ -1,0 +1,17 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  KOPIA_EXEC: "kubectl exec -n volsync-system deploy/kopia -c app --"
+
+tasks:
+  snapshots:
+    desc: List kopia snapshots across all sources
+    cmd: "{{.KOPIA_EXEC}} kopia snapshot list --all {{.CLI_ARGS}}"
+
+  stats:
+    desc: Show kopia repository content + storage stats
+    cmds:
+      - "{{.KOPIA_EXEC}} kopia repository status"
+      - "{{.KOPIA_EXEC}} kopia content stats"
