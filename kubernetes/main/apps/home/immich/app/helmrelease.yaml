@@ -130,7 +130,7 @@ spec:
           gethomepage.dev/description: Photo management
           gethomepage.dev/icon: immich
         hosts:
-          - host: &host "{{ .Release.Name }}.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "immich.${PUBLIC_DOMAIN}"
             paths:
               - path: /
                 service:
