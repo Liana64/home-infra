@@ -171,6 +171,41 @@ tasks:
       - msg: Unable to retrieve Talos config
         sh: "talosctl config info >/dev/null 2>&1"
 
+  disks:
+    desc: "Show PVC subscription and backing-disk usage on a node (usage: task talos:disks -- <node>)"
+    cmds:
+      - |
+        NODE="{{.CLI_ARGS}}"
+        echo "=== PVCs pinned to $NODE ==="
+        kubectl get pv -o json | jq -r --arg n "$NODE" '
+          def bytes: capture("(?<n>[0-9.]+)(?<u>[KMGTP]i?)") | (.n|tonumber) *
+            ({"Ki":1024,"Mi":1048576,"Gi":1073741824,"Ti":1099511627776}[.u]);
+          [.items[]
+           | select([.spec.nodeAffinity.required.nodeSelectorTerms[]?.matchExpressions[]?
+                     | select(."key"=="kubernetes.io/hostname") | .values[]] | index($n))
+           | {sc: .spec.storageClassName, size: .spec.capacity.storage,
+              claim: "\(.spec.claimRef.namespace)/\(.spec.claimRef.name)"}]
+          | group_by(.sc) | .[] as $g
+          | "── \($g[0].sc) ──",
+            ($g[] | "  \(.size)\t\(.claim)"),
+            "  Subscribed: \(([$g[].size | bytes] | add) / 1073741824 | floor) GiB",
+            ""'
+        echo "=== Backing pool usage on $NODE ==="
+        kubectl debug node/$NODE -i --image=busybox -q --profile=general -- sh -c '
+          printf "%-26s %6s %6s %6s  %s\n" "MOUNT" "SIZE" "USED" "AVAIL" "USE%"
+          for p in /host/var/mnt/local-pool /host/var/openebs/local; do
+            [ -d "$p" ] || continue
+            df -h "$p" | awk -v p="${p#/host}" "NR==2 { printf \"%-26s %6s %6s %6s  %s\n\", p, \$2, \$3, \$4, \$5 }"
+          done'
+        kubectl get pods -n default -o name 2>/dev/null \
+          | grep "^pod/node-debugger-$NODE-" \
+          | xargs -r kubectl delete -n default --ignore-not-found >/dev/null
+    requires:
+      vars: ["cluster"]
+    preconditions:
+      - msg: "Node not specified (usage: task talos:disks -- <node>)"
+        sh: '[ -n "{{.CLI_ARGS}}" ]'
+
   dashboard:
     desc: Show talos dashboard for nodes
     dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
