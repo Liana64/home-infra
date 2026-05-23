@@ -79,11 +79,15 @@ module "vm" {
   cores  = 2
   memory = 1536
 
-  disks = [{
-    size        = 20
-    file_id     = "${var.image_datastore_id}:iso/${each.value.staged_filename}"
-    file_format = "qcow2"
-  }]
+  disks = [
+    {
+      size        = 20
+      file_id     = "${var.image_datastore_id}:iso/${each.value.staged_filename}"
+      file_format = "qcow2"
+    },
+    { size = 12 },
+    { size = 8 },
+  ]
 
   networks = [{ bridge = "vmbr1", vlan_id = 80 }]
 
