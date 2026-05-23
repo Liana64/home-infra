@@ -49,9 +49,6 @@ spec:
                     --key="$B2_APPLICATION_KEY" \
                     --override-username=volsync \
                     --override-hostname=volsync.volsync-system.svc.cluster.local
-                  echo "=== kopia repository check ==="
-                  kopia repository check
-                  echo "=== kopia maintenance run --full ==="
                   kopia maintenance run --full
               securityContext:
                 allowPrivilegeEscalation: false
