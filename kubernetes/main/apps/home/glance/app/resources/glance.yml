@@ -1,0 +1,20 @@
+server:
+  host: 0.0.0.0
+  port: 8080
+
+theme:
+  background-color: 240 8 9
+  primary-color: 250 60 75
+  contrast-multiplier: 1.1
+
+pages:
+  - name: Home
+    columns:
+      - size: full
+        widgets:
+          - type: calendar
+            first-day-of-week: monday
+          - type: weather
+            location: Chicago, Illinois, United States
+            units: imperial
+            hour-format: 12h
