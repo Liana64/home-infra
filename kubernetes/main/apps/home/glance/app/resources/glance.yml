@@ -18,13 +18,8 @@ pages:
     columns:
       - size: small
         widgets:
-          - type: weather
-            location: Chicago, Illinois, United States
-            units: imperial
-            hour-format: 12h
           - type: calendar
             first-day-of-week: monday
-          - $include: /app/config/markets.yml
           - type: bookmarks
             groups:
               - title: Links
@@ -54,9 +49,16 @@ pages:
             feeds:
               - url: https://git.milberry.org/liana.atom
                 title: liana
+      - size: small
+        widgets:
+          - type: weather
+            location: Chicago, Illinois, United States
+            units: imperial
+            hour-format: 12h
+          - $include: /app/config/markets.yml
           - type: releases
             show-source-icon: true
-            collapse-after: 10
+            collapse-after: 5
             repositories:
               - siderolabs/talos
               - opnsense/core
