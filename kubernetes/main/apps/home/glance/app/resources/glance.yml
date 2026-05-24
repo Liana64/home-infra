@@ -3,34 +3,28 @@ server:
   port: 8080
 
 theme:
-  background-color: 240 8 9
-  primary-color: 250 60 75
+  background-color: 0 0 13
+  primary-color: 232 76 63
+  positive-color: 70 36 56
+  negative-color: 3 77 65
   contrast-multiplier: 1.1
 
 pages:
   - name: Home
+    head-widgets:
+      - type: search
+        search-engine: https://kagi.com/search?q={QUERY}
+        new-tab: true
     columns:
       - size: small
         widgets:
-          - type: search
-            search-engine: https://kagi.com/search?q={QUERY}
-            new-tab: true
-          - type: calendar
-            first-day-of-week: monday
           - type: weather
             location: Chicago, Illinois, United States
             units: imperial
             hour-format: 12h
-          - type: markets
-            markets:
-              - symbol: ^GSPC
-                name: S&P 500
-              - symbol: NOW
-                name: ServiceNow
-              - symbol: BKLC
-                name: BNY US Large Cap
-              - symbol: INOPDX
-                name: INOPDX
+          - type: calendar
+            first-day-of-week: monday
+          - $include: /app/config/markets.yml
           - type: bookmarks
             groups:
               - title: Links
@@ -45,7 +39,15 @@ pages:
                     url: https://git.milberry.org
       - size: full
         widgets:
-          - type: hacker-news
+          - type: group
+            widgets:
+              - type: hacker-news
+              - type: lobsters
+                sort-by: hot
+                limit: 18
+                collapse-after: 10
+          - $include: /app/config/videos.yml
+          - $include: /app/config/reddits.yml
           - type: rss
             title: Forgejo activity
             limit: 15
@@ -53,3 +55,25 @@ pages:
             feeds:
               - url: https://git.milberry.org/liana.atom
                 title: liana
+          - type: releases
+            show-source-icon: true
+            collapse-after: 10
+            repositories:
+              - siderolabs/talos
+              - opnsense/core
+              - immich-app/immich
+              - traefik/traefik
+              - atuinsh/atuin
+              - gethomepage/homepage
+              - jellyfin/jellyfin
+              - seerr-team/seerr
+              - sissbruecker/linkding
+              - miniflux/v2
+              - techarohq/anubis
+              - syncthing/syncthing
+              - open-webui/open-webui
+              - dragonflydb/dragonfly
+              - fluxcd/flux2
+              - Kozea/Radicale
+              - glanceapp/glance
+              - openebs/openebs
