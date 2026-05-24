@@ -46,7 +46,6 @@ pages:
                 sort-by: hot
                 limit: 18
                 collapse-after: 10
-          - $include: /app/config/videos.yml
           - $include: /app/config/reddits.yml
           - type: rss
             title: Forgejo activity
@@ -77,3 +76,8 @@ pages:
               - Kozea/Radicale
               - glanceapp/glance
               - openebs/openebs
+  - name: Videos
+    columns:
+      - size: full
+        widgets:
+          - $include: /app/config/videos.yml
