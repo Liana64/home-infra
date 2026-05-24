@@ -10,11 +10,46 @@ theme:
 pages:
   - name: Home
     columns:
-      - size: full
+      - size: small
         widgets:
+          - type: search
+            search-engine: https://kagi.com/search?q={QUERY}
+            new-tab: true
           - type: calendar
             first-day-of-week: monday
           - type: weather
             location: Chicago, Illinois, United States
             units: imperial
             hour-format: 12h
+          - type: markets
+            markets:
+              - symbol: ^GSPC
+                name: S&P 500
+              - symbol: NOW
+                name: ServiceNow
+              - symbol: BKLC
+                name: BNY US Large Cap
+              - symbol: INOPDX
+                name: INOPDX
+          - type: bookmarks
+            groups:
+              - title: Links
+                links:
+                  - title: Bookmarks
+                    url: https://bookmarks.milberry.org
+                  - title: RSS
+                    url: https://rss.labs.lianas.org
+                  - title: Labs
+                    url: https://labs.lianas.org
+                  - title: Forgejo
+                    url: https://git.milberry.org
+      - size: full
+        widgets:
+          - type: hacker-news
+          - type: rss
+            title: Forgejo activity
+            limit: 15
+            collapse-after: 5
+            feeds:
+              - url: https://git.milberry.org/liana.atom
+                title: liana
