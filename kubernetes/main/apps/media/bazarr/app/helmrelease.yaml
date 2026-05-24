@@ -28,6 +28,7 @@ spec:
 
         containers:
           app:
+            # renovate: datasource=docker depname=ghcr.io/liana64/bazarr
             image:
               repository: ghcr.io/liana64/bazarr
               tag: 1.5.6@sha256:580d09ab089e249a6afb9bbc89025bd4ebef09e560ce04d7b01a846ffe11d966

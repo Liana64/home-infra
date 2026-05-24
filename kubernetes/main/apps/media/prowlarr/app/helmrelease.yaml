@@ -24,9 +24,10 @@ spec:
             #fsGroupChangePolicy: OnRootMismatch
         containers:
           app:
+            # renovate: datasource=docker depName=ghcr.io/liana64/prowlarr-develop
             image:
               repository: ghcr.io/liana64/prowlarr-develop
-              tag: 2.3.2@sha256:553cb7fd675753d9d1bdeb67da3182ae8cea1c43c05e47da5c8e9a0d8c2c486e
+              tag: 2.3.7@sha256:ff2f0adf8714887d35d687e71e8e15260a5fae6571762b646cdea2061d9b364d
             env:
               COMPlus_EnableDiagnostics: "0"
               PROWLARR__INSTANCE_NAME: Prowlarr

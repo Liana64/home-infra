@@ -26,9 +26,10 @@ spec:
 
         containers:
           app:
+            # renovate: datasource=docker depName=ghcr.io/liana64/radarr-develop
             image:
               repository: ghcr.io/liana64/radarr-develop
-              tag: 6.1.1@sha256:f3fc13b7969858a1b40a6356044868e3da1a760da0716681775492a5549bf4de
+              tag: 6.2.0@sha256:a07cee38df27cc2ca19b2cdc259fc8fe0d57d037ce3001cddc086d121bb1a684
             env:
               COMPlus_EnableDiagnostics: "0"
               RADARR__INSTANCE_NAME: Radarr
