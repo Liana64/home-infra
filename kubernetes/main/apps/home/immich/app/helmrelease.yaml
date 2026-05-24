@@ -59,9 +59,14 @@ spec:
                   secretKeyRef:
                     name: cloudnative-pg-secret
                     key: password
+        pod:
+          runtimeClassName: nvidia
+          nodeSelector:
+            feature.node.kubernetes.io/pci-10de.present: "true"
         containers:
           main:
             image:
+              # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
               repository: ghcr.io/immich-app/immich-server
               tag: v2.7.5@sha256:c15bff75068effb03f4355997d03dc7e0fc58720c2b54ad6f7f10d1bc57efaa5
             envFrom:
@@ -72,9 +77,11 @@ spec:
             resources:
               requests:
                 cpu: 100m
-                memory: 256Mi
+                memory: 512Mi
+                nvidia.com/gpu: 1
               limits:
-                memory: 4Gi
+                memory: 8Gi
+                nvidia.com/gpu: 1
 
       machine-learning:
         strategy: RollingUpdate
@@ -89,6 +96,7 @@ spec:
         containers:
           main:
             image:
+              # renovate: datasource=docker depName=ghcr.io/immich-app/immich-machine-learning
               repository: ghcr.io/immich-app/immich-machine-learning
               tag: v2.7.5-cuda@sha256:304142175e345f0155d7642f637cfdceae60e89075ff03938cb2886d52c65a62
             envFrom:
@@ -113,11 +121,30 @@ spec:
         ports:
           http:
             port: &port 2283
+          metrics-api:
+            port: 8081
+          metrics-ms:
+            port: 8082
       machine-learning:
         controller: machine-learning
         ports:
           http:
             port: 3003
+
+    serviceMonitor:
+      immich:
+        serviceName: immich
+        endpoints:
+          - port: metrics-api
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
+          - port: metrics-ms
+            scheme: http
+            path: /metrics
+            interval: 1m
+            scrapeTimeout: 10s
 
     ingress:
       immich:

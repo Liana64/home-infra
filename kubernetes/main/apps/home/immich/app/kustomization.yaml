@@ -8,6 +8,7 @@ resources:
   - ../../../database/cloudnative-pg/app/secret.sops.yaml
   - ./configmap.yaml
   - ./helmrelease.yaml
+  - ./prometheusrule.yaml
   - ./secret.sops.yaml
 patches:
   - target:

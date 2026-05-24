@@ -1,0 +1,42 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: immich-rules
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: immich.rules
+      rules:
+        - alert: ImmichPVCNearlyFull
+          annotations:
+            summary: Immich library PVC is over 80% full.
+            description: |
+              {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} is at
+              {{ $value | humanizePercentage }} of capacity. Plan a resize
+              (cluster-nvme has no in-place expansion — new PVC + rsync).
+          expr: |-
+            kubelet_volume_stats_used_bytes{namespace="home",persistentvolumeclaim="immich"}
+              /
+            kubelet_volume_stats_capacity_bytes{namespace="home",persistentvolumeclaim="immich"}
+              > 0.80
+          for: 15m
+          labels:
+            severity: warning
+        - alert: ImmichPVCAlmostFull
+          annotations:
+            summary: Immich library PVC is over 90% full.
+            description: |
+              {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} is at
+              {{ $value | humanizePercentage }} of capacity. Resize now.
+          expr: |-
+            kubelet_volume_stats_used_bytes{namespace="home",persistentvolumeclaim="immich"}
+              /
+            kubelet_volume_stats_capacity_bytes{namespace="home",persistentvolumeclaim="immich"}
+              > 0.90
+          for: 5m
+          labels:
+            severity: critical
