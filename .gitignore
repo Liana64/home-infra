@@ -29,3 +29,6 @@ identity
 *.tfvars
 *.tfvars.*
 .terraform.lock.hcl
+
+# Misc
+.claude
