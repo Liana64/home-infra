@@ -7,6 +7,7 @@ components:
 resources:
   - ../../../database/cloudnative-pg/app/secret.sops.yaml
   - ./configmap.yaml
+  - ./dashboard.yaml
   - ./helmrelease.yaml
   - ./prometheusrule.yaml
   - ./secret.sops.yaml
@@ -20,6 +21,9 @@ patches:
         path: /spec/trigger
         value:
           schedule: "0 4 * * *"
+      - op: replace
+        path: /spec/sourcePVC
+        value: immich-data
   - patch: |
       $patch: delete
       apiVersion: volsync.backube/v1alpha1
