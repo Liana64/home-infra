@@ -114,3 +114,10 @@ variable "hostpci" {
   }))
   default = []
 }
+
+# Appended to qemu-server's `args:` line. PVE's sanctioned escape hatch for
+# devices it doesn't model natively (e.g. virtual usb-storage backed by a file).
+variable "kvm_arguments" {
+  type    = string
+  default = null
+}

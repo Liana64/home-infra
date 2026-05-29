@@ -2,7 +2,13 @@ locals {
   qcow2_filename_map = {
     "8.4"  = "rhel-8.4-x86_64-kvm.qcow2"
     "9.2"  = "rhel-9.2-x86_64-kvm.qcow2"
-    "10.1" = "rhel-10.1-x86_64-kvm.qcow2"
+    "10.2" = "rhel-10.2-x86_64-kvm.qcow2"
+  }
+
+  mac_address_map = {
+    "8.4"  = "BC:24:11:B1:D7:E1"
+    "9.2"  = "BC:24:11:B6:50:3D"
+    "10.2" = "BC:24:11:20:13:08"
   }
 
   # Build a keyed map so terraform_data and the VM module can for_each over
@@ -20,6 +26,10 @@ locals {
       staged_filename = replace(local.qcow2_filename_map[ver], ".qcow2", ".img")
       vm_name         = "lab-rhel${split(".", ver)[0]}-${var.target_node}"
       vm_id           = var.vm_id_base + idx
+      # 250MB raw image backing the virtual usb-storage device. Path mirrors
+      # where PVE parks per-VM artifacts on `local`; created on first apply
+      # since this project's primary disks live on local-ssd.
+      usb_image_path = "/var/lib/vz/images/${var.vm_id_base + idx}/usb-flash.raw"
     }
   }
 }
@@ -66,6 +76,41 @@ resource "terraform_data" "rhel_qcow2" {
   }
 }
 
+# Generic virtual USB devices for usbguard testing: a HID mouse, a HID
+# keyboard, and a 250MB mass-storage device backed by a raw image. PVE has
+# no first-class config for usb-storage with a backing file, so we go
+# through qemu-server's `args:` line (the sanctioned escape hatch).
+resource "terraform_data" "usb_flash" {
+  for_each = local.labs
+
+  triggers_replace = {
+    target = var.target_node
+    path   = each.value.usb_image_path
+    size   = "250M"
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      set -eu
+      ssh -o StrictHostKeyChecking=accept-new \
+        ansible@${var.target_node}.lianas.org \
+        sudo install -d -m 0750 -o root -g root $(dirname ${each.value.usb_image_path})
+      ssh -o StrictHostKeyChecking=accept-new \
+        ansible@${var.target_node}.lianas.org \
+        "sudo test -f ${each.value.usb_image_path} || sudo truncate -s 250M ${each.value.usb_image_path}"
+    EOT
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<-EOT
+      ssh -o StrictHostKeyChecking=accept-new \
+        ansible@${self.triggers_replace.target}.lianas.org \
+        sudo rm -f ${self.triggers_replace.path}
+    EOT
+  }
+}
+
 module "vm" {
   for_each = local.labs
   source   = "../../modules/proxmox-vm"
@@ -89,7 +134,14 @@ module "vm" {
     { size = 8 },
   ]
 
-  networks = [{ bridge = "vmbr1", vlan_id = 80 }]
+  networks = [{ bridge = "vmbr1", vlan_id = 80, mac_address = local.mac_address_map[each.key] }]
+
+  kvm_arguments = join(" ", [
+    "-device usb-mouse,id=usbguard-mouse",
+    "-device usb-kbd,id=usbguard-kbd",
+    "-drive if=none,id=usbguard-flash,file=${each.value.usb_image_path},format=raw,cache=none",
+    "-device usb-storage,drive=usbguard-flash,id=usbguard-flash,serial=usbguard-test",
+  ])
 
   cloud_init = {
     user_account = {
@@ -106,7 +158,7 @@ module "vm" {
     }]
   }
 
-  depends_on = [terraform_data.rhel_qcow2]
+  depends_on = [terraform_data.rhel_qcow2, terraform_data.usb_flash]
 }
 
 output "labs" {

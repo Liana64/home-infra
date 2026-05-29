@@ -23,4 +23,13 @@ provider "proxmox" {
   username = var.proxmox_hosts[var.target_node].username
   password = var.proxmox_hosts[var.target_node].password
   insecure = true
+
+  # API auth runs as root@pam (only root may set the `args:` line). Node-level
+  # operations (qcow2 disk import) go over SSH as an unprivileged user with
+  # NOPASSWD sudo, so no root SSH access is granted. The provider prepends
+  # sudo automatically for pvesm/qm/tee.
+  ssh {
+    agent    = true
+    username = "ansible"
+  }
 }

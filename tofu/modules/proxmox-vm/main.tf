@@ -8,11 +8,12 @@ terraform {
 }
 
 resource "proxmox_virtual_environment_vm" "this" {
-  name      = var.name
-  node_name = var.target_node
-  vm_id     = var.vm_id
-  on_boot   = var.on_boot
-  started   = true
+  name          = var.name
+  node_name     = var.target_node
+  vm_id         = var.vm_id
+  on_boot       = var.on_boot
+  started       = true
+  kvm_arguments = var.kvm_arguments
 
   startup {
     order = var.startup_order
