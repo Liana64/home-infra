@@ -4,7 +4,7 @@ server:
 
 theme:
   background-color: 0 0 13
-  primary-color: 232 76 63
+  primary-color: 344 47 68
   positive-color: 70 36 56
   negative-color: 3 77 65
   contrast-multiplier: 1.1
@@ -20,35 +20,71 @@ pages:
         widgets:
           - type: calendar
             first-day-of-week: monday
+          - $include: /app/config/events.yml
           - type: bookmarks
             groups:
-              - title: Links
+              - title: Lab
                 links:
+                  - title: Dashboard
+                    url: https://labs.lianas.org
                   - title: Bookmarks
                     url: https://bookmarks.milberry.org
                   - title: RSS
                     url: https://rss.labs.lianas.org
-                  - title: Labs
-                    url: https://labs.lianas.org
                   - title: Forgejo
                     url: https://git.milberry.org
+              - title: Links
+                links:
+                  - title: Weekly Meal Plan
+                    url: https://docs.google.com/document/d/1-267mJ9Km8iLBJym0Hw0ZzYB6mrTGJaP-F5OHjJEMNc/edit?tab=t.0
+                  - title: Hardware Prices
+                    url: https://pcpartpicker.com/trends/
       - size: full
         widgets:
           - type: group
             widgets:
+              - type: rss
+                title: LWN
+                limit: 15
+                collapse-after: 5
+                feeds:
+                  - url: https://lwn.net/headlines/rss
               - type: hacker-news
               - type: lobsters
                 sort-by: hot
                 limit: 18
                 collapse-after: 10
+              - type: rss
+                title: Chicago
+                limit: 15
+                collapse-after: 5
+                feeds:
+                  - url: https://chicago.suntimes.com/rss/index.xml
+              - type: rss
+                title: Naked Capitalism
+                limit: 15
+                collapse-after: 5
+                feeds:
+                  - url: https://www.nakedcapitalism.com/feed
           - $include: /app/config/reddits.yml
-          - type: rss
+          - type: custom-api
             title: Forgejo activity
-            limit: 15
-            collapse-after: 5
-            feeds:
-              - url: https://git.milberry.org/liana.atom
-                title: liana
+            cache: 30m
+            url: https://git.milberry.org/api/v1/users/liana/activities/feeds?limit=15
+            headers:
+              Authorization: token ${FORGEJO_TOKEN}
+            template: |
+              <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
+              {{ range .JSON.Array "" }}
+                <li>
+                  <a class="size-h4 color-primary-if-not-visited block text-truncate" href="{{ .String "repo.html_url" }}" target="_blank">{{ .String "repo.full_name" }}</a>
+                  <ul class="list-horizontal-text">
+                    <li>{{ replaceAll "_" " " (.String "op_type") }}</li>
+                    <li {{ .String "created" | parseTime "rfc3339" | toRelativeTime }}></li>
+                  </ul>
+                </li>
+              {{ end }}
+              </ul>
       - size: small
         widgets:
           - type: weather
@@ -56,12 +92,20 @@ pages:
             units: imperial
             hour-format: 12h
           - $include: /app/config/markets.yml
+          - type: custom-api
+            title: xkcd
+            cache: 12h
+            url: https://xkcd.com/info.0.json
+            template: |
+              <a href="https://xkcd.com/{{ .JSON.Int "num" }}" target="_blank">
+                <img src="{{ .JSON.String "img" }}" alt="{{ .JSON.String "alt" }}" title="{{ .JSON.String "alt" }}" referrerpolicy="no-referrer" style="max-width:100%;height:auto">
+              </a>
+              <p style="margin-top:.5rem;font-size:.9em">{{ .JSON.String "title" }}</p>
           - type: releases
             show-source-icon: true
             collapse-after: 5
             repositories:
               - siderolabs/talos
-              - opnsense/core
               - immich-app/immich
               - traefik/traefik
               - atuinsh/atuin
@@ -78,6 +122,13 @@ pages:
               - Kozea/Radicale
               - glanceapp/glance
               - openebs/openebs
+  - name: Local
+    columns:
+      - size: full
+        widgets:
+          - type: reddit
+            subreddit: chicago
+            show-thumbnails: true
   - name: Videos
     columns:
       - size: full

@@ -23,6 +23,11 @@ spec:
               tag: v0.8.4@sha256:6df86a7e8868d1eda21f35205134b1962c422957e42a0c44d4717c8e8f741b1a
             env:
               TZ: ${TIMEZONE}
+              FORGEJO_TOKEN:
+                valueFrom:
+                  secretKeyRef:
+                    name: glance-includes
+                    key: forgejo-token
             probes:
               liveness: &probes
                 enabled: true
@@ -102,6 +107,9 @@ spec:
             readOnly: true
           - subPath: markets.yml
             path: /app/config/markets.yml
+            readOnly: true
+          - subPath: events.yml
+            path: /app/config/events.yml
             readOnly: true
       tmp:
         type: emptyDir
