@@ -1,0 +1,109 @@
+---
+- name: Configure scheduled automatic updates on Proxmox VE
+  hosts: proxmox
+  become: true
+  vars:
+    notify_email: mail@lianas.org
+    update_schedule: "Sat *-*-* 08:00:00"
+    update_script: /usr/local/sbin/pve-auto-update.sh
+
+  tasks:
+    - name: Ensure local mail client is present (relays via Proxmox postfix)
+      ansible.builtin.apt:
+        name: bsd-mailx
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Deploy the auto-update script
+      ansible.builtin.copy:
+        dest: "{{ update_script }}"
+        owner: root
+        group: root
+        mode: "0755"
+        content: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+          export DEBIAN_FRONTEND=noninteractive
+
+          apt-get update
+          apt-get -y \
+            -o Dpkg::Options::="--force-confdef" \
+            -o Dpkg::Options::="--force-confold" \
+            dist-upgrade
+          apt-get -y --purge autoremove
+
+          needs_reboot() {
+            [ -f /var/run/reboot-required ] && return 0
+            [ -f /run/reboot-required ] && return 0
+            local running latest
+            running="$(uname -r)"
+            latest="$(ls -1 /boot/vmlinuz-* 2>/dev/null \
+              | sed 's#.*/vmlinuz-##' | sort -V | tail -n1)"
+            [ -n "$latest" ] && [ "$running" != "$latest" ] && return 0
+            return 1
+          }
+
+          if needs_reboot; then
+            {
+              echo "Host:    $(hostname -f)"
+              echo "Running: $(uname -r)"
+              echo "Date:    $(date -Is)"
+              echo
+              echo "A package update requires a reboot."
+              if [ -f /var/run/reboot-required.pkgs ]; then
+                echo
+                echo "Packages requesting reboot:"
+                cat /var/run/reboot-required.pkgs
+              fi
+            } | mail -s "[Proxmox] Reboot required on $(hostname)" {{ notify_email }}
+          fi
+
+    - name: Deploy the systemd service unit
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/pve-auto-update.service
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Proxmox VE automatic update
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=oneshot
+          ExecStart={{ update_script }}
+
+    - name: Deploy the systemd timer unit
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/pve-auto-update.timer
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Run Proxmox VE automatic update on schedule
+
+          [Timer]
+          OnCalendar={{ update_schedule }}
+          Persistent=true
+
+          [Install]
+          WantedBy=timers.target
+
+    - name: Enable and start the update timer
+      ansible.builtin.systemd:
+        name: pve-auto-update.timer
+        enabled: true
+        state: started
+        daemon_reload: true
+
+    - name: Send a test notification email
+      ansible.builtin.command:
+        cmd: mail -s "[Proxmox] Auto-update configured on {{ ansible_hostname }}" {{ notify_email }}
+        stdin: >-
+          Automatic updates are now configured on {{ ansible_fqdn }}.
+          Schedule: {{ update_schedule }}.
+          This is a test message confirming mail delivery works.
+      changed_when: false
