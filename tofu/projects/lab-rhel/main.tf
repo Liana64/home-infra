@@ -119,10 +119,11 @@ module "vm" {
   datastore_id = var.datastore_id
   iso          = "none"
 
-  name   = each.value.vm_name
-  vm_id  = each.value.vm_id
-  cores  = 2
-  memory = 1536
+  name     = each.value.vm_name
+  vm_id    = each.value.vm_id
+  cores    = 2
+  memory   = 2048
+  cpu_type = "host"
 
   disks = [
     {
