@@ -1392,13 +1392,13 @@ data:
               "type": "prometheus",
               "uid": "prometheus"
             },
-            "definition": "label_values({service_name=\"immich-server\"},namespace)",
+            "definition": "label_values(up{job=\"immich\"}, namespace)",
             "includeAll": false,
             "name": "NAMESPACE",
             "options": [],
             "query": {
               "qryType": 1,
-              "query": "label_values({service_name=\"immich-server\"},namespace)",
+              "query": "label_values(up{job=\"immich\"}, namespace)",
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             },
             "refresh": 2,
@@ -1427,4 +1427,4 @@ metadata:
   labels:
     grafana_dashboard: "1"
   annotations:
-    grafana_folder: Home
+    grafana_folder: Apps
