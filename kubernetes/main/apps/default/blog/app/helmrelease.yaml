@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/liana64/blog
-              tag: latest@sha256:da98ce576c6ace862c6fa7b10630593f050ade18b89fd7e32e3b1bbb5f2a9dbc
+              tag: latest
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
