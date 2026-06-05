@@ -21,10 +21,20 @@ spec:
             image:
               repository: ghcr.io/nicolaka/netshoot
               tag: latest
-            command: ["/bin/bash"]
-            args: ["-c", "while true; do ping localhost; sleep 60; done"]
+            command: ["iperf3"]
+            args: ["-s", "-p", "5201"]
             env:
               TZ: "${TIMEZONE}"
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  tcpSocket:
+                    port: &port 5201
+                  initialDelaySeconds: 0
+                  periodSeconds: 30
+                  failureThreshold: 3
             securityContext:
               capabilities: { drop: ["ALL"] }
             resources:
@@ -32,6 +42,20 @@ spec:
                 cpu: 10m
               limits:
                 memory: 64Mi
+    service:
+      app:
+        controller: app
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: "${LB_IPERF3}"
+        externalTrafficPolicy: Local
+        ports:
+          iperf-tcp:
+            port: *port
+            protocol: TCP
+          iperf-udp:
+            port: 5201
+            protocol: UDP
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
