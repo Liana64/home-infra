@@ -25,4 +25,5 @@ spec:
       containerdSock: /run/containerd/containerd.sock
       #containerdRegistryConfigPath: /etc/cri/conf.d/hosts
       containerdRegistryConfigPath: /var/etc/containerd/certs.d
-      resolveLatestTag: false
+      registryFilters:
+        - ".*:latest$"
