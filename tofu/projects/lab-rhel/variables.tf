@@ -1,23 +1,6 @@
-variable "rhel_versions" {
-  type        = list(string)
-  description = "RHEL versions to deploy. Each entry spawns its own VM."
-  default     = ["8.4", "9.2", "10.2"]
-
-  validation {
-    condition     = alltrue([for v in var.rhel_versions : contains(["8.4", "9.2", "10.2"], v)])
-    error_message = "Supported versions: 8.4, 9.2, 10.2. Add more to qcow2_filename_map in main.tf."
-  }
-}
-
 variable "target_node" {
   type    = string
   default = "n3"
-}
-
-variable "vm_id_base" {
-  type        = number
-  description = "Each lab VM gets vm_id_base + its index in rhel_versions."
-  default     = 400
 }
 
 variable "datastore_id" {

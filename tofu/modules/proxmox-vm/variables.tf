@@ -97,6 +97,11 @@ variable "on_boot" {
   default = true
 }
 
+variable "started" {
+  type    = bool
+  default = true
+}
+
 variable "serial_device" {
   type    = string
   default = null

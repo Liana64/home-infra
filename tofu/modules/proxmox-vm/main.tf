@@ -12,7 +12,7 @@ resource "proxmox_virtual_environment_vm" "this" {
   node_name     = var.target_node
   vm_id         = var.vm_id
   on_boot       = var.on_boot
-  started       = true
+  started       = var.started
   kvm_arguments = var.kvm_arguments
 
   startup {

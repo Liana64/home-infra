@@ -1,8 +1,9 @@
 # lab-rhel
 
 VMs for Red Hat Certified Architect (RHCA) study, see [notes](https://github.com/Liana64/RHCA).
-One VM per RHEL version, each with three virtual USB devices (HID mouse, HID
-keyboard, 250MB mass-storage) for usbguard practice.
+One VM per instance in `local.instances`, each with three virtual USB devices
+(HID mouse, HID keyboard, 250MB mass-storage) for usbguard practice. Instances
+of the same RHEL version share one staged cloud image.
 
 ## Usage
 
@@ -31,8 +32,8 @@ Download images from [access.redhat.com](https://access.redhat.com/) with a
 - `rhel-9.2-x86_64-kvm.qcow2`
 - `rhel-10.2-x86_64-kvm.qcow2`
 
-Adjust `qcow2_filename_map` and the `rhel_versions` validator in `main.tf` /
-`variables.tf` to add versions.
+Add a version to `qcow2_filename_map`, then add instances referencing it to
+`local.instances` (each needs a unique map key, `vm_id`, and `mac`).
 
 ## Auth
 
@@ -46,8 +47,8 @@ provider `ssh {}` block; no root SSH is granted.
 VMs carry `prevent_destroy`, so `-replace` and `destroy` are blocked. To rebuild:
 
 ```sh
-tofu state rm 'module.vm["8.4"]' 'module.vm["9.2"]' 'module.vm["10.2"]'
-ssh ansible@n3.lianas.org 'for id in 400 401 402; do sudo qm stop $id; sudo qm destroy $id --purge; done'
+tofu state rm 'module.vm["8.4"]' 'module.vm["9.2"]' 'module.vm["10.2"]' 'module.vm["9.2-b"]'
+ssh ansible@n3.lianas.org 'for id in 400 401 402 403; do sudo qm stop $id; sudo qm destroy $id --purge; done'
 tofu apply
 ```
 

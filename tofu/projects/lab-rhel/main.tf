@@ -5,41 +5,40 @@ locals {
     "10.2" = "rhel-10.2-x86_64-kvm.qcow2"
   }
 
-  mac_address_map = {
-    "8.4"  = "BC:24:11:B1:D7:E1"
-    "9.2"  = "BC:24:11:B6:50:3D"
-    "10.2" = "BC:24:11:20:13:08"
+  # Source of truth for VM identity. Map key is the state address; the first instance per version keeps the bare version so existing state survives. enabled defaults false (powered off, autostart disabled).
+  instances = {
+    "8.4"   = { version = "8.4", environment = "a", vm_id = 400, mac = "BC:24:11:B1:D7:E1" }
+    "9.2"   = { version = "9.2", environment = "a", vm_id = 401, mac = "BC:24:11:B6:50:3D", enabled = true }
+    "9.2-b" = { version = "9.2", environment = "b", vm_id = 403, mac = "BC:24:11:B6:50:3E", enabled = true }
+    "10.2"  = { version = "10.2", environment = "a", vm_id = 402, mac = "BC:24:11:20:13:08", enabled = true }
   }
 
-  # Build a keyed map so terraform_data and the VM module can for_each over
-  # the same set of labs. Keyed by version string so VM identity is stable
-  # regardless of list ordering.
-  labs = {
-    for idx, ver in var.rhel_versions :
+  # One staged image per version, shared by all its instances (must not re-stage or race the destroy rm).
+  versions = {
+    for ver, file in local.qcow2_filename_map :
     ver => {
-      qcow2_filename   = local.qcow2_filename_map[ver]
-      qcow2_local_path = "${path.module}/images/${local.qcow2_filename_map[ver]}"
-      # PVE's iso content parser accepts .iso/.img but older versions reject
-      # .qcow2 (parse error: "unable to parse directory volume name"). Stage
-      # under a .img name; file_format="qcow2" on the disk tells the import
-      # path what the bytes actually are.
-      staged_filename = replace(local.qcow2_filename_map[ver], ".qcow2", ".img")
-      vm_name         = "lab-rhel${split(".", ver)[0]}-${var.target_node}"
-      vm_id           = var.vm_id_base + idx
-      # 250MB raw image backing the virtual usb-storage device. Path mirrors
-      # where PVE parks per-VM artifacts on `local`; created on first apply
-      # since this project's primary disks live on local-ssd.
-      usb_image_path = "/var/lib/vz/images/${var.vm_id_base + idx}/usb-flash.raw"
+      qcow2_local_path = "${path.module}/images/${file}"
+      # PVE's iso parser rejects .qcow2; stage as .img and let file_format="qcow2" describe the bytes.
+      staged_filename = replace(file, ".qcow2", ".img")
     }
+  }
+
+  # Enrich each instance with its derived, version-shared fields.
+  vms = {
+    for key, inst in local.instances :
+    key => merge(inst, {
+      enabled         = try(inst.enabled, false)
+      vm_name         = "lab-rhel${split(".", inst.version)[0]}-${inst.environment}"
+      staged_filename = local.versions[inst.version].staged_filename
+      # 250MB raw image backing the virtual usb-storage device, parked under PVE's per-VM `local` path.
+      usb_image_path = "/var/lib/vz/images/${inst.vm_id}/usb-flash.raw"
+    })
   }
 }
 
-# The bpg provider uploads `proxmox_virtual_environment_file` through PVE's
-# HTTP API, which chokes on large qcow2 files (pveproxy closes the
-# connection mid-stream). Stage via scp using the ansible service account
-# (NOPASSWD sudo, agent auth), then reference the staged path.
+# Stage qcow2 via scp+ssh (ansible NOPASSWD sudo); the provider's HTTP upload chokes on large images.
 resource "terraform_data" "rhel_qcow2" {
-  for_each = local.labs
+  for_each = local.versions
 
   triggers_replace = {
     file_hash = filemd5(each.value.qcow2_local_path)
@@ -64,8 +63,7 @@ resource "terraform_data" "rhel_qcow2" {
     EOT
   }
 
-  # Clean up the staged image on destroy. Destroy provisioners can only see
-  # `self`, so we pull filename/target from triggers_replace.
+  # Destroy provisioners see only `self`, so pull filename/target from triggers_replace.
   provisioner "local-exec" {
     when    = destroy
     command = <<-EOT
@@ -76,12 +74,9 @@ resource "terraform_data" "rhel_qcow2" {
   }
 }
 
-# Generic virtual USB devices for usbguard testing: a HID mouse, a HID
-# keyboard, and a 250MB mass-storage device backed by a raw image. PVE has
-# no first-class config for usb-storage with a backing file, so we go
-# through qemu-server's `args:` line (the sanctioned escape hatch).
+# Virtual USB devices for usbguard testing (HID mouse, HID keyboard, 250MB mass-storage), wired via qemu's `args:`.
 resource "terraform_data" "usb_flash" {
-  for_each = local.labs
+  for_each = local.vms
 
   triggers_replace = {
     target = var.target_node
@@ -112,7 +107,7 @@ resource "terraform_data" "usb_flash" {
 }
 
 module "vm" {
-  for_each = local.labs
+  for_each = local.vms
   source   = "../../modules/proxmox-vm"
 
   target_node  = var.target_node
@@ -124,6 +119,8 @@ module "vm" {
   cores    = 2
   memory   = 2048
   cpu_type = "host"
+  started  = each.value.enabled
+  on_boot  = each.value.enabled
 
   disks = [
     {
@@ -135,7 +132,7 @@ module "vm" {
     { size = 8 },
   ]
 
-  networks = [{ bridge = "vmbr1", vlan_id = 80, mac_address = local.mac_address_map[each.key] }]
+  networks = [{ bridge = "vmbr1", vlan_id = 80, mac_address = each.value.mac }]
 
   kvm_arguments = join(" ", [
     "-device usb-mouse,id=usbguard-mouse",
@@ -163,13 +160,13 @@ module "vm" {
 }
 
 output "labs" {
-  description = "Map of deployed labs keyed by RHEL version."
+  description = "Map of deployed labs keyed by instance."
   value = {
-    for ver, lab in local.labs :
-    ver => {
-      vm_id          = module.vm[ver].vm_id
-      vm_name        = lab.vm_name
-      ipv4_addresses = module.vm[ver].ipv4_addresses
+    for key, vm in local.vms :
+    key => {
+      vm_id          = module.vm[key].vm_id
+      vm_name        = vm.vm_name
+      ipv4_addresses = module.vm[key].ipv4_addresses
     }
   }
 }
