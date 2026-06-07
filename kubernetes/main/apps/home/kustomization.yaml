@@ -12,5 +12,5 @@ resources:
   - ./grocy/ks.yaml
   - ./radicale/ks.yaml
   - ./immich/ks.yaml
-  #- ./n8n/ks.yaml
+  - ./n8n/ks.yaml
   - ./opengist/ks.yaml
