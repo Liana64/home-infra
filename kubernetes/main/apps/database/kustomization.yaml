@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./dragonfly/ks.yaml
+  - ./qdrant/ks.yaml
   - ./cloudnative-pg/ks.yaml
   - ./cnpg-barman-plugin/ks.yaml
   - ./pgadmin/ks.yaml
