@@ -102,9 +102,6 @@ spec:
           - subPath: videos.yml
             path: /app/config/videos.yml
             readOnly: true
-          - subPath: reddits.yml
-            path: /app/config/reddits.yml
-            readOnly: true
           - subPath: markets.yml
             path: /app/config/markets.yml
             readOnly: true

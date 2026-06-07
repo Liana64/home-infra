@@ -43,13 +43,13 @@ pages:
         widgets:
           - type: group
             widgets:
+              - type: hacker-news
               - type: rss
                 title: LWN
                 limit: 15
                 collapse-after: 5
                 feeds:
                   - url: https://lwn.net/headlines/rss
-              - type: hacker-news
               - type: lobsters
                 sort-by: hot
                 limit: 18
@@ -66,7 +66,6 @@ pages:
                 collapse-after: 5
                 feeds:
                   - url: https://www.nakedcapitalism.com/feed
-          - $include: /app/config/reddits.yml
           - type: custom-api
             title: Forgejo activity
             cache: 30m
@@ -76,6 +75,7 @@ pages:
             template: |
               <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
               {{ range .JSON.Array "" }}
+                {{ if .Exists "repo.full_name" }}
                 <li>
                   <a class="size-h4 color-primary-if-not-visited block text-truncate" href="{{ .String "repo.html_url" }}" target="_blank">{{ .String "repo.full_name" }}</a>
                   <ul class="list-horizontal-text">
@@ -83,6 +83,7 @@ pages:
                     <li {{ .String "created" | parseTime "rfc3339" | toRelativeTime }}></li>
                   </ul>
                 </li>
+                {{ end }}
               {{ end }}
               </ul>
       - size: small
@@ -122,13 +123,6 @@ pages:
               - Kozea/Radicale
               - glanceapp/glance
               - openebs/openebs
-  - name: Local
-    columns:
-      - size: full
-        widgets:
-          - type: reddit
-            subreddit: chicago
-            show-thumbnails: true
   - name: Videos
     columns:
       - size: full
