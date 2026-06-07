@@ -33,5 +33,8 @@ data:
   LB_GIT_SERVER: "172.16.5.20"
   LB_IPERF3: "172.16.5.21"
 
+  # MCP servers (.40+)
+  LB_QDRANT_MCP: "172.16.5.40"
+
   # Backups
   CNPG_B2_REGION: "us-east-005"

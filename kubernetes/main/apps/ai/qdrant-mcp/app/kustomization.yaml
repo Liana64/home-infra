@@ -3,11 +3,5 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./namespace.yaml
   - ./networkpolicy.yaml
-  - ./filebrowser/ks.yaml
-  #- ./openclaw/ks.yaml
-  - ./claude-code/ks.yaml
-  - ./ollama/ks.yaml
-  - ./open-webui/ks.yaml
-  - ./qdrant-mcp/ks.yaml
+  - ./helmrelease.yaml

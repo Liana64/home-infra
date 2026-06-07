@@ -1,0 +1,54 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: qdrant-mcp
+  namespace: ai
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: qdrant-mcp
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: ai
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    - fromCIDR:
+        - "${HOME_CIDR}"
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+            app.kubernetes.io/name: qdrant
+      toPorts:
+        - ports:
+            - port: "6333"
+              protocol: TCP
+    - toFQDNs:
+        - matchName: pypi.org
+        - matchName: files.pythonhosted.org
+        - matchName: huggingface.co
+        - matchPattern: "*.hf.co"
+        - matchName: cdn-lfs.huggingface.co
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
