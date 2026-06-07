@@ -15,6 +15,7 @@ pages:
       - type: search
         search-engine: https://kagi.com/search?q={QUERY}
         new-tab: true
+        autofocus: true
     columns:
       - size: small
         widgets:
