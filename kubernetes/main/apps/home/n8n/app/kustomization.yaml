@@ -8,3 +8,18 @@ resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
   - ../../../database/cloudnative-pg/app/secret.sops.yaml
+patches:
+  - target:
+      group: volsync.backube
+      version: v1alpha1
+      kind: ReplicationSource
+    patch: |
+      - op: replace
+        path: /spec/sourcePVC
+        value: n8n-data
+  - patch: |
+      $patch: delete
+      apiVersion: volsync.backube/v1alpha1
+      kind: ReplicationDestination
+      metadata:
+        name: ${APP}-dst
