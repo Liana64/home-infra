@@ -16,3 +16,9 @@ patches:
       - op: replace
         path: /spec/sourcePVC
         value: opengist-config
+  - patch: |
+      $patch: delete
+      apiVersion: volsync.backube/v1alpha1
+      kind: ReplicationDestination
+      metadata:
+        name: ${APP}-dst
