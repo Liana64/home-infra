@@ -113,7 +113,7 @@ spec:
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
           traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Home
+          gethomepage.dev/group: AI
           gethomepage.dev/name: n8n
           gethomepage.dev/description: Workflow automation
           gethomepage.dev/icon: n8n
