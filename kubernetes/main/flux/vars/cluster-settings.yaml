@@ -35,6 +35,7 @@ data:
 
   # MCP servers (.40+)
   LB_QDRANT_MCP: "172.16.5.40"
+  LB_MCP_NIXOS: "172.16.5.41"
 
   # Backups
   CNPG_B2_REGION: "us-east-005"

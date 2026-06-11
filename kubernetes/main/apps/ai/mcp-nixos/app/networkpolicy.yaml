@@ -1,0 +1,50 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mcp-nixos
+  namespace: ai
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: mcp-nixos
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: ai
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    - fromCIDR:
+        - "${HOME_CIDR}"
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toFQDNs:
+        - matchName: search.nixos.org
+        - matchName: wiki.nixos.org
+        - matchName: cache.nixos.org
+        - matchName: nix.dev
+        - matchName: nix-community.github.io
+        - matchName: nix-darwin.github.io
+        - matchName: api.flakehub.com
+        - matchName: noogle.dev
+        - matchName: search.devbox.sh
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
