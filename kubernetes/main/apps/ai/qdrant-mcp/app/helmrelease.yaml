@@ -22,6 +22,9 @@ spec:
           type: RuntimeDefault
     controllers:
       qdrant-mcp:
+        # Parked: stock mcp-server-qdrant (Python/fastembed) can't drive the GPU.
+        # Pending Rust rewrite with Ollama (nomic-embed-text, 768d) embeddings on n2.
+        replicas: 0
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
