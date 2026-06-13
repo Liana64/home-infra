@@ -1,9 +1,9 @@
 ---
 # yaml-language-server: $schema=schemas/talconfig.json
 
-# renovate: datasource=docker depname=ghcr.io/siderolabs/installer
+# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
 talosVersion: v1.12.6
-# renovate: datasource=docker depname=ghcr.io/siderolabs/kubelet
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
 kubernetesVersion: v1.35.2
 
 clusterName: &clustername milberry

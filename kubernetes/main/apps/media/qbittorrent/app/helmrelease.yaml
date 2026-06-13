@@ -63,7 +63,7 @@ spec:
         containers:
           app:
             nameOverride: qbittorrent
-            # renovate: datasource=docker depname=ghcr.io/liana64/qbittorrent
+            # renovate: datasource=docker depName=ghcr.io/liana64/qbittorrent
             image:
               repository: ghcr.io/liana64/qbittorrent
               tag: 5.2.0@sha256:59dfe57c5a7b847af58d3b535fbcc3185f4388aa6b54416ab5a431ccd14e9c2a

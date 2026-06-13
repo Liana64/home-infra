@@ -1,0 +1,83 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommitsDisabled",
+  ],
+  timezone: "America/Chicago",
+  // Every update is a PR for manual review — nothing merges automatically.
+  automerge: false,
+  prConcurrentLimit: 10,
+  prHourlyLimit: 0,
+  dependencyDashboardTitle: "Renovate Dashboard 🤖",
+  ignorePaths: [
+    ".archive/**",
+    "**/.terraform/**",
+    "kubernetes/main/bootstrap/talos/clusterconfig/**",
+  ],
+  // Flux natively handles HelmRelease chart versions, HelmRepository and
+  // OCIRepository tags — scan the whole kubernetes tree, not just flux/.
+  flux: {
+    managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
+  },
+  "github-actions": {
+    managerFilePatterns: ["/(^|/)\\.github/workflows/.+\\.ya?ml$/"],
+  },
+  customManagers: [
+    {
+      customType: "regex",
+      description: "Container images annotated above an image:/repository:/tag: block",
+      managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
+      matchStrings: [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n(\\s+image:\\n)?(\\s+repository: \\S+\\n)?\\s+tag: (?<currentValue>[^@\"'\\s]+)(@(?<currentDigest>sha256:[a-f0-9]+))?",
+      ],
+      datasourceTemplate: "{{{datasource}}}",
+      depNameTemplate: "{{{depName}}}",
+      versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}docker{{/if}}",
+    },
+    {
+      customType: "regex",
+      description: "Container images pinned inline as image: repo:tag@digest",
+      managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
+      matchStrings: [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n\\s+image: \\S+?:(?<currentValue>[^@\"'\\s:]+)(@(?<currentDigest>sha256:[a-f0-9]+))?",
+      ],
+      datasourceTemplate: "{{{datasource}}}",
+      depNameTemplate: "{{{depName}}}",
+      versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}docker{{/if}}",
+    },
+    {
+      customType: "regex",
+      description: "Versions embedded in a remote manifest URL (e.g. github-releases CRDs)",
+      managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
+      matchStrings: [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n\\s+- \\S+/(?<currentValue>v?\\d+\\.\\d+\\.\\d+)/",
+      ],
+      datasourceTemplate: "{{{datasource}}}",
+      depNameTemplate: "{{{depName}}}",
+      versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+    },
+    {
+      customType: "regex",
+      description: "Talos and Kubernetes versions in talconfig.yaml",
+      managerFilePatterns: ["/(^|/)talos/talconfig\\.ya?ml$/"],
+      matchStrings: [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n(?:talosVersion|kubernetesVersion): (?<currentValue>\\S+)",
+      ],
+      datasourceTemplate: "{{{datasource}}}",
+      depNameTemplate: "{{{depName}}}",
+      versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+    },
+    {
+      customType: "regex",
+      description: "Grafana dashboards by grafana.com id (bumps revision)",
+      managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
+      matchStrings: [
+        "# renovate: depName=\"(?<depName>.+?)\"\\n\\s+gnetId: (?<packageName>\\d+)\\n\\s+revision: (?<currentValue>\\d+)",
+      ],
+      datasourceTemplate: "grafana-dashboards",
+      versioningTemplate: "regex:^(?<major>\\d+)$",
+    },
+  ],
+}
