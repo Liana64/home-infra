@@ -7,6 +7,25 @@ metadata:
 spec:
   loadBalancerIPs: true
   externalIPs: true
+  serviceSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/service
+        operator: NotIn
+        values: ["syncthing-sync"]
+---
+# announce from n2 only
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: l2-policy-syncthing
+spec:
+  loadBalancerIPs: true
+  serviceSelector:
+    matchLabels:
+      app.kubernetes.io/service: syncthing-sync
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/hostname: n2
 ---
 apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool
