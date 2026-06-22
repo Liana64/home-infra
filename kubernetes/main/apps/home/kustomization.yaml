@@ -7,6 +7,7 @@ resources:
   - ./glance/ks.yaml
   - ./homepage/ks.yaml
   - ./linkding/ks.yaml
+  - ./memos/ks.yaml
   - ./miniflux/ks.yaml
   - ./syncthing/ks.yaml
   - ./grocy/ks.yaml
