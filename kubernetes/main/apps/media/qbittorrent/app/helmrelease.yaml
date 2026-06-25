@@ -71,10 +71,28 @@ spec:
               UMASK: "022"
               QBT_WEBUI_PORT: &port 8080
               QBT_TORRENTING_PORT: &torrentPort 61175
-              QBT_BitTorrent__Session__MaxActiveDownloads: 10
-              QBT_BitTorrent__Session__MaxActiveTorrents: 16384
+              QBT_BitTorrent__Session__DefaultSavePath: "/media/Downloads"
+              QBT_BitTorrent__Session__QueueingSystemEnabled: "true"
+              QBT_BitTorrent__Session__MaxActiveDownloads: 3
               QBT_BitTorrent__Session__MaxActiveUploads: 50
-              QBT_BitTorrent__Session__DefaultSavePath: "/media/downloads"
+              QBT_BitTorrent__Session__MaxActiveTorrents: 100
+              QBT_BitTorrent__Session__MaxActiveCheckingTorrents: 3
+              QBT_BitTorrent__Session__IgnoreSlowTorrentsForQueueing: "true"
+              QBT_BitTorrent__Session__MaxConnections: -1
+              QBT_BitTorrent__Session__MaxConnectionsPerTorrent: -1
+              QBT_BitTorrent__Session__MaxUploads: -1
+              QBT_BitTorrent__Session__MaxUploadsPerTorrent: -1
+              # KiB/s
+              QBT_BitTorrent__Session__GlobalDLSpeedLimit: 52000
+              QBT_BitTorrent__Session__GlobalUPSpeedLimit: 52000
+              QBT_BitTorrent__Session__AlternativeGlobalDLSpeedLimit: 80000
+              QBT_BitTorrent__Session__AlternativeGlobalUPSpeedLimit: 80000
+              QBT_BitTorrent__Session__GlobalMaxRatio: 4
+              QBT_BitTorrent__Session__ShareLimitAction: Stop
+              QBT_BitTorrent__Session__UseRandomPort: "false"
+              QBT_Preferences__WebUI__CSRFProtection: "false"
+              QBT_Preferences__WebUI__HostHeaderValidation: "false"
+              QBT_Preferences__WebUI__LocalHostAuth: "false"
               QBT_Application__MemoryWorkingSetLimit:
                 valueFrom:
                   resourceFieldRef:
