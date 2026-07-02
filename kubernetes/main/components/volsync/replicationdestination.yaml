@@ -24,6 +24,8 @@ spec:
     cleanupTempPVC: true
     copyMethod: "${VOLSYNC_COPYMETHOD:=Direct}"
     enableFileDeletion: ${VOLSYNC_FILE_DELETION:=false}
+    moverPodLabels:
+      app.kubernetes.io/created-by: volsync
     moverSecurityContext:
       runAsUser: "${VOLSYNC_PUID:=1000}"
       runAsGroup: "${VOLSYNC_PGID:=1000}"

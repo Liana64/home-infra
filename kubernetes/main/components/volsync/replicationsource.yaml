@@ -11,6 +11,8 @@ spec:
   kopia:
     copyMethod: "${VOLSYNC_COPYMETHOD:=Direct}"
     compression: zstd-fastest
+    moverPodLabels:
+      app.kubernetes.io/created-by: volsync
     moverSecurityContext:
       runAsUser: "${VOLSYNC_UID:=1000}"
       runAsGroup: "${VOLSYNC_GID:=1000}"
