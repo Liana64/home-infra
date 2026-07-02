@@ -68,7 +68,7 @@ spec:
             image:
               # renovate: datasource=docker depName=ghcr.io/immich-app/immich-server
               repository: ghcr.io/immich-app/immich-server
-              tag: v2.7.5@sha256:c15bff75068effb03f4355997d03dc7e0fc58720c2b54ad6f7f10d1bc57efaa5
+              tag: v3.0.1@sha256:46dedfc5848f7313bd6b584ea9f2648057430307aad6de56de968f6710a72cae
             envFrom:
               - secretRef:
                   name: *secret
@@ -98,7 +98,7 @@ spec:
             image:
               # renovate: datasource=docker depName=ghcr.io/immich-app/immich-machine-learning
               repository: ghcr.io/immich-app/immich-machine-learning
-              tag: v2.7.5-cuda@sha256:304142175e345f0155d7642f637cfdceae60e89075ff03938cb2886d52c65a62
+              tag: v3.0.1-cuda@sha256:e5b2e693c5531e5794d96213409f0ce122eccd25feec91a9cd74b99eba183d65
             envFrom:
               - secretRef:
                   name: *secret
