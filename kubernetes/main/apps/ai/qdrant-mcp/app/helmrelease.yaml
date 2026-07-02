@@ -22,8 +22,9 @@ spec:
           type: RuntimeDefault
     controllers:
       qdrant-mcp:
-        # Parked: stock mcp-server-qdrant (Python/fastembed) can't drive the GPU.
-        # Pending Rust rewrite with Ollama (nomic-embed-text, 768d) embeddings on n2.
+        # Parked: fastembed pulls the model from HF hosts the netpol blocks —
+        # cas-server.xethub.hf.co (xet CAS) and us.aws.cdn.hf.co (LFS blob CDN);
+        # the *.hf.co allowlist only matches one label. Add those + retry to unpark.
         replicas: 0
         strategy: Recreate
         annotations:
