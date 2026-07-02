@@ -8,30 +8,36 @@ spec:
   endpointSelector: {}
   ingress:
     - fromEntities:
-        - cluster
         - health
-    - fromEndpoints:
+  egress:
+    - toEntities:
+        - health
+    - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: kube-system
             k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: allow-traefik
+  name: allow-volsync-movers
   namespace: labs
 spec:
   endpointSelector:
     matchLabels:
-      io.kubernetes.pod.namespace: labs
-  ingress:
-    - fromEndpoints:
-        - matchLabels:
-            app.kubernetes.io/name: traefik
-            app.kubernetes.io/instance: traefik-networking
+      app.kubernetes.io/created-by: volsync
+  egress:
+    - toFQDNs:
+        - matchName: api.backblazeb2.com
+        - matchPattern: "*.backblazeb2.com"
       toPorts:
         - ports:
-            - port: "8000"
-              protocol: TCP
-            - port: "8443"
+            - port: "443"
               protocol: TCP

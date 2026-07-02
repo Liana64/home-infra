@@ -2,12 +2,12 @@
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
-  name: changedetection
-  namespace: default
+  name: grocy
+  namespace: home
 spec:
   endpointSelector:
     matchLabels:
-      app.kubernetes.io/name: changedetection
+      app.kubernetes.io/name: grocy
   ingress:
     - fromEndpoints:
         - matchLabels:

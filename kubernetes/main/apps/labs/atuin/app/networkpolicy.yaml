@@ -20,7 +20,7 @@ spec:
     - fromEndpoints:
         - matchLabels:
             app.kubernetes.io/name: prometheus
-            io.kubernetes.pod.namespace: monitoring
+            io.kubernetes.pod.namespace: observability
       toPorts:
         - ports:
             - port: "8080"
@@ -33,10 +33,9 @@ spec:
       toPorts:
         - ports:
             - port: "53"
-              protocol: UDP
+              protocol: ANY
           rules:
             dns:
-              #- matchPattern: "*.database.svc.cluster.local"
               - matchPattern: "*"
 
     - toEndpoints:
