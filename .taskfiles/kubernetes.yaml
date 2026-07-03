@@ -70,6 +70,19 @@ tasks:
     requires:
       vars: ["cluster", "node"]
 
+  sync-externalsecret:
+    desc: Force-sync an ExternalSecret
+    summary: |
+      Args:
+        cluster: Cluster to run command against (required)
+        ns: Namespace the ExternalSecret exists in (default: default)
+        name: ExternalSecret to sync (required)
+    cmd: "{{.KUBECTL_CMD}} -n {{.ns}} annotate externalsecret {{.name}} force-sync=$(date +%s) --overwrite"
+    vars:
+      ns: '{{.ns | default "default"}}'
+    requires:
+      vars: ["cluster", "name"]
+
   sanitize:
     desc: Delete pods that aren't working as intended
     summary: |
