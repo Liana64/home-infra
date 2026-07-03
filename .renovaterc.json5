@@ -15,6 +15,9 @@
     ".archive/**",
     "**/.terraform/**",
     "kubernetes/main/bootstrap/talos/clusterconfig/**",
+    // Apps commented out of their namespace kustomization — not deployed.
+    "kubernetes/main/apps/ai/openclaw/**",
+    "kubernetes/main/apps/games/minecraft/**",
   ],
   // Flux natively handles HelmRelease chart versions, HelmRepository and
   // OCIRepository tags — scan the whole kubernetes tree, not just flux/.
