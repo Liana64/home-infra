@@ -1,0 +1,38 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: netshoot
+  namespace: networking
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: netshoot
+  ingress:
+    # iperf from LAN/VPN and from cluster pods
+    - fromCIDR:
+        - "${HOME_CIDR}"
+        - "${VPN_CIDR}"
+      toPorts:
+        - ports:
+            - port: "5201"
+              protocol: ANY
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "5201"
+              protocol: ANY
+  egress:
+    # debug tool: unrestricted outbound
+    - toEntities:
+        - world
+        - cluster
+    - icmps:
+        - fields:
+            - type: 8
+              family: IPv4
+            - type: 128
+              family: IPv6
+      toEntities:
+        - world

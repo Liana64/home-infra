@@ -1,0 +1,42 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: traefik
+  namespace: networking
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+      app.kubernetes.io/instance: traefik-networking
+  ingress:
+    # world = LAN/WAN via LB; cluster = pods hairpinning through ingress hostnames
+    - fromEntities:
+        - world
+        - cluster
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+            # http3
+            - port: "8443"
+              protocol: UDP
+            # ssh entrypoint (forgejo git-ssh, exposed as 22)
+            - port: "2222"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9100"
+              protocol: TCP
+  egress:
+    # reverse proxy: backends on arbitrary ports across namespaces
+    - toEntities:
+        - cluster
+    - toEntities:
+        - kube-apiserver

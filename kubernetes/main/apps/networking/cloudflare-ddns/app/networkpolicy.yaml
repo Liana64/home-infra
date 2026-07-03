@@ -1,0 +1,19 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: cloudflare-ddns
+  namespace: networking
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: cloudflare-ddns
+  egress:
+    - toFQDNs:
+        - matchName: api.cloudflare.com
+        - matchName: api.ipify.org
+        - matchName: ifconfig.me
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
