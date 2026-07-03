@@ -46,6 +46,11 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+    # same-node ClusterIP replies miss CT reverse-xlate (socketLB
+    # hostNamespaceOnly + endpointRoutes) and hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: bitwarden-sdk-server
   egress:
     - toEndpoints:
         - matchLabels:
@@ -121,7 +126,8 @@ spec:
         - kube-apiserver
       toPorts:
         - ports:
-            - port: "443"
+            # pod port (service 443 -> targetPort 10250); CNP matches post-DNAT
+            - port: "10250"
               protocol: TCP
     - fromEndpoints:
         - matchLabels:

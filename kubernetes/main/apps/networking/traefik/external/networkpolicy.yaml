@@ -30,6 +30,11 @@ spec:
         - ports:
             - port: "9100"
               protocol: TCP
+    # forwardAuth replies from same-node auth backends miss CT reverse-xlate
+    # (socketLB hostNamespaceOnly + endpointRoutes) and hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: security
   egress:
     # reverse proxy: backends on arbitrary ports across namespaces
     - toEntities:

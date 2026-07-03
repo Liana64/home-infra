@@ -25,6 +25,12 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+    # same-node ClusterIP replies miss CT reverse-xlate (socketLB
+    # hostNamespaceOnly + endpointRoutes) and hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: postgres-1
+            io.kubernetes.pod.namespace: database
   egress:
     - toEndpoints:
         - matchLabels:
