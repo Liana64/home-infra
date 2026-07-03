@@ -37,6 +37,7 @@ spec:
     - toFQDNs:
         - matchName: api.backblazeb2.com
         - matchPattern: "*.backblazeb2.com"
+        - matchPattern: "*.backblaze.com"
       toPorts:
         - ports:
             - port: "443"
