@@ -1,0 +1,33 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: pgadmin
+  namespace: database
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: pgadmin
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-networking
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+    # same-node ClusterIP replies miss CT reverse-xlate (socketLB
+    # hostNamespaceOnly + endpointRoutes); pgadmin dials -rw svc
+    - fromEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: postgres-1
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: postgres-1
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP

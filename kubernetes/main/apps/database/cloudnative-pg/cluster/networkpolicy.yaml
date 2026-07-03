@@ -1,0 +1,60 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: postgres-1
+  namespace: database
+spec:
+  endpointSelector:
+    matchLabels:
+      cnpg.io/cluster: postgres-1
+  ingress:
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # LAN clients via postgres-lb
+    - fromCIDR:
+        - "${HOME_CIDR}"
+        - "${VPN_CIDR}"
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    # operator status probes
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: cloudnative-pg
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    # same-node ClusterIP replies miss CT reverse-xlate (socketLB
+    # hostNamespaceOnly + endpointRoutes); replicas dial primary via -rw svc
+    - fromEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: postgres-1
+  egress:
+    # replication + instance-manager status checks between instances
+    - toEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: postgres-1
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+            - port: "8000"
+              protocol: TCP
+    # instance manager
+    - toEntities:
+        - kube-apiserver
+    # barman sidecar WAL archiving to B2; toCIDR because B2 S3 rotates IPs
+    # with TTL 30s, faster than long-lived dialers re-resolve (toFQDNs misses)
+    - toCIDR:
+        - 149.137.128.0/20
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

@@ -3,7 +3,7 @@ apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
   name: default-deny
-  namespace: labs
+  namespace: database
 spec:
   endpointSelector: {}
   ingress:
@@ -27,8 +27,21 @@ spec:
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
+  name: allow-prometheus-metrics
+  namespace: database
+spec:
+  endpointSelector: {}
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: prometheus
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
   name: allow-volsync-movers
-  namespace: labs
+  namespace: database
 spec:
   endpointSelector:
     matchLabels:
@@ -45,6 +58,7 @@ spec:
     - toFQDNs:
         - matchName: api.backblazeb2.com
         - matchPattern: "*.backblazeb2.com"
+        # B2 returns upload hosts under backblaze.com (pod-XXX.backblaze.com)
         - matchPattern: "*.backblaze.com"
       toPorts:
         - ports:

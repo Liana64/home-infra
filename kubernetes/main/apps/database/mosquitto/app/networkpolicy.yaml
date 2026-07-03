@@ -1,0 +1,25 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mosquitto
+  namespace: database
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: mosquitto
+  ingress:
+    - fromEntities:
+        - cluster
+      toPorts:
+        - ports:
+            - port: "1883"
+              protocol: TCP
+    # LAN IoT clients via the LB
+    - fromCIDR:
+        - "${HOME_CIDR}"
+        - "${VPN_CIDR}"
+      toPorts:
+        - ports:
+            - port: "1883"
+              protocol: TCP
