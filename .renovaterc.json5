@@ -6,7 +6,6 @@
     ":semanticCommitsDisabled",
   ],
   timezone: "America/Chicago",
-  // Every update is a PR for manual review — nothing merges automatically.
   automerge: false,
   prConcurrentLimit: 10,
   prHourlyLimit: 0,
@@ -15,12 +14,20 @@
     ".archive/**",
     "**/.terraform/**",
     "kubernetes/main/bootstrap/talos/clusterconfig/**",
-    // Apps commented out of their namespace kustomization — not deployed.
     "kubernetes/main/apps/ai/openclaw/**",
     "kubernetes/main/apps/games/minecraft/**",
   ],
-  // Flux natively handles HelmRelease chart versions, HelmRepository and
-  // OCIRepository tags — scan the whole kubernetes tree, not just flux/.
+  packageRules: [
+    {
+      matchUpdateTypes: ["digest"],
+      prPriority: -1,
+    },
+    {
+      matchUpdateTypes: ["digest"],
+      matchCurrentValue: "/^v?\\d/",
+      enabled: false,
+    },
+  ],
   flux: {
     managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
   },
