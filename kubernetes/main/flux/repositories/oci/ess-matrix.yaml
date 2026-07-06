@@ -10,6 +10,6 @@ spec:
   layerSelector:
     mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
     operation: copy
-  url: oci://ghcr.io/element-hq/ess-helm
+  url: oci://ghcr.io/element-hq/ess-helm/matrix-stack
   ref:
     tag: 25.12.2
