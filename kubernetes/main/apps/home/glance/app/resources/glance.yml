@@ -107,7 +107,6 @@ pages:
             repositories:
               - siderolabs/talos
               - kubernetes/kubernetes
-              - opnsense/core
               - syncthing/syncthing
               - fluxcd/flux2
               - openebs/openebs
