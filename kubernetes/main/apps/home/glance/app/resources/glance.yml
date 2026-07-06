@@ -38,12 +38,18 @@ pages:
                 links:
                   - title: Weekly Meal Plan
                     url: https://docs.google.com/document/d/1-267mJ9Km8iLBJym0Hw0ZzYB6mrTGJaP-F5OHjJEMNc/edit?tab=t.0
+                  - title: Pull Requests
+                    url: https://git.milberry.org/liana/home-infra/pulls
                   - title: Hardware Prices
                     url: https://pcpartpicker.com/trends/
       - size: full
         widgets:
           - type: group
             widgets:
+              - type: lobsters
+                sort-by: hot
+                limit: 18
+                collapse-after: 10
               - type: hacker-news
               - type: rss
                 title: LWN
@@ -51,22 +57,12 @@ pages:
                 collapse-after: 5
                 feeds:
                   - url: https://lwn.net/headlines/rss
-              - type: lobsters
-                sort-by: hot
-                limit: 18
-                collapse-after: 10
               - type: rss
                 title: Chicago
                 limit: 15
                 collapse-after: 5
                 feeds:
                   - url: https://chicago.suntimes.com/rss/index.xml
-              - type: rss
-                title: Naked Capitalism
-                limit: 15
-                collapse-after: 5
-                feeds:
-                  - url: https://www.nakedcapitalism.com/feed
           - type: custom-api
             title: Forgejo activity
             cache: 30m
@@ -108,21 +104,8 @@ pages:
             collapse-after: 5
             repositories:
               - siderolabs/talos
-              - immich-app/immich
-              - traefik/traefik
-              - atuinsh/atuin
-              - gethomepage/homepage
-              - jellyfin/jellyfin
-              - seerr-team/seerr
-              - sissbruecker/linkding
-              - miniflux/v2
-              - techarohq/anubis
               - syncthing/syncthing
-              - open-webui/open-webui
-              - dragonflydb/dragonfly
               - fluxcd/flux2
-              - Kozea/Radicale
-              - glanceapp/glance
               - openebs/openebs
   - name: Videos
     columns:
