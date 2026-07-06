@@ -24,22 +24,24 @@ pages:
           - $include: /app/config/events.yml
           - type: bookmarks
             groups:
-              - title: Lab
+              - title: Home
                 links:
-                  - title: Dashboard
-                    url: https://labs.lianas.org
                   - title: Bookmarks
                     url: https://bookmarks.milberry.org
                   - title: RSS
                     url: https://rss.labs.lianas.org
+              - title: Lab
+                links:
+                  - title: Dashboard
+                    url: https://labs.lianas.org
+                  - title: Pull Requests
+                    url: https://git.milberry.org/liana/home-infra/pulls
                   - title: Forgejo
                     url: https://git.milberry.org
               - title: Links
                 links:
                   - title: Weekly Meal Plan
                     url: https://docs.google.com/document/d/1-267mJ9Km8iLBJym0Hw0ZzYB6mrTGJaP-F5OHjJEMNc/edit?tab=t.0
-                  - title: Pull Requests
-                    url: https://git.milberry.org/liana/home-infra/pulls
                   - title: Hardware Prices
                     url: https://pcpartpicker.com/trends/
       - size: full
