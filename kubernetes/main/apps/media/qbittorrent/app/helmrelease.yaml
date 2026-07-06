@@ -66,7 +66,7 @@ spec:
             # renovate: datasource=docker depName=ghcr.io/liana64/qbittorrent
             image:
               repository: ghcr.io/liana64/qbittorrent
-              tag: 5.2.0@sha256:59dfe57c5a7b847af58d3b535fbcc3185f4388aa6b54416ab5a431ccd14e9c2a
+              tag: 5.2.2@sha256:909955ae3a0d754623e71bc89090d9faf50bb44cda0a4bed0b171b6daf911a97
             env:
               UMASK: "022"
               QBT_WEBUI_PORT: &port 8080
