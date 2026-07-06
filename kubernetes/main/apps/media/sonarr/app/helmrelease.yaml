@@ -29,7 +29,7 @@ spec:
             # renovate: datasource=docker depName=ghcr.io/liana64/sonarr-develop
             image:
               repository: ghcr.io/liana64/sonarr-develop
-              tag: 4.0.17@sha256:f6a40282fab18ba2bfb43b85fce9a23aedd84449fb75fcc4bf309931f4cbfd08
+              tag: 4.0.18@sha256:015294120b4e5332094aa217f741103a0c55a9ee6da30746e731ce06de7381d4
             env:
               COMPlus_EnableDiagnostics: "0"
               SONARR__APP__INSTANCENAME: Sonarr
