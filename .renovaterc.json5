@@ -23,6 +23,16 @@
       prPriority: -1,
     },
     {
+      matchPackageNames: [
+        "ghcr.io/liana64/mautrix-**",
+        "ghcr.io/liana64/sec-tools",
+        "ghcr.io/alexxit/go2rtc",
+        "docker.io/owncast/owncast",
+        "ghcr.io/element-hq/element-web",
+      ],
+      enabled: false,
+    },
+    {
       matchUpdateTypes: ["digest"],
       matchCurrentValue: "/^v?\\d/",
       enabled: false,
