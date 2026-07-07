@@ -7,4 +7,5 @@ resources:
   - ./chains.yaml
   - ./compress.yaml
   - ./ip.yaml
+  - ./ratelimit.yaml
   - ./secure.yaml
