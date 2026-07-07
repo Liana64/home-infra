@@ -24,6 +24,9 @@ spec:
             args:
               - --health-probe-bind-address=:8081
               - --metrics-bind-address=:8080
+            env:
+              # --watch-current-namespace panics in-cluster (v1.6.1 reads kubeconfig); env path is safe
+              WATCH_NAMESPACE: database
             probes:
               liveness:
                 enabled: true
