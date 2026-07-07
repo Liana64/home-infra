@@ -19,6 +19,13 @@ spec:
         - ports:
             - port: "3000"
               protocol: TCP
+    # same-node ClusterIP replies miss CT reverse-xlate (socketLB
+    # hostNamespaceOnly + endpointRoutes) and hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: immich
+            app.kubernetes.io/controller: immich
+            io.kubernetes.pod.namespace: home
   egress:
     - toEndpoints:
         - matchLabels:

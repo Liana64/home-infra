@@ -35,6 +35,19 @@ spec:
               protocol: TCP
             - port: "8082"
               protocol: TCP
+    # same-node ClusterIP replies miss CT reverse-xlate (socketLB
+    # hostNamespaceOnly + endpointRoutes) and hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: postgres-1
+            io.kubernetes.pod.namespace: database
+        - matchLabels:
+            app: immich-dragonfly
+            io.kubernetes.pod.namespace: database
+        - matchLabels:
+            app.kubernetes.io/name: immich
+            app.kubernetes.io/controller: machine-learning
+            io.kubernetes.pod.namespace: home
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
