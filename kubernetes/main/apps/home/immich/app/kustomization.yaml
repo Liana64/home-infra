@@ -9,6 +9,7 @@ resources:
   - ./configmap.yaml
   - ./dashboard.yaml
   - ./helmrelease.yaml
+  - ./networkpolicy.yaml
   - ./prometheusrule.yaml
   - ./secret.sops.yaml
 patches:
