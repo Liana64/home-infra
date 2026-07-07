@@ -1,0 +1,90 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: immich-proxy
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      immich-proxy:
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            # renovate: datasource=docker depName=alangrainger/immich-public-proxy
+            image:
+              repository: docker.io/alangrainger/immich-public-proxy
+              tag: 3.0.1@sha256:bc42ab09bce13fa4972861ddd45ff9a1ed82f590121409519af91546edb8dd77
+            env:
+              TZ: "${TIMEZONE}"
+              IMMICH_URL: http://immich.home.svc.cluster.local:2283
+              PUBLIC_BASE_URL: https://photos.${PUBLIC_DOMAIN}
+              CONFIG: '{"ipp": {"showHomePage": false}}'
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /share/healthcheck
+                    port: &port 3000
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 256Mi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: immich-proxy
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        className: traefik-external
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          # Inert until external-dns covers the ${PUBLIC_DOMAIN} zone; record is manual.
+          external-dns.alpha.kubernetes.io/target: "external.${SECRET_EXTERNAL_DOMAIN}"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          # Streaming variant (20 r/s, burst 50): galleries fire dozens of thumbnail requests per scroll.
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-no-auth@kubernetescrd"
+        hosts:
+          - host: &host "photos.${PUBLIC_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: immich-proxy-tls
+            hosts: [*host]
+    persistence:
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
