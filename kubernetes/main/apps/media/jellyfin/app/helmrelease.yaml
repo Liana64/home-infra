@@ -13,13 +13,14 @@ spec:
   values:
     controllers:
       jellyfin:
-        strategy: RollingUpdate
+        # Recreate + grace: never two writers on the SQLite config, and let WAL checkpoint on shutdown
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
 
         pod:
           #runtimeClassName: nvidia
-          terminationGracePeriodSeconds: 1
+          terminationGracePeriodSeconds: 60
           #nodeSelector:
           #  feature.node.kubernetes.io/pci-10de.present: "true"
           securityContext:
@@ -35,9 +36,8 @@ spec:
             # renovate: datasource=docker depName=ghcr.io/jellyfin/jellyfin
             image:
               repository: ghcr.io/jellyfin/jellyfin
-              tag: 10.11.9@sha256:ef4d95143a5475d1ba4d9a6983342cac300044d676a30648b7d0e0688961712a
+              tag: 10.11.11@sha256:45f648c382a0c8b552582fcea40e95cb17c5d475473a891cba0eb7523fb92112
             env:
-              DOTNET_SYSTEM_IO_DISABLEFILELOCKING: "true"
               JELLYFIN_PublishedServerUrl: "{{ .Release.Name }}.${SECRET_EXTERNAL_DOMAIN}"
             probes:
               liveness: &probes
@@ -52,8 +52,16 @@ spec:
                   timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
+              # 10.11 EF Core migrations can block /health for minutes; hold liveness off for up to 10m
               startup:
-                enabled: false
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  periodSeconds: 10
+                  failureThreshold: 60
             resources:
               requests:
                 cpu: 100m
