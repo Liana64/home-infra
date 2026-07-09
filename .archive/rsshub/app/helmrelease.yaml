@@ -80,7 +80,7 @@ spec:
           gethomepage.dev/description: RSS feed builder
           gethomepage.dev/icon: rsshub
         hosts:
-          - host: &host "rsshub.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "rsshub.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

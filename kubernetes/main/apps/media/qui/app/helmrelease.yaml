@@ -75,7 +75,7 @@ spec:
           gethomepage.dev/description: Torrent client
           gethomepage.dev/icon: qui
         hosts:
-          - host: &host "qui.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "qui.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

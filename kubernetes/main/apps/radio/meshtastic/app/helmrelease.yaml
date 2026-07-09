@@ -55,7 +55,7 @@ spec:
           gethomepage.dev/description: Meshtastic UI
           gethomepage.dev/icon: meshtastic
         hosts:
-          - host: &host "meshtastic.${SECRET_DOMAIN}"
+          - host: &host "meshtastic.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

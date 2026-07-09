@@ -70,7 +70,7 @@ spec:
           gethomepage.dev/description: Kitchen organization
           gethomepage.dev/icon: grocy
         hosts:
-          - host: &host "grocy.${SECRET_DOMAIN}"
+          - host: &host "grocy.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

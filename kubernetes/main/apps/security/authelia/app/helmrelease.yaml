@@ -87,8 +87,8 @@ spec:
               AUTHELIA_TOTP_ISSUER: authelia.com
               X_AUTHELIA_CONFIG: /config/configuration.yaml
               X_AUTHELIA_CONFIG_FILTERS: template
-              SECRET_DOMAIN: "${SECRET_DOMAIN}"
-              SECRET_INTERNAL_DOMAIN: "${SECRET_INTERNAL_DOMAIN}"
+              PERSONAL_DOMAIN: "${PERSONAL_DOMAIN}"
+              LAB_DOMAIN: "${LAB_DOMAIN}"
               CLUSTER_CIDR: "${CLUSTER_CIDR}"
               NODE_CIDR: "${NODE_CIDR}"
               HOME_CIDR: "${HOME_CIDR}"
@@ -147,7 +147,7 @@ spec:
           gethomepage.dev/description: OIDC/MFA provider
           gethomepage.dev/icon: *app
         hosts:
-          - host: &host "auth.${SECRET_EXTERNAL_DOMAIN}"
+          - host: &host "auth.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

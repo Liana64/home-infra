@@ -5,11 +5,11 @@ metadata:
   name: flux-webhook
   namespace: flux-system
   annotations:
-    external-dns.alpha.kubernetes.io/target: "external.${SECRET_EXTERNAL_DOMAIN}"
+    external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
 spec:
   ingressClassName: traefik-external
   rules:
-    - host: "flux-webhook.${SECRET_EXTERNAL_DOMAIN}"
+    - host: "flux-webhook.${PERSONAL_DOMAIN}"
       http:
         paths:
           - path: /hook/

@@ -1,3 +1,3 @@
 {
-  "restrictBaseUrl": "https://matrix.${SECRET_EXTERNAL_DOMAIN}"
+  "restrictBaseUrl": "https://matrix.${PERSONAL_DOMAIN}"
 }

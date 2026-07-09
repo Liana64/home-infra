@@ -36,9 +36,9 @@ spec:
               MINIO_UPDATE: "off"
               MINIO_PROMETHEUS_URL: http://kube-prometheus-stack-prometheus.monitoring:9090
               MINIO_PROMETHEUS_JOB_ID: minio
-              MINIO_BROWSER_REDIRECT_URL: https://minio.${SECRET_INTERNAL_DOMAIN}
-              MINIO_SERVER_URL: https://s3.${SECRET_INTERNAL_DOMAIN}
-              MINIO_API_CORS_ALLOW_ORIGIN: https://minio.${SECRET_INTERNAL_DOMAIN},https://s3.${SECRET_INTERNAL_DOMAIN}
+              MINIO_BROWSER_REDIRECT_URL: https://minio.${LAB_DOMAIN}
+              MINIO_SERVER_URL: https://s3.${LAB_DOMAIN}
+              MINIO_API_CORS_ALLOW_ORIGIN: https://minio.${LAB_DOMAIN},https://s3.${LAB_DOMAIN}
             envFrom:
               - secretRef:
                   name: *app
@@ -97,7 +97,7 @@ spec:
           gethomepage.dev/description: MinIO admin dashboard
           gethomepage.dev/icon: minio
         hosts:
-          - host: &appHost "{{ .Release.Name }}.${SECRET_INTERNAL_DOMAIN}"
+          - host: &appHost "{{ .Release.Name }}.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:
@@ -111,7 +111,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
         hosts:
-          - host: &apiHost "s3.${SECRET_INTERNAL_DOMAIN}"
+          - host: &apiHost "s3.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

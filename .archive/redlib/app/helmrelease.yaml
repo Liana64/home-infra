@@ -78,13 +78,13 @@ spec:
           gethomepage.dev/description: Reddit client with privacy features
           gethomepage.dev/icon: reddit
         hosts:
-          - host: &host "redlib.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "redlib.${LAB_DOMAIN}"
             paths: &paths
               - path: /
                 service:
                   identifier: app
                   port: http
-          - host: &customHost reddit.${SECRET_INTERNAL_DOMAIN}
+          - host: &customHost reddit.${LAB_DOMAIN}
             paths: *paths
         tls:
           - secretName: redlib-tls

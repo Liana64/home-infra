@@ -44,7 +44,7 @@ spec:
           gethomepage.dev/description: PDF manipulation tool
           gethomepage.dev/icon: stirling-pdf
         hosts:
-          - host: &host "pdf.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "pdf.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

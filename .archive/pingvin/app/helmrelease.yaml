@@ -61,7 +61,7 @@ spec:
           gethomepage.dev/description: File share
           gethomepage.dev/icon: pingvin
         hosts:
-          - host: &host "share.${SECRET_EXTERNAL_DOMAIN}"
+          - host: &host "share.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:
@@ -76,7 +76,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
         hosts:
-          - host: &host "share.${SECRET_EXTERNAL_DOMAIN}"
+          - host: &host "share.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

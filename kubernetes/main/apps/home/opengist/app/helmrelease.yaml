@@ -28,7 +28,7 @@ spec:
               OG_HTTP_PORT: &port 80
               OG_OPENGIST_HOME: /config
               OG_CUSTOM_NAME: milberry gists
-              OG_EXTERNAL_URL: "https://gist.${PUBLIC_DOMAIN}"
+              OG_EXTERNAL_URL: "https://gist.${ORG_DOMAIN}"
               OG_SSH_GIT_ENABLED: false
               OG_METRICS_ENABLED: true
               OG_METRICS_HOST: 0.0.0.0
@@ -101,7 +101,7 @@ spec:
           gethomepage.dev/description: Code snippet hosting
           gethomepage.dev/icon: opengist
         hosts:
-          - host: &host "gist.${PUBLIC_DOMAIN}"
+          - host: &host "gist.${ORG_DOMAIN}"
             paths:
               - path: /
                 service:

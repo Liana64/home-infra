@@ -54,7 +54,7 @@ spec:
           gethomepage.dev/description: Manage Synapse
           gethomepage.dev/icon: matrix-synapse
         hosts:
-          - host: &host "matrix-admin.${SECRET_EXTERNAL_DOMAIN}"
+          - host: &host "matrix-admin.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

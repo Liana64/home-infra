@@ -72,7 +72,7 @@ spec:
           gethomepage.dev/description: CalDAV / CardDAV server
           gethomepage.dev/icon: radicale
         hosts:
-          - host: &host "calendar.${PUBLIC_DOMAIN}"
+          - host: &host "calendar.${ORG_DOMAIN}"
             paths:
               - path: /
                 service:

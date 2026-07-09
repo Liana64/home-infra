@@ -48,7 +48,7 @@ spec:
               repository: ghcr.io/pocket-id/pocket-id
               tag: v2.7.0@sha256:45bdeaf3fcd6d07cf8721e98785d93324bb8e65b586498874c05a3d489c8094e
             env:
-              APP_URL: "https://id.${PUBLIC_DOMAIN}"
+              APP_URL: "https://id.${ORG_DOMAIN}"
               DB_PROVIDER: postgres
               ENCRYPTION_KEY_FILE: /encryption/ENCRYPTION_KEY
               KEYS_PATH: /data/keys
@@ -108,7 +108,7 @@ spec:
           gethomepage.dev/description: OIDC provider
           gethomepage.dev/icon: pocket-id
         hosts:
-          - host: &host "id.${PUBLIC_DOMAIN}"
+          - host: &host "id.${ORG_DOMAIN}"
             paths:
               - path: /
                 service:

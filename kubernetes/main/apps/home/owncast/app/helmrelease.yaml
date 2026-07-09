@@ -51,7 +51,7 @@ spec:
           gethomepage.dev/description: Livestream
           gethomepage.dev/icon: owncast
         hosts:
-          - host: &host "stream.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "stream.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

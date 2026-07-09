@@ -31,7 +31,7 @@ spec:
               ZIGBEE2MQTT_CONFIG_DEVICE_OPTIONS_RETAIN: "true"
               ZIGBEE2MQTT_CONFIG_EXPERIMENTAL_NEW_API: "true"
               ZIGBEE2MQTT_CONFIG_FRONTEND_PORT: &port 8080
-              ZIGBEE2MQTT_CONFIG_FRONTEND_URL: "https://zigbee.${SECRET_DOMAIN}"
+              ZIGBEE2MQTT_CONFIG_FRONTEND_URL: "https://zigbee.${PERSONAL_DOMAIN}"
               ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_ENABLED: "true"
               ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_DISCOVERY_TOPIC: homeassistant
               ZIGBEE2MQTT_CONFIG_HOMEASSISTANT_STATUS_TOPIC: homeassistant/status
@@ -42,7 +42,7 @@ spec:
               ZIGBEE2MQTT_CONFIG_MQTT_VERSION: 5
               ZIGBEE2MQTT_CONFIG_PERMIT_JOIN: "false"
               ZIGBEE2MQTT_CONFIG_SERIAL_ADAPTER: zstack
-              ZIGBEE2MQTT_CONFIG_SERIAL_PORT: "tcp://slzb.${SECRET_EXTERNAL_DOMAIN}:6638"
+              ZIGBEE2MQTT_CONFIG_SERIAL_PORT: "tcp://slzb.${PERSONAL_DOMAIN}:6638"
               ZIGBEE2MQTT_CONFIG_SERIAL_BAUDRATE: 115200
               ZIGBEE2MQTT_CONFIG_SERIAL_DISABLE_LED: "true"
             probes:
@@ -89,7 +89,7 @@ spec:
           gethomepage.dev/description: Zigbee bridge
           gethomepage.dev/icon: zigbee2mqtt
         hosts:
-          - host: &host "zigbee.${SECRET_DOMAIN}"
+          - host: &host "zigbee.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

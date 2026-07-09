@@ -59,14 +59,14 @@ spec:
         className: traefik
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_EXTERNAL_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Downloads
           gethomepage.dev/name: MeTube
           gethomepage.dev/description: YouTube downloader
           gethomepage.dev/icon: metube
         hosts:
-          - host: &host "{{ .Release.Name }}.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "{{ .Release.Name }}.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

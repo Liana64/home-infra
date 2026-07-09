@@ -23,6 +23,17 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
+  name: traefik-middleware-chain-no-auth-anubis-org
+spec:
+  chain:
+    middlewares:
+      - name: networking-traefik-middleware-secure-headers@kubernetescrd
+      - name: networking-traefik-middleware-compress@kubernetescrd
+      - name: networking-traefik-middleware-anubis-org@kubernetescrd
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
   name: traefik-middleware-chain-no-compress
 spec:
   chain:
@@ -50,6 +61,28 @@ spec:
       - name: networking-traefik-middleware-compress@kubernetescrd
       - name: networking-traefik-middleware-anubis@kubernetescrd
       - name: networking-traefik-middleware-tinyauth@kubernetescrd
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-middleware-chain-hugo
+spec:
+  chain:
+    middlewares:
+      - name: networking-traefik-middleware-secure-headers-hugo@kubernetescrd
+      - name: networking-traefik-middleware-compress@kubernetescrd
+      - name: networking-traefik-middleware-anubis@kubernetescrd
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-middleware-chain-hugo-org
+spec:
+  chain:
+    middlewares:
+      - name: networking-traefik-middleware-secure-headers-hugo@kubernetescrd
+      - name: networking-traefik-middleware-compress@kubernetescrd
+      - name: networking-traefik-middleware-anubis-org@kubernetescrd
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware

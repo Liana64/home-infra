@@ -99,7 +99,7 @@ spec:
           gethomepage.dev/description: OpenClaw
           gethomepage.dev/icon: openclaw
         hosts:
-          - host: &host "openclaw.${SECRET_DOMAIN}"
+          - host: &host "openclaw.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

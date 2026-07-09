@@ -7,9 +7,9 @@ sender_localpart: "{{ .SIGNAL_SENDER_LOCAL_PART }}"
 rate_limited: false
 namespaces:
   users:
-    - regex: ^@signalbridge:${SECRET_DOMAIN//./\\.}$
+    - regex: ^@signalbridge:${PERSONAL_DOMAIN//./\\.}$
       exclusive: true
-    - regex: ^@signalbridge_.*:${SECRET_DOMAIN//./\\.}$
+    - regex: ^@signalbridge_.*:${PERSONAL_DOMAIN//./\\.}$
       exclusive: true
 de.sorunome.msc2409.push_ephemeral: true
 receive_ephemeral: true

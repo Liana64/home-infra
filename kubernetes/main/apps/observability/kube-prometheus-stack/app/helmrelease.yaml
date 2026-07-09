@@ -79,11 +79,11 @@ spec:
           gethomepage.dev/description: Time-series event monitoring
           gethomepage.dev/icon: prometheus.png
           gethomepage.dev/pod-selector: app.kubernetes.io/name=kube-prometheus-stack-prometheus
-        hosts: ["prometheus.${SECRET_INTERNAL_DOMAIN}"]
+        hosts: ["prometheus.${LAB_DOMAIN}"]
         pathType: Prefix
         tls:
           - secretName: prometheus-tls
-            hosts: ["prometheus.${SECRET_INTERNAL_DOMAIN}"]
+            hosts: ["prometheus.${LAB_DOMAIN}"]
       prometheusSpec:
         scrapeInterval: 1m # Must match interval in Grafana Helm chart
         ruleSelectorNilUsesHelmValues: false
@@ -128,11 +128,11 @@ spec:
           gethomepage.dev/description: Alert handler for kube-prometheus-stack
           gethomepage.dev/icon: alertmanager.png
           gethomepage.dev/pod-selector: app.kubernetes.io/name=kube-prometheus-stack-alertmanager
-        hosts: ["alertmanager.${SECRET_INTERNAL_DOMAIN}"]
+        hosts: ["alertmanager.${LAB_DOMAIN}"]
         pathType: Prefix
         tls:
           - secretName: alertmanager-tls
-            hosts: ["alertmanager.${SECRET_INTERNAL_DOMAIN}"]
+            hosts: ["alertmanager.${LAB_DOMAIN}"]
       alertmanagerSpec:
         storage:
           volumeClaimTemplate:

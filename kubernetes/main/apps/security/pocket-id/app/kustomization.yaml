@@ -5,6 +5,7 @@ kind: Kustomization
 components:
   - ../../../../components/volsync
 resources:
+  - ./networkpolicy.yaml
   - ./externalsecret.yaml
   - ../../../database/cloudnative-pg/app/secret.sops.yaml
   - ./helmrelease.yaml

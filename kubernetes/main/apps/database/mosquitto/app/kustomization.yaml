@@ -5,7 +5,7 @@ kind: Kustomization
 components:
   - ../../../../components/volsync
 resources:
-  #- ./networkpolicy.yaml
+  - ./networkpolicy.yaml
   - ./helmrelease.yaml
 configMapGenerator:
   - name: mosquitto-configmap

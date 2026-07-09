@@ -15,8 +15,8 @@ spec:
   #    name: ess-matrix
   #    namespace: flux-system
   values:
-    serverName: "${SECRET_EXTERNAL_DOMAIN}"
-    publicServerName: "matrix.${SECRET_EXTERNAL_DOMAIN}"
+    serverName: "${PERSONAL_DOMAIN}"
+    publicServerName: "matrix.${PERSONAL_DOMAIN}"
 
     wellknown:
       enabled: true
@@ -37,14 +37,14 @@ spec:
       #        runAsUser: 100
       client:
         m.homeserver:
-          base_url: "https://matrix.${SECRET_EXTERNAL_DOMAIN}"
+          base_url: "https://matrix.${PERSONAL_DOMAIN}"
     config:
       reportStats: true
     extraConfig:
       email:
         smtp_host: smtp-relay.networking.svc.cluster.local
         smtp_port: 25
-        notif_from: "Matrix <matrix@${SECRET_EXTERNAL_DOMAIN}>"
+        notif_from: "Matrix <matrix@${PERSONAL_DOMAIN}>"
       presence:
         enabled: true
       enable_3pid_lookup: false
@@ -76,8 +76,8 @@ spec:
       tls:
         - secretName: matrix-synapse-tls
           hosts:
-            - ${SECRET_EXTERNAL_DOMAIN}
-            - matrix.${SECRET_EXTERNAL_DOMAIN}
+            - ${PERSONAL_DOMAIN}
+            - matrix.${PERSONAL_DOMAIN}
     postgresql:
       enabled: false
     redis:

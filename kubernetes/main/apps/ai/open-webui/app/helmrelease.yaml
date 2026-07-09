@@ -32,7 +32,7 @@ spec:
               tag: v0.9.2@sha256:a7e4796ae894d1e2a0c1824860ade472f35c507608a01c3581377b5c19b0ed49
             env:
               OLLAMA_BASE_URL: http://ollama.ai.svc.cluster.local:11434
-              WEBUI_URL: "https://models.${SECRET_DOMAIN}"
+              WEBUI_URL: "https://models.${PERSONAL_DOMAIN}"
               ENABLE_SIGNUP: "true"
               DEFAULT_USER_ROLE: "pending"
               ENABLE_OLLAMA_API: "true"
@@ -85,7 +85,7 @@ spec:
           gethomepage.dev/description: Local LLM chat
           gethomepage.dev/icon: open-webui
         hosts:
-          - host: &host "models.${SECRET_DOMAIN}"
+          - host: &host "models.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

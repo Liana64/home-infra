@@ -20,7 +20,7 @@ spec:
               repository: ghcr.io/home-operations/home-assistant
               tag: 2026.1.2@sha256:9587276dcc680f8210115015508cd02d19f6921cdbff6bf119453fc4a8e10969
             env:
-              HOME_ASSISTANT_EXTERNAL_URL: https://hass.${SECRET_DOMAIN}
+              HOME_ASSISTANT_EXTERNAL_URL: https://hass.${PERSONAL_DOMAIN}
               HOME_ASSISTANT_PURGE_KEEP_DAYS: 30
               HOME_ASSISTANT_TRUSTED_PROXIES: 10.244.0.0/16
             securityContext:
@@ -88,7 +88,7 @@ spec:
           gethomepage.dev/description: Home automation portal
           gethomepage.dev/icon: home-assistant
         hosts:
-          - host: &host "hass.${SECRET_DOMAIN}"
+          - host: &host "hass.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:
@@ -105,7 +105,7 @@ spec:
       #    traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
       #    traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
       #  hosts:
-      #    - host: &host "hass-code.${SECRET_DOMAIN}"
+      #    - host: &host "hass-code.${PERSONAL_DOMAIN}"
       #      paths:
       #        - path: /
       #          service:

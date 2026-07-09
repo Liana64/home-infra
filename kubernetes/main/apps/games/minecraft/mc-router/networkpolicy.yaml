@@ -1,0 +1,32 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: mc-router
+  namespace: games
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: mc-router
+  ingress:
+    # players via the LB (LAN/VPN/WAN all classify as world)
+    - fromEntities:
+        - world
+        - cluster
+      toPorts:
+        - ports:
+            - port: "25565"
+              protocol: TCP
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: games
+            app.kubernetes.io/name: minecraft
+      toPorts:
+        - ports:
+            - port: "25565"
+              protocol: TCP
+    # service discovery by mapping annotation
+    - toEntities:
+        - kube-apiserver

@@ -70,7 +70,7 @@ spec:
           gethomepage.dev/description: Check for new releases
           gethomepage.dev/icon: release-argus
         hosts:
-          - host: &host "argus.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "argus.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

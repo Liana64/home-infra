@@ -20,7 +20,7 @@ connectivity:
 endpoints:
   - name: status
     group: external
-    url: https://status.$${SECRET_EXTERNAL_DOMAIN}
+    url: https://status.$${PERSONAL_DOMAIN}
     interval: 1m
     client:
       dns-resolver: tcp://1.1.1.1:53
@@ -30,7 +30,7 @@ endpoints:
       - type: discord
   #  - name: flux-webhook
   #    group: external
-  #    url: https://flux-webhook.$${SECRET_EXTERNAL_DOMAIN}
+  #    url: https://flux-webhook.$${PERSONAL_DOMAIN}
   #    interval: 1m
   #    client:
   #      dns-resolver: tcp://1.1.1.1:53

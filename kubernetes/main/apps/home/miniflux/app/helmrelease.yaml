@@ -40,14 +40,14 @@ spec:
               tag: 2.3.2@sha256:cd353a6af9ce663291f405eddef26fa0d567f486b521c5d34e3fb50e41938b9a
             env:
               # DEBUG: "1"
-              BASE_URL: "https://rss.${SECRET_EXTERNAL_DOMAIN}"
+              BASE_URL: "https://rss.${PERSONAL_DOMAIN}"
               CREATE_ADMIN: "1"
               LOG_DATE_TIME: "1"
               OAUTH2_CLIENT_ID: miniflux
               OAUTH2_USER_CREATION: "1"
-              OAUTH2_OIDC_DISCOVERY_ENDPOINT: "https://auth.${SECRET_EXTERNAL_DOMAIN}"
+              OAUTH2_OIDC_DISCOVERY_ENDPOINT: "https://auth.${PERSONAL_DOMAIN}"
               OAUTH2_PROVIDER: oidc
-              OAUTH2_REDIRECT_URL: https://rss.${SECRET_INTERNAL_DOMAIN}/oauth2/oidc/callback
+              OAUTH2_REDIRECT_URL: https://rss.${LAB_DOMAIN}/oauth2/oidc/callback
               METRICS_ALLOWED_NETWORKS: "${CLUSTER_CIDR}"
               METRICS_COLLECTOR: "1"
               POLLING_SCHEDULER: entry_frequency
@@ -110,16 +110,16 @@ spec:
           gethomepage.dev/name: Miniflux
           gethomepage.dev/description: RSS aggregator
           gethomepage.dev/icon: miniflux
-          #gethomepage.dev/widget.url: "https://rss.${SECRET_INTERNAL_DOMAIN}"
+          #gethomepage.dev/widget.url: "https://rss.${LAB_DOMAIN}"
           #gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_MINIFLUX_TOKEN}}"
         hosts:
-          - host: &host "rss.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "rss.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:
                   identifier: app
                   port: http
-          - host: &publicHost "rss.${PUBLIC_DOMAIN}"
+          - host: &publicHost "rss.${ORG_DOMAIN}"
             paths:
               - path: /
                 service:

@@ -1,0 +1,27 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: minecraft
+  namespace: games
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: minecraft
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: games
+            app.kubernetes.io/name: mc-router
+      toPorts:
+        - ports:
+            - port: "25565"
+              protocol: TCP
+  egress:
+    # mojang session/auth + mod downloads
+    - toEntities: ["world"]
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

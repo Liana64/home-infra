@@ -95,7 +95,7 @@ spec:
         className: traefik-external
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
           traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth-anubis@kubernetescrd"
           gethomepage.dev/enabled: "true"
@@ -105,9 +105,9 @@ spec:
           gethomepage.dev/icon: seerr
           #gethomepage.dev/widget.type: "seerr"
           #gethomepage.dev/widget.key: "${HOMEPAGE_VAR_JELLYSEERR_API_KEY}"
-          #gethomepage.dev/widget.url: &host "requests.${SECRET_EXTERNAL_DOMAIN}"
+          #gethomepage.dev/widget.url: &host "requests.${PERSONAL_DOMAIN}"
         hosts:
-          - host: &host "requests.${SECRET_DOMAIN}"
+          - host: &host "requests.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

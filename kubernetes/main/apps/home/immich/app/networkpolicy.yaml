@@ -1,7 +1,5 @@
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
-# Ingress-only: egress is intentionally unrestricted pending an audit of
-# immich's outbound needs (postgres, dragonfly, ML, geocoding, smtp).
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
@@ -48,6 +46,38 @@ spec:
             app.kubernetes.io/name: immich
             app.kubernetes.io/controller: machine-learning
             io.kubernetes.pod.namespace: home
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+            cnpg.io/cluster: postgres-1
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+            app: immich-dragonfly
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: home
+            app.kubernetes.io/name: immich
+            app.kubernetes.io/controller: machine-learning
+      toPorts:
+        - ports:
+            - port: "3003"
+              protocol: TCP
+    # geodata + map tile fetch on startup
+    - toEntities: ["world"]
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
@@ -68,4 +98,11 @@ spec:
       toPorts:
         - ports:
             - port: "3003"
+              protocol: TCP
+  egress:
+    # model downloads
+    - toEntities: ["world"]
+      toPorts:
+        - ports:
+            - port: "443"
               protocol: TCP

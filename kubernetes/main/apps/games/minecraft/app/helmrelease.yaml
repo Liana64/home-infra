@@ -128,9 +128,9 @@ spec:
       app:
         controller: minecraft
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: "shoujo.${SECRET_EXTERNAL_DOMAIN}"
-          external-dns.alpha.kubernetes.io/target: "mc-router.${SECRET_EXTERNAL_DOMAIN}"
-          mc-router.itzg.me/externalServerName: shoujo.${SECRET_EXTERNAL_DOMAIN}
+          external-dns.alpha.kubernetes.io/hostname: "shoujo.${PERSONAL_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "mc-router.${PERSONAL_DOMAIN}"
+          mc-router.itzg.me/externalServerName: shoujo.${PERSONAL_DOMAIN}
         ports:
           minecraft:
             port: 25565

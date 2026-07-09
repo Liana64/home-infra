@@ -82,7 +82,7 @@ spec:
               CUSTOM_WEB_PORT: &port 80
               POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
               POSTGRES_DB: gatus
-              SECRET_EXTERNAL_DOMAIN: "${SECRET_EXTERNAL_DOMAIN}"
+              PERSONAL_DOMAIN: "${PERSONAL_DOMAIN}"
               DISCORD_WEBHOOK_URL: "${SECRET_DISCORD_WEBHOOK_URL}"
             envFrom:
               - secretRef:
@@ -143,7 +143,7 @@ spec:
           gethomepage.dev/description: Status monitoring page
           gethomepage.dev/icon: gatus
         hosts:
-          - host: &host "status.${SECRET_EXTERNAL_DOMAIN}"
+          - host: &host "status.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

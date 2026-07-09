@@ -25,9 +25,44 @@ spec:
               BIND: ":8080"
               METRICS_BIND: ":9090"
               TZ: ${TIMEZONE}
-              COOKIE_DOMAIN: ${SECRET_DOMAIN}
-              PUBLIC_URL: https://anubis.${SECRET_DOMAIN}
-              REDIRECT_DOMAINS: "*.${SECRET_DOMAIN},${SECRET_DOMAIN},*.${PUBLIC_DOMAIN},${PUBLIC_DOMAIN}"
+              COOKIE_DOMAIN: ${PERSONAL_DOMAIN}
+              PUBLIC_URL: https://anubis.${PERSONAL_DOMAIN}
+              REDIRECT_DOMAINS: "*.${PERSONAL_DOMAIN},${PERSONAL_DOMAIN}"
+              SERVE_ROBOTS_TXT: true
+              POLICY_FNAME: /config/botPolicies.yaml
+              TARGET: " "
+            envFrom:
+              - secretRef:
+                  name: anubis-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+
+      # Pass cookies bind to one registrable domain; ORG_DOMAIN needs its own instance.
+      org:
+        replicas: 1
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image:
+              repository: ghcr.io/techarohq/anubis
+              tag: v1.24.0@sha256:4bdf6ddd1a8dc8bfe7a33d823a1cb72157885ca4fd3ee749654b21cba732e439
+            env:
+              BIND: ":8080"
+              METRICS_BIND: ":9090"
+              TZ: ${TIMEZONE}
+              COOKIE_DOMAIN: ${ORG_DOMAIN}
+              PUBLIC_URL: https://anubis.${ORG_DOMAIN}
+              REDIRECT_DOMAINS: "*.${ORG_DOMAIN},${ORG_DOMAIN}"
               SERVE_ROBOTS_TXT: true
               POLICY_FNAME: /config/botPolicies.yaml
               TARGET: " "
@@ -51,19 +86,25 @@ spec:
         runAsGroup: 1000
     service:
       app:
+        controller: anubis
         ports:
           http:
             port: &port 8080
+      org:
+        controller: org
+        ports:
+          http:
+            port: *port
     ingress:
       app:
         className: traefik-external
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
           traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
         hosts:
-          - host: &host "anubis.${SECRET_DOMAIN}"
+          - host: &host "anubis.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:
@@ -73,6 +114,23 @@ spec:
           - hosts:
               - *host
             secretName: "anubis-production-tls"
+      org:
+        className: traefik-external
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
+        hosts:
+          - host: &orgHost "anubis.${ORG_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: org
+                  port: http
+        tls:
+          - hosts:
+              - *orgHost
+            secretName: "anubis-org-tls"
     persistence:
       bot-policy:
         type: configMap

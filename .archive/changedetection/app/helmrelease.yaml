@@ -82,7 +82,7 @@ spec:
           gethomepage.dev/description: Change monitoring for the web
           gethomepage.dev/icon: changedetection-io.png
         hosts:
-          - host: &host "change.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "change.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

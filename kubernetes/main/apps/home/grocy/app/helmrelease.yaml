@@ -83,7 +83,7 @@ spec:
           gethomepage.dev/description: Household management
           gethomepage.dev/icon: grocy
         hosts:
-          - host: &host "grocy.${SECRET_DOMAIN}"
+          - host: &host "grocy.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

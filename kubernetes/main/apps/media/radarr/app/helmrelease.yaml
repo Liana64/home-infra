@@ -36,7 +36,7 @@ spec:
               RADARR__PORT: &port 7878
               RADARR__AUTHENTICATION_METHOD: External
               RADARR__AUTHENTICATION_REQUIRED: DisabledForLocalAddresses
-              RADARR__APPLICATION_URL: "https://radarr.${SECRET_INTERNAL_DOMAIN}"
+              RADARR__APPLICATION_URL: "https://radarr.${LAB_DOMAIN}"
               RADARR__LOG_LEVEL: info
               RADARR__API_KEY:
                 valueFrom:
@@ -89,7 +89,7 @@ spec:
         className: traefik
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_EXTERNAL_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
           traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
           gethomepage.dev/enabled: "true"
@@ -98,7 +98,7 @@ spec:
           gethomepage.dev/description: Movies
           gethomepage.dev/icon: radarr
         hosts:
-          - host: &host "radarr.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "radarr.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

@@ -90,7 +90,7 @@ spec:
           gethomepage.dev/description: Note taking
           gethomepage.dev/icon: memos
         hosts:
-          - host: &host "memos.${PUBLIC_DOMAIN}"
+          - host: &host "memos.${ORG_DOMAIN}"
             paths:
               - path: /
                 service:

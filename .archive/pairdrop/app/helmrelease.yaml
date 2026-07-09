@@ -61,7 +61,7 @@ spec:
           gethomepage.dev/description: File transfers
           gethomepage.dev/icon: pairdrop
         hosts:
-          - host: &host "pairdrop.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "pairdrop.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

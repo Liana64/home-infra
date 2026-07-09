@@ -25,7 +25,7 @@ spec:
             env:
               TZ: "${TIMEZONE}"
               IMMICH_URL: http://immich.home.svc.cluster.local:2283
-              PUBLIC_BASE_URL: https://photos.${PUBLIC_DOMAIN}
+              PUBLIC_BASE_URL: https://photos.${ORG_DOMAIN}
               CONFIG: '{"ipp": {"showHomePage": false}}'
             probes:
               liveness: &probes
@@ -68,13 +68,13 @@ spec:
         className: traefik-external
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
-          # Inert until external-dns covers the ${PUBLIC_DOMAIN} zone; record is manual.
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_EXTERNAL_DOMAIN}"
+          # Inert until external-dns covers the ${ORG_DOMAIN} zone; record is manual.
+          external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
           # Streaming variant (20 r/s, burst 50): galleries fire dozens of thumbnail requests per scroll.
           traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-no-auth@kubernetescrd"
         hosts:
-          - host: &host "photos.${PUBLIC_DOMAIN}"
+          - host: &host "photos.${ORG_DOMAIN}"
             paths:
               - path: /
                 service:

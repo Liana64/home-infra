@@ -7,9 +7,9 @@ sender_localpart: "{{ .META_SENDER_LOCAL_PART }}"
 rate_limited: false
 namespaces:
   users:
-    - regex: ^@metabridge:${SECRET_DOMAIN//./\\.}$
+    - regex: ^@metabridge:${PERSONAL_DOMAIN//./\\.}$
       exclusive: true
-    - regex: ^@metabridge_.*:${SECRET_DOMAIN//./\\.}$
+    - regex: ^@metabridge_.*:${PERSONAL_DOMAIN//./\\.}$
       exclusive: true
 de.sorunome.msc2409.push_ephemeral: true
 receive_ephemeral: true

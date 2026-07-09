@@ -52,7 +52,7 @@ spec:
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
           traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
         hosts:
-          - host: &host "${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

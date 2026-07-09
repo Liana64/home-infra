@@ -57,7 +57,7 @@ spec:
           gethomepage.dev/description: Tools for developers
           gethomepage.dev/icon: it-tools
         hosts:
-          - host: &host "it-tools.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "it-tools.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

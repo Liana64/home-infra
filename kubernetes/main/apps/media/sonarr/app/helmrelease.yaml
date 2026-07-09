@@ -89,7 +89,7 @@ spec:
         className: traefik
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_EXTERNAL_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
           traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
           gethomepage.dev/enabled: "true"
@@ -98,7 +98,7 @@ spec:
           gethomepage.dev/description: Shows
           gethomepage.dev/icon: sonarr
         hosts:
-          - host: &host "sonarr.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "sonarr.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

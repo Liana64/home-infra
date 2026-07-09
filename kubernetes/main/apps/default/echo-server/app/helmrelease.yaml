@@ -80,7 +80,7 @@ spec:
           gethomepage.dev/description: Reflect HTTP request properties
           gethomepage.dev/icon: mdi-web
         hosts:
-          - host: &host "echo.${SECRET_DOMAIN}"
+          - host: &host "echo.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

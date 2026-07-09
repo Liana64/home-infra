@@ -74,7 +74,7 @@ spec:
           gethomepage.dev/description: Self-hosted IRC client
           gethomepage.dev/icon: thelounge
         hosts:
-          - host: &host "irc.${PUBLIC_DOMAIN}"
+          - host: &host "irc.${ORG_DOMAIN}"
             paths:
               - path: /
                 service:

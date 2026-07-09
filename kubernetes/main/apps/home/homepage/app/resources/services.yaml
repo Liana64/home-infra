@@ -1,33 +1,33 @@
 ---
 - Overview:
     - OPNsense:
-        href: https://edge.${SECRET_DOMAIN}
-        siteMonitor: https://edge.${SECRET_DOMAIN}
+        href: https://edge.${PERSONAL_DOMAIN}
+        siteMonitor: https://edge.${PERSONAL_DOMAIN}
         icon: opnsense
         description: Edge networking
     - Unifi:
-        href: https://oob.${SECRET_DOMAIN}:8443
-        siteMonitor: https://oob.${SECRET_DOMAIN}:8443
+        href: https://oob.${PERSONAL_DOMAIN}:8443
+        siteMonitor: https://oob.${PERSONAL_DOMAIN}:8443
         icon: unifi
         description: Unifi Controller
 - Devices:
     - n1:
-        href: http://ms-01.${SECRET_DOMAIN}:8006
-        siteMonitor: http://ms-01.${SECRET_DOMAIN}:8006
+        href: http://ms-01.${PERSONAL_DOMAIN}:8006
+        siteMonitor: http://ms-01.${PERSONAL_DOMAIN}:8006
         icon: proxmox
         description: Node 1
     - n2:
-        href: http://n2.${SECRET_DOMAIN}:8006
-        siteMonitor: http://n2.${SECRET_DOMAIN}:8006
+        href: http://n2.${PERSONAL_DOMAIN}:8006
+        siteMonitor: http://n2.${PERSONAL_DOMAIN}:8006
         icon: proxmox
         description: Node 2
     - n3:
-        href: http://n3.${SECRET_DOMAIN}:8006
-        siteMonitor: http://n3.${SECRET_DOMAIN}:8006
+        href: http://n3.${PERSONAL_DOMAIN}:8006
+        siteMonitor: http://n3.${PERSONAL_DOMAIN}:8006
         icon: proxmox
         description: Node 3
     - SLZB06:
-        href: http://slzb.${SECRET_DOMAIN}
-        siteMonitor: http://slzb.${SECRET_DOMAIN}
+        href: http://slzb.${PERSONAL_DOMAIN}
+        siteMonitor: http://slzb.${PERSONAL_DOMAIN}
         icon: zigbee2mqtt
         description: Zigbee adapter

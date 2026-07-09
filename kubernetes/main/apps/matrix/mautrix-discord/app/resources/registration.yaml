@@ -7,9 +7,9 @@ sender_localpart: "{{ .SENDER_LOCAL_PART }}"
 rate_limited: false
 namespaces:
   users:
-    - regex: ^@discordbridge:${SECRET_EXTERNAL_DOMAIN//./\\.}$
+    - regex: ^@discordbridge:${PERSONAL_DOMAIN//./\\.}$
       exclusive: true
-    - regex: ^@discordbridge_.*:${SECRET_EXTERNAL_DOMAIN//./\\.}$
+    - regex: ^@discordbridge_.*:${PERSONAL_DOMAIN//./\\.}$
       exclusive: true
 de.sorunome.msc2409.push_ephemeral: true
 receive_ephemeral: true

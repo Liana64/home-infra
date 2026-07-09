@@ -48,7 +48,7 @@ spec:
             envFrom:
               - secretRef:
                   name: *secret
-      baseDomain: &host "windmill.${SECRET_INTERNAL_DOMAIN}"
+      baseDomain: &host "windmill.${LAB_DOMAIN}"
       baseProtocol: https
       appReplicas: 1
       lspReplicas: 1
@@ -80,7 +80,7 @@ spec:
         gethomepage.dev/description: Workflow engine
         gethomepage.dev/group: Services
         gethomepage.dev/icon: webhook.png
-        gethomepage.dev/href: https://windmill.${SECRET_INTERNAL_DOMAIN}
+        gethomepage.dev/href: https://windmill.${LAB_DOMAIN}
       tls:
         - secretName: windmill-tls
           hosts: [*host]

@@ -64,7 +64,7 @@ spec:
           gethomepage.dev/description: Change monitoring
           gethomepage.dev/icon: changedetection
         hosts:
-          - host: &host "chg.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "chg.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

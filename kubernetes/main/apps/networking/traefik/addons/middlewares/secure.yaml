@@ -12,7 +12,7 @@ spec:
       - POST
     accessControlMaxAge: 100
     accessControlAllowOriginListRegex:
-      - "https://(.*?)${SECRET_EXTERNAL_DOMAIN}"
+      - "https://(.*?)${PERSONAL_DOMAIN}"
     hostsProxyHeaders:
       - "X-Forwarded-Host"
       - "X-Forwarded-For"
@@ -24,7 +24,7 @@ spec:
     stsIncludeSubdomains: true
     stsPreload: true
     forceSTSHeader: true
-    customFrameOptionsValue: "allow-from https:${SECRET_DOMAIN}"
+    customFrameOptionsValue: "allow-from https:${PERSONAL_DOMAIN}"
     contentTypeNosniff: true
     frameDeny: true
     referrerPolicy: "strict-origin-when-cross-origin"
@@ -63,7 +63,7 @@ spec:
       - POST
     accessControlMaxAge: 100
     accessControlAllowOriginListRegex:
-      - "https://(.*?)${SECRET_DOMAIN}"
+      - "https://(.*?)${PERSONAL_DOMAIN}"
     hostsProxyHeaders:
       - "X-Forwarded-Host"
       - "X-Forwarded-For"
@@ -75,14 +75,14 @@ spec:
     stsIncludeSubdomains: true
     stsPreload: true
     forceSTSHeader: true
-    customFrameOptionsValue: "allow-from https:${SECRET_DOMAIN}"
+    customFrameOptionsValue: "allow-from https:${PERSONAL_DOMAIN}"
     contentTypeNosniff: true
     frameDeny: true
     referrerPolicy: "strict-origin-when-cross-origin"
     contentSecurityPolicy: >-
       default-src 'none';
       script-src 'self';
-      style-src 'self';
+      style-src 'self' 'unsafe-inline';
       img-src 'self';
       font-src 'self';
       form-action 'none';
@@ -124,7 +124,7 @@ spec:
       - DELETE
     accessControlMaxAge: 100
     accessControlAllowOriginListRegex:
-      - "https://(.*?)${SECRET_DOMAIN}"
+      - "https://(.*?)${PERSONAL_DOMAIN}"
     accessControlAllowHeaders:
       - "Content-Type"
       - "X-API-Key"
@@ -175,7 +175,7 @@ spec:
       - DELETE
     accessControlMaxAge: 3600
     accessControlAllowOriginListRegex:
-      - "https://(.*?)${SECRET_DOMAIN}"
+      - "https://(.*?)${PERSONAL_DOMAIN}"
       - "element://.*"
       - "vector://.*"
       - "http://localhost"

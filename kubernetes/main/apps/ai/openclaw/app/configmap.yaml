@@ -16,7 +16,7 @@ data:
         },
         "trustedProxies": ["10.244.0.0/16"],
         "controlUi": {
-          "allowedOrigins": ["https://openclaw.${SECRET_DOMAIN}"]
+          "allowedOrigins": ["https://openclaw.${PERSONAL_DOMAIN}"]
         }
       },
       "browser": {

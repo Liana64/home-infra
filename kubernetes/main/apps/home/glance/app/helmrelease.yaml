@@ -78,7 +78,7 @@ spec:
           gethomepage.dev/description: Dashboard
           gethomepage.dev/icon: glance
         hosts:
-          - host: &host "glance.${SECRET_DOMAIN}"
+          - host: &host "glance.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

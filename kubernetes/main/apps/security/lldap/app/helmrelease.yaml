@@ -53,7 +53,7 @@ spec:
               LLDAP_HTTP_PORT: &httpPort 8080
               LLDAP_LDAP_PORT: &ldapPort 1389
               LLDAP_LDAP_BASE_DN: dc=milberry,dc=arpa
-              LLDAP_HTTP_URL: https://{{ .Release.Name }}.${SECRET_DOMAIN}
+              LLDAP_HTTP_URL: https://{{ .Release.Name }}.${PERSONAL_DOMAIN}
               LLDAP_SMTP_OPTIONS__ENABLE_PASSWORD_RESET: false
             envFrom:
               - secretRef:
@@ -103,7 +103,7 @@ spec:
           gethomepage.dev/description: LDAP server
           gethomepage.dev/icon: mdi-account-key
         hosts:
-          - host: &host "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - host: &host "{{ .Release.Name }}.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

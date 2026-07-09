@@ -89,7 +89,7 @@ spec:
           gethomepage.dev/description: Browse files
           gethomepage.dev/icon: filebrowser
         hosts:
-          - host: &host "fs.${SECRET_EXTERNAL_DOMAIN}"
+          - host: &host "fs.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

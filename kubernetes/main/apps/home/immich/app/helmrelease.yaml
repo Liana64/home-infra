@@ -157,7 +157,7 @@ spec:
           gethomepage.dev/description: Photo management
           gethomepage.dev/icon: immich
         hosts:
-          - host: &host "immich.${PUBLIC_DOMAIN}"
+          - host: &host "immich.${ORG_DOMAIN}"
             paths:
               - path: /
                 service:

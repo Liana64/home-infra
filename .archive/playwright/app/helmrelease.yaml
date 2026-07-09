@@ -61,7 +61,7 @@ spec:
     #          gethomepage.dev/description: Chrome browser
     #          gethomepage.dev/icon: chrome
     #        hosts:
-    #          - host: &host "playwright.${SECRET_INTERNAL_DOMAIN}"
+    #          - host: &host "playwright.${LAB_DOMAIN}"
     #            paths:
     #              - path: /
     #                service:
@@ -74,7 +74,7 @@ spec:
     route:
       app:
         hostnames:
-          - "{{ .Release.Name }}.${SECRET_DOMAIN}"
+          - "{{ .Release.Name }}.${PERSONAL_DOMAIN}"
         parentRefs:
           - name: internal
             namespace: kube-system

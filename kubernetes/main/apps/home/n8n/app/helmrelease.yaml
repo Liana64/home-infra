@@ -59,9 +59,9 @@ spec:
               N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "false"
               N8N_PROTOCOL: https
               N8N_PORT: &port 5678
-              N8N_HOST: &host "n8n.${PUBLIC_DOMAIN}"
-              N8N_EDITOR_BASE_URL: "https://n8n.${PUBLIC_DOMAIN}"
-              WEBHOOK_URL: "https://n8n.${PUBLIC_DOMAIN}/"
+              N8N_HOST: &host "n8n.${ORG_DOMAIN}"
+              N8N_EDITOR_BASE_URL: "https://n8n.${ORG_DOMAIN}"
+              WEBHOOK_URL: "https://n8n.${ORG_DOMAIN}/"
               N8N_LOG_LEVEL: info
               N8N_LOG_OUTPUT: console
               N8N_TRUST_PROXY: "true"

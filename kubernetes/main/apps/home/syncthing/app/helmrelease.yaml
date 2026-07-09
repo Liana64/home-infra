@@ -99,7 +99,7 @@ spec:
           gethomepage.dev/description: File sync
           gethomepage.dev/icon: syncthing
         hosts:
-          - host: &host "syncthing.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "syncthing.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

@@ -59,7 +59,7 @@ spec:
         #  className: traefik
         #  annotations:
         #    cert-manager.io/cluster-issuer: "letsencrypt-production"
-        #  hosts: ["hubble.${SECRET_INTERNAL_DOMAIN}"]
+        #  hosts: ["hubble.${LAB_DOMAIN}"]
     operator:
       prometheus:
         enabled: true

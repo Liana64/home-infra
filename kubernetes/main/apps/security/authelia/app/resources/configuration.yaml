@@ -9,9 +9,9 @@ session:
   remember_me: 1M
   cookies:
     - name: "authelia_session"
-      domain: '{{ env "SECRET_DOMAIN" }}'
-      authelia_url: 'https://auth.{{ env "SECRET_DOMAIN" }}'
-      default_redirection_url: 'https://{{ env "SECRET_DOMAIN" }}'
+      domain: '{{ env "PERSONAL_DOMAIN" }}'
+      authelia_url: 'https://auth.{{ env "PERSONAL_DOMAIN" }}'
+      default_redirection_url: 'https://{{ env "PERSONAL_DOMAIN" }}'
 
 access_control:
   default_policy: &policy two_factor
@@ -50,7 +50,7 @@ identity_providers:
         scopes: [openid, profile, groups, email]
         redirect_uris:
           [
-            'https://grafana.{{ env "SECRET_INTERNAL_DOMAIN" }}/login/generic_oauth',
+            'https://grafana.{{ env "LAB_DOMAIN" }}/login/generic_oauth',
           ]
         userinfo_signed_response_alg: none
       - client_id: miniflux
@@ -62,6 +62,6 @@ identity_providers:
         scopes: [openid, profile, groups, email]
         redirect_uris:
           [
-            'https://rss.{{ env "SECRET_INTERNAL_DOMAIN" }}/oauth2/oidc/callback',
+            'https://rss.{{ env "LAB_DOMAIN" }}/oauth2/oidc/callback',
           ]
         userinfo_signed_response_alg: none

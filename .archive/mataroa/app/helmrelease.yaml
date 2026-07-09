@@ -91,7 +91,7 @@ spec:
           gethomepage.dev/description: Blog
           gethomepage.dev/icon: mataroa
         hosts:
-          - host: &host "${SECRET_EXTERNAL_DOMAIN}"
+          - host: &host "${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

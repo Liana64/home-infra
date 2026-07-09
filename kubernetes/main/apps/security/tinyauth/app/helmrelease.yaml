@@ -22,12 +22,12 @@ spec:
               tag: v5.0.7@sha256:0793c71c49906e079d90c7e693cded9df569217a92d717dc9b171f2116fcd1c6
             env:
               TZ: ${TIMEZONE}
-              TINYAUTH_APPURL: https://tinyauth.${SECRET_DOMAIN}
+              TINYAUTH_APPURL: https://tinyauth.${PERSONAL_DOMAIN}
               TINYAUTH_ANALYTICS_ENABLED: false
               TINYAUTH_OAUTH_PROVIDERS_POCKETID_NAME: Pocket-ID
-              TINYAUTH_OAUTH_PROVIDERS_POCKETID_AUTHURL: https://id.${PUBLIC_DOMAIN}/authorize
-              TINYAUTH_OAUTH_PROVIDERS_POCKETID_TOKENURL: https://id.${PUBLIC_DOMAIN}/api/oidc/token
-              TINYAUTH_OAUTH_PROVIDERS_POCKETID_USERINFOURL: https://id.${PUBLIC_DOMAIN}/api/oidc/userinfo
+              TINYAUTH_OAUTH_PROVIDERS_POCKETID_AUTHURL: https://id.${ORG_DOMAIN}/authorize
+              TINYAUTH_OAUTH_PROVIDERS_POCKETID_TOKENURL: https://id.${ORG_DOMAIN}/api/oidc/token
+              TINYAUTH_OAUTH_PROVIDERS_POCKETID_USERINFOURL: https://id.${ORG_DOMAIN}/api/oidc/userinfo
               TINYAUTH_OAUTH_PROVIDERS_POCKETID_SCOPES: openid email profile groups
               TINYAUTH_AUTH_SECURECOOKIE: true
               TINYAUTH_AUTH_SESSIONEXPIRY: 604800
@@ -76,11 +76,11 @@ spec:
         className: traefik-external
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
-          external-dns.alpha.kubernetes.io/target: "external.${SECRET_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
           traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
         hosts:
-          - host: &host "tinyauth.${SECRET_DOMAIN}"
+          - host: &host "tinyauth.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

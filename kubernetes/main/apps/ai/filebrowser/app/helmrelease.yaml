@@ -79,7 +79,7 @@ spec:
           gethomepage.dev/description: Browse agent files
           gethomepage.dev/icon: filebrowser
         hosts:
-          - host: &host "aifs.${SECRET_DOMAIN}"
+          - host: &host "aifs.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:

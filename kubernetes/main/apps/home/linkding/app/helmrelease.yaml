@@ -93,13 +93,13 @@ spec:
           gethomepage.dev/description: Bookmark collection
           gethomepage.dev/icon: linkding
         hosts:
-          - host: &host "bookmarks.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "bookmarks.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:
                   identifier: app
                   port: http
-          - host: &publicHost "bookmarks.${PUBLIC_DOMAIN}"
+          - host: &publicHost "bookmarks.${ORG_DOMAIN}"
             paths:
               - path: /
                 service:

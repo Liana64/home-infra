@@ -66,7 +66,7 @@ spec:
           gethomepage.dev/group: Tools
           gethomepage.dev/icon: mdi-file-document
         hosts:
-          - host: &host "k8s.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "k8s.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

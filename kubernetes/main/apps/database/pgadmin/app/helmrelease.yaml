@@ -82,7 +82,7 @@ spec:
           gethomepage.dev/description: Postgres admin dashboard
           gethomepage.dev/icon: si-postgresql
         hosts:
-          - host: &host "{{ .Release.Name }}.${SECRET_INTERNAL_DOMAIN}"
+          - host: &host "{{ .Release.Name }}.${LAB_DOMAIN}"
             paths:
               - path: /
                 service:

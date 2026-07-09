@@ -29,7 +29,7 @@ spec:
       config:
         enabled: true
         data:
-          DOMAINS: tun.${SECRET_EXTERNAL_DOMAIN}
+          DOMAINS: tun.${PERSONAL_DOMAIN}
           PROXIED: "false"
           IP6_PROVIDER: "none"
           DELETE_ON_STOP: "false"
