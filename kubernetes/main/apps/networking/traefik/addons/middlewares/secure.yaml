@@ -11,7 +11,6 @@ spec:
       - PUT
       - POST
     accessControlMaxAge: 100
-    # anchored: traefik regex-matches partially, unanchored allows evil.com suffixes
     accessControlAllowOriginListRegex:
       - '^https://([a-z0-9-]+\.)*${PERSONAL_DOMAIN}$'
       - '^https://([a-z0-9-]+\.)*${LAB_DOMAIN}$'
@@ -65,7 +64,6 @@ spec:
       - PUT
       - POST
     accessControlMaxAge: 100
-    # anchored: traefik regex-matches partially, unanchored allows evil.com suffixes
     accessControlAllowOriginListRegex:
       - '^https://([a-z0-9-]+\.)*${PERSONAL_DOMAIN}$'
       - '^https://([a-z0-9-]+\.)*${ORG_DOMAIN}$'
@@ -128,7 +126,6 @@ spec:
       - POST
       - DELETE
     accessControlMaxAge: 100
-    # anchored: traefik regex-matches partially, unanchored allows evil.com suffixes
     accessControlAllowOriginListRegex:
       - '^https://([a-z0-9-]+\.)*${PERSONAL_DOMAIN}$'
     accessControlAllowHeaders:
@@ -180,7 +177,6 @@ spec:
       - OPTIONS
       - DELETE
     accessControlMaxAge: 3600
-    # anchored: traefik regex-matches partially, unanchored allows evil.com suffixes
     accessControlAllowOriginListRegex:
       - '^https://([a-z0-9-]+\.)*${PERSONAL_DOMAIN}$'
       - '^element://'
