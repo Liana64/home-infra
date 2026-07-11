@@ -10,3 +10,8 @@ spec:
     kind: OCIRepository
     name: *app
     namespace: flux-system
+  values:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
