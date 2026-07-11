@@ -27,7 +27,7 @@ spec:
   values:
     deployment:
       enabled: true
-      replicas: 1
+      kind: DaemonSet
     service:
       enabled: true
       type: LoadBalancer
