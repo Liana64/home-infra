@@ -1,0 +1,55 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/notification.toolkit.fluxcd.io/alert_v1beta3.json
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: flux-system
+  namespace: flux-system
+spec:
+  providerRef:
+    name: alertmanager
+  eventSeverity: error
+  eventMetadata:
+    cluster: "${CLUSTER_NAME}"
+  eventSources:
+    - { kind: GitRepository, name: "*" }
+    - { kind: OCIRepository, name: "*" }
+    - { kind: HelmRepository, name: "*" }
+    - { kind: HelmChart, name: "*" }
+    - { kind: Kustomization, name: "*" }
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/notification.toolkit.fluxcd.io/alert_v1beta3.json
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: helmreleases
+  namespace: flux-system
+spec:
+  providerRef:
+    name: alertmanager
+  eventSeverity: error
+  eventMetadata:
+    cluster: "${CLUSTER_NAME}"
+  eventSources:
+    - { kind: HelmRelease, name: "*", namespace: ai }
+    - { kind: HelmRelease, name: "*", namespace: cert-manager }
+    - { kind: HelmRelease, name: "*", namespace: database }
+    - { kind: HelmRelease, name: "*", namespace: default }
+    - { kind: HelmRelease, name: "*", namespace: external-secrets }
+    - { kind: HelmRelease, name: "*", namespace: games }
+    - { kind: HelmRelease, name: "*", namespace: home }
+    - { kind: HelmRelease, name: "*", namespace: home-automation }
+    - { kind: HelmRelease, name: "*", namespace: kube-system }
+    - { kind: HelmRelease, name: "*", namespace: kyverno }
+    - { kind: HelmRelease, name: "*", namespace: labs }
+    - { kind: HelmRelease, name: "*", namespace: matrix }
+    - { kind: HelmRelease, name: "*", namespace: media }
+    - { kind: HelmRelease, name: "*", namespace: networking }
+    - { kind: HelmRelease, name: "*", namespace: observability }
+    - { kind: HelmRelease, name: "*", namespace: openebs }
+    - { kind: HelmRelease, name: "*", namespace: radio }
+    - { kind: HelmRelease, name: "*", namespace: renovate }
+    - { kind: HelmRelease, name: "*", namespace: security }
+    - { kind: HelmRelease, name: "*", namespace: system }
+    - { kind: HelmRelease, name: "*", namespace: system-controllers }
+    - { kind: HelmRelease, name: "*", namespace: volsync-system }
