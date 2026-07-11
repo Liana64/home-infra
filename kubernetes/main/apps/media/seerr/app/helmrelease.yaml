@@ -13,7 +13,9 @@ spec:
   values:
     controllers:
       seerr:
-        strategy: RollingUpdate
+        strategy: Recreate
+        pod:
+          terminationGracePeriodSeconds: 60
         containers:
           app:
             # renovate: datasource=docker depName=ghcr.io/seerr-team/seerr
@@ -24,6 +26,12 @@ spec:
               TZ: ${TIMEZONE}
               PORT: &port 5055
               forceIpv4First: true
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
             probes:
               liveness: &probes
                 enabled: true
@@ -36,6 +44,7 @@ spec:
                   periodSeconds: 10
                   timeoutSeconds: 1
                   failureThreshold: 3
+              readiness: *probes
             resources:
               requests:
                 cpu: 10m
@@ -97,7 +106,7 @@ spec:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth-anubis@kubernetescrd"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-no-auth-anubis@kubernetescrd"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Media
           gethomepage.dev/name: seerr
@@ -122,7 +131,7 @@ spec:
         className: traefik-external
         annotations:
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-no-auth@kubernetescrd"
         hosts:
           - host: *host
             paths:

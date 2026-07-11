@@ -35,7 +35,8 @@ spec:
         external-dns.alpha.kubernetes.io/hostname: "external.${PERSONAL_DOMAIN}"
         lbipam.cilium.io/ips: "${LB_TRAEFIK_EXTERNAL}"
       spec:
-        externalTrafficPolicy: Cluster
+        # Cluster SNATs WAN clients to node IPs, defeating per-IP limits
+        externalTrafficPolicy: Local
     env:
       - name: TZ
         value: "${TIMEZONE}"

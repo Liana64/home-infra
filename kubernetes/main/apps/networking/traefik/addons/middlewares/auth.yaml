@@ -5,7 +5,7 @@ metadata:
   name: traefik-middleware-anubis
 spec:
   forwardAuth:
-    address: http://anubis.security.svc.cluster.local:8080/.within.website/x/cmd/anubis/api/check
+    address: http://anubis-app.security.svc.cluster.local:8080/.within.website/x/cmd/anubis/api/check
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
