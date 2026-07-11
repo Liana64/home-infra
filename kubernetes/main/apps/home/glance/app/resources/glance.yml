@@ -70,7 +70,7 @@ pages:
             cache: 30m
             url: https://git.milberry.org/api/v1/users/liana/activities/feeds?limit=15
             headers:
-              Authorization: token ${FORGEJO_TOKEN}
+              Authorization: token $${FORGEJO_TOKEN}
             template: |
               <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
               {{ range .JSON.Array "" }}

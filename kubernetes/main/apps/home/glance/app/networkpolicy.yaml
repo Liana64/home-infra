@@ -19,6 +19,10 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
   egress:
     # widget feeds; cluster apps reached via ingress hostnames hairpin traefik
     - toEndpoints:
