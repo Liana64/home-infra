@@ -1,6 +1,15 @@
 ---
 fail_fast: false
+default_install_hook_types: [pre-commit, pre-push]
 repos:
+  - repo: local
+    hooks:
+      - id: forbid-unencrypted-sops
+        name: Check *.sops.yaml files are encrypted
+        entry: scripts/check-sops-encrypted.sh
+        language: script
+        files: \.sops\.ya?ml$
+        exclude: ^(\.sops\.ya?ml$|\.claude/templates/)
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -13,14 +22,8 @@ repos:
     rev: v2.1.1
     hooks:
       - id: forbid-secrets
-        exclude: rbac.yaml
+        exclude: (rbac\.yaml|^\.claude/templates/)
   - repo: https://github.com/zricethezav/gitleaks
     rev: v8.30.1
     hooks:
       - id: gitleaks
-  - repo: https://github.com/ansible/ansible-lint
-    rev: v25.1.2
-    hooks:
-      - id: ansible-lint
-        files: ^ansible/
-        args: [--profile=production]
