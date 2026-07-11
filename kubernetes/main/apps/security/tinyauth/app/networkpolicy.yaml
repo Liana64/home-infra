@@ -19,6 +19,10 @@ spec:
         - ports:
             - port: "3000"
               protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
   egress:
     # pocket-id OIDC via its ingress hostname hairpins traefik
     - toEndpoints:

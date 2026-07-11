@@ -31,6 +31,9 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: media
             app.kubernetes.io/name: jellyfin
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
   egress:
     - toEndpoints:
         - matchLabels:
