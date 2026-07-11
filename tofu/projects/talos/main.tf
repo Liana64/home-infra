@@ -88,4 +88,3 @@ output "ipv4_addresses" {
     n3    = module.n3.ipv4_addresses
   }
 }
-

@@ -77,7 +77,7 @@ spec:
               limits:
                 memory: 4096Mi
                 #nvidia.com/gpu: 1
-                
+
     defaultPodOptions:
       affinity:
         nodeAffinity:
