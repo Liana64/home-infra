@@ -9,6 +9,11 @@ KUBERNETES_DIR=$1
 
 kustomize_args=("--load-restrictor=LoadRestrictionsNone")
 kustomize_config="kustomization.yaml"
+
+# unresolved flux postBuild vars fail typed schema fields; unset vars without := must stay literal
+substitute_vars() {
+  sed -E -e 's|\$\{APP\}|app|g' -e 's|\$\{[A-Z0-9_]+:=([^}]*)\}|\1|g'
+}
 kubeconform_args=(
   "-strict"
   "-ignore-missing-schemas"
@@ -34,7 +39,7 @@ echo "=== Validating kustomizations in ${KUBERNETES_DIR}/flux ==="
 find "${KUBERNETES_DIR}/flux" -type f -name $kustomize_config -print0 | while IFS= read -r -d $'\0' file;
   do
     echo "=== Validating kustomizations in ${file/%$kustomize_config} ==="
-    kubectl kustomize "${file/%$kustomize_config}" "${kustomize_args[@]}" | \
+    kubectl kustomize "${file/%$kustomize_config}" "${kustomize_args[@]}" | substitute_vars | \
       kubeconform "${kubeconform_args[@]}"
     if [[ ${PIPESTATUS[0]} != 0 ]]; then
       exit 1
@@ -45,7 +50,7 @@ echo "=== Validating kustomizations in ${KUBERNETES_DIR}/apps ==="
 find "${KUBERNETES_DIR}/apps" -type f -name $kustomize_config -print0 | while IFS= read -r -d $'\0' file;
   do
     echo "=== Validating kustomizations in ${file/%$kustomize_config} ==="
-    kubectl kustomize "${file/%$kustomize_config}" "${kustomize_args[@]}" | \
+    kubectl kustomize "${file/%$kustomize_config}" "${kustomize_args[@]}" | substitute_vars | \
       kubeconform "${kubeconform_args[@]}"
     if [[ ${PIPESTATUS[0]} != 0 ]]; then
       exit 1
