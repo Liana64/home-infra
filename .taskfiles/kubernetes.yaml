@@ -4,7 +4,7 @@ version: "3"
 
 vars:
   KUBECONFORM_SCRIPT: "{{.SCRIPTS_DIR}}/kubeconform.sh"
-  KUBECTL_CMD: "kubectl --context {{.cluster}}"
+  KUBECTL_CMD: "kubectl --context {{.CLUSTER_NAME}}"
 
 tasks:
   resources:
@@ -23,34 +23,24 @@ tasks:
         certificaterequests
         ingresses
         pods
-    requires:
-      vars: ["cluster"]
 
   kubeconform:
     desc: Validate Kubernetes manifests with kubeconform
-    summary: |
-      Args:
-        cluster: Cluster to run command against (required)
-    cmd: bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}/{{.cluster}}
+    cmd: bash {{.KUBECONFORM_SCRIPT}} {{.KUBERNETES_DIR}}/{{.CLUSTER}}
     preconditions:
       - msg: Missing kubeconform script
         sh: test -f {{.KUBECONFORM_SCRIPT}}
-    requires:
-      vars: ["cluster"]
 
   top:
     desc: List top metrics
     cmds:
       - "{{.KUBECTL_CMD}} top node"
       - "{{.KUBECTL_CMD}} top pod -A"
-    requires:
-      vars: ["cluster"]
 
   browse-pvc:
     desc: Browse PersistentVolumeClaims
     summary: |
       Args:
-        cluster: Cluster to run command against (required)
         ns: Namespace to browse PersistentVolumeClaims in (default: default)
         claim: PersistentVolumeClaim to browse (required)
     interactive: true
@@ -58,38 +48,31 @@ tasks:
     vars:
       ns: '{{.ns | default "default"}}'
     requires:
-      vars: ["cluster", "claim"]
+      vars: ["claim"]
 
   drain:
     desc: Drain a node
     summary: |
       Args:
-        cluster: Cluster to run command against (required)
         node: Node to drain (required)
-    cmd: "{{.KUBECTL_CMD}} drain {{.node}} --ignore-daemonsets --delete-local-data --force"
+    cmd: "{{.KUBECTL_CMD}} drain {{.node}} --ignore-daemonsets --delete-emptydir-data --force"
     requires:
-      vars: ["cluster", "node"]
+      vars: ["node"]
 
   sync-externalsecret:
     desc: Force-sync an ExternalSecret
     summary: |
       Args:
-        cluster: Cluster to run command against (required)
         ns: Namespace the ExternalSecret exists in (default: default)
         name: ExternalSecret to sync (required)
     cmd: "{{.KUBECTL_CMD}} -n {{.ns}} annotate externalsecret {{.name}} force-sync=$(date +%s) --overwrite"
     vars:
       ns: '{{.ns | default "default"}}'
     requires:
-      vars: ["cluster", "name"]
+      vars: ["name"]
 
   sanitize:
     desc: Delete pods that aren't working as intended
-    summary: |
-      Args:
-        cluster: Cluster to run command against (required)
     cmds:
       - for: ["Evicted", "Failed", "Succeeded"]
         cmd: "{{.KUBECTL_CMD}} delete pods --field-selector status.phase={{.ITEM}} -A --ignore-not-found=true"
-    requires:
-      vars: ["cluster"]

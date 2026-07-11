@@ -22,10 +22,14 @@ tasks:
     cmds:
       - sops --decrypt --in-place {{.CLI_ARGS}}
 
+  check:
+    desc: Verify all *.sops.yaml files are encrypted
+    cmds:
+      - find . \( -path ./.git -o -path ./.claude/templates \) -prune -o -name '*.sops.yaml' -not -name '.sops.yaml' -print0 | xargs -0 ./scripts/check-sops-encrypted.sh
+
   list:
     desc: List all sops files
-    cmds:
-      - find . -name '*.sops.yaml' | while read -r file; do echo "${file}"; done
+    cmd: find . \( -path ./.git -o -path ./.claude/templates \) -prune -o -name '*.sops.yaml' -not -name '.sops.yaml' -print
 
   encrypt-all:
     desc: Encrypt all Kubernetes SOPS secrets that are not already encrypted

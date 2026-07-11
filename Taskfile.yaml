@@ -46,9 +46,14 @@ tasks:
       - task -l
 
   init:
-    desc: Install dependencies and setup environment
+    desc: Install git hooks and setup sops age key
     cmds:
-      - task: setup:init
       - task: precommit:init
-      - task: precommit:update
       - task: sops:setup
+
+  check:
+    desc: Validate the repo (pre-commit, kubeconform, tofu fmt)
+    cmds:
+      - pre-commit run --all-files
+      - task: kubernetes:kubeconform
+      - tofu fmt -check -recursive {{.ROOT_DIR}}/tofu

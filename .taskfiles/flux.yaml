@@ -9,19 +9,14 @@ tasks:
 
   bootstrap:
     desc: Bootstrap Flux into a Kubernetes cluster
-    summary: |
-      Args:
-        cluster: Cluster to run command against (required)
     prompt: Bootstrap Flux into the '{{.CLUSTER_NAME}}' cluster ... continue?
     cmds:
-      - kubectl --context {{.CLUSTER_NAME}} apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/{{.cluster}}/bootstrap/flux
-      - cat {{.AGE_FILE}} | kubectl -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
-      - sops --decrypt {{.KUBERNETES_DIR}}/{{.CLUSTER}}/flux/vars/cluster-secrets.sops.yaml | kubectl apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
-      - kubectl --context {{.CLUSTER_NAME}} apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.KUBERNETES_DIR}}/{{.cluster}}/flux/vars/cluster-settings.yaml
-      - kubectl --context {{.CLUSTER_NAME}} apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/{{.cluster}}/flux/config
+      - kubectl --context {{.CLUSTER_NAME}} apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/{{.CLUSTER}}/bootstrap/flux
+      - cat {{.AGE_FILE}} | kubectl --context {{.CLUSTER_NAME}} -n flux-system create secret generic sops-age --from-file=age.agekey=/dev/stdin
+      - sops --decrypt {{.KUBERNETES_DIR}}/{{.CLUSTER}}/flux/vars/cluster-secrets.sops.yaml | kubectl --context {{.CLUSTER_NAME}} apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename -
+      - kubectl --context {{.CLUSTER_NAME}} apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --filename {{.KUBERNETES_DIR}}/{{.CLUSTER}}/flux/vars/cluster-settings.yaml
+      - kubectl --context {{.CLUSTER_NAME}} apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side --kustomize {{.KUBERNETES_DIR}}/{{.CLUSTER}}/flux/config
       - task: github-deploy-key
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing kubeconfig
         sh: test -f {{.KUBECONFIG_FILE}}
@@ -44,7 +39,7 @@ tasks:
       kubectl --context {{.CLUSTER_NAME}} apply --kubeconfig {{.KUBECONFIG_FILE}} --server-side \
           --field-manager=kustomize-controller -f -
     requires:
-      vars: ["cluster", "path"]
+      vars: ["path"]
     vars:
       ns: '{{.ns | default "flux-system"}}'
       ks:
@@ -58,8 +53,6 @@ tasks:
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
     cmd: flux --context {{.CLUSTER_NAME}} reconcile --namespace flux-system kustomization cluster --with-source
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing kubeconfig
         sh: test -f {{.KUBECONFIG_FILE}}
@@ -68,8 +61,6 @@ tasks:
     cmds:
       - kubectl --context {{.CLUSTER_NAME}} create namespace flux-system --dry-run=client -o yaml | kubectl --context {{.CLUSTER_NAME}} apply --filename -
       - sops --decrypt {{.KUBERNETES_DIR}}/{{.CLUSTER}}/bootstrap/flux/github-deploy-key.sops.yaml | kubectl apply --context {{.CLUSTER_NAME}} --server-side --filename -
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing kubeconfig
         sh: test -f {{.KUBECONFIG_FILE}}
@@ -83,17 +74,13 @@ tasks:
     cmds:
       - flux --context {{.CLUSTER_NAME}} suspend hr {{.CLI_ARGS}}
       - flux --context {{.CLUSTER_NAME}} resume hr {{.CLI_ARGS}}
-    requires:
-      vars: ["cluster"]
 
   # https://github.com/fluxcd/helm-controller/issues/454#issuecomment-962208864
   redo-failed:
     desc: Restart all failed Helm Releases
     cmds:
-      - kubectl --context {{.CLUSTER_NAME}} get hr --all-namespaces | grep False | awk '{print $2, $1}' | gxargs -l bash -c 'flux suspend hr $0 -n $1'
-      - kubectl --context {{.CLUSTER_NAME}} get hr --all-namespaces | grep False | awk '{print $2, $1}' | gxargs -l bash -c 'flux resume hr $0 -n $1'
-    requires:
-      vars: ["cluster"]
+      - kubectl --context {{.CLUSTER_NAME}} get hr --all-namespaces | grep False | awk '{print $2, $1}' | xargs -l bash -c 'flux suspend hr $0 -n $1'
+      - kubectl --context {{.CLUSTER_NAME}} get hr --all-namespaces | grep False | awk '{print $2, $1}' | xargs -l bash -c 'flux resume hr $0 -n $1'
 
   # https://github.com/fluxcd/helm-controller/issues/454#issuecomment-962208864
   retry:
@@ -103,10 +90,8 @@ tasks:
       - sleep 2
       - flux --context {{.CLUSTER_NAME}} resume hr {{.hr}} -n {{.ns}}
     requires:
-      vars: ["cluster", "ns", "hr"]
+      vars: ["ns", "hr"]
 
   errors:
     desc: List errors from all namespaces
     cmd: flux --context {{.CLUSTER_NAME}} logs -A --level=error
-    requires:
-      vars: ["cluster"]

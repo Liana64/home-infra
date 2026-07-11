@@ -16,35 +16,28 @@ env:
 tasks:
   bootstrap:
     desc: Bootstrap the Talos cluster
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmds:
-      #- task: :tofu:provision
-      #  vars:
-      #    project: talos
       - task: generate
       - task: apply
       - until talhelper gencommand bootstrap --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} | bash; do sleep 10; done
       - task: fetch-kubeconfig
       - task: install-helm-apps
       - task: health
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing talhelper config file
         sh: test -f {{.TALHELPER_CONFIG_FILE}}
 
   rebuild:
-    desc: Bootstrap the Talos cluster
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    desc: Destroy and re-bootstrap the Talos cluster
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmds:
       - task: :tofu:nuke-talos
       - task: bootstrap
-    requires:
-      vars: ["cluster"]
 
   generate:
     desc: Generate Talos configs with talhelper
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmds:
       - |
         if [ ! -f "{{.TALHELPER_SECRET_FILE}}" ]; then
@@ -52,8 +45,6 @@ tasks:
             sops --encrypt --in-place {{.TALHELPER_SECRET_FILE}}
         fi
       - talhelper genconfig --config-file {{.TALHELPER_CONFIG_FILE}} --secret-file {{.TALHELPER_SECRET_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}}
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing talhelper config file {{.TALHELPER_CONFIG_FILE}}
         sh: test -f {{.TALHELPER_CONFIG_FILE}}
@@ -64,38 +55,34 @@ tasks:
 
   apply:
     desc: Apply Talos node configs
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmds:
       - talhelper gencommand apply --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="--insecure" | bash
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing talhelper config file
         sh: test -f {{.TALHELPER_CONFIG_FILE}}
 
   apply-config:
     desc: Apply a single config to a node
-    dir: "/{{.TALHELPER_CLUSTER_DIR}}"
+    dir: "{{.TALHELPER_CLUSTER_DIR}}"
     cmd: talosctl apply-config -n {{.node}} --file {{.file}} {{.CLI_ARGS}}
     requires:
-      vars: ["cluster", "node", "file"]
+      vars: ["node", "file"]
     preconditions:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG_FILE}}
 
   health:
     desc: Get Talos cluster health
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmd: "talosctl health --server=false"
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG_FILE}}
 
   fetch-kubeconfig:
     desc: Fetch kubeconfig
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmds:
       - until talhelper gencommand kubeconfig --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="{{.ROOT_DIR}} --force" | bash; do sleep 10; done
       - |-
@@ -104,39 +91,33 @@ tasks:
         kubectl config use-context $CLUSTER_NAME
         kubectl config unset contexts.$CLUSTER_NAME.namespace
         kubectl config delete-context admin@$CLUSTER_NAME || true
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing talhelper config file
         sh: test -f {{.TALHELPER_CONFIG_FILE}}
 
   install-helm-apps:
     desc: Bootstrap core apps needed for Talos
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmds:
       - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done
       - helmfile --kubeconfig {{.KUBECONFIG_FILE}} --file {{.HELMFILE_FILE}} apply --skip-diff-on-install --suppress-diff
       - until kubectl --kubeconfig {{.KUBECONFIG_FILE}} wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing kubeconfig
         sh: test -f {{.KUBECONFIG_FILE}}
       - msg: Missing helmfile
         sh: test -f {{.HELMFILE_FILE}}
 
-  # upgrade multiple with same image when node IP is sequential
-  # for x in {0..6}; do task talos:upgrade cluster=main image=factory.talos.dev/installer/xxx:v1.7.4 node=10.1.2.10$x; done
+  # batch (sequential node IPs): for x in {0..6}; do task talos:upgrade image=factory.talos.dev/installer/xxx:v1.7.4 node=10.1.2.10$x; done
   upgrade:
     desc: Upgrade Talos on a node
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmds:
       - "talosctl --nodes {{.node}} upgrade --image {{.image}} --wait=true --timeout=10m --preserve=true --reboot-mode={{.mode}}"
-      # - "talosctl --nodes {{.node}} health --wait-timeout=10m --server=false"
     vars:
       mode: '{{.mode | default "default"}}'
     requires:
-      vars: ["cluster", "node", "image"]
+      vars: ["node", "image"]
     preconditions:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG_FILE}}
@@ -147,10 +128,10 @@ tasks:
 
   upgrade-k8s:
     desc: Upgrade Kubernetes across the cluster
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmd: "talosctl --nodes {{.controller}} upgrade-k8s --to {{.to}}"
     requires:
-      vars: ["cluster", "controller", "to"]
+      vars: ["controller", "to"]
     preconditions:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG_FILE}}
@@ -161,10 +142,8 @@ tasks:
 
   run:
     desc: Run talos command
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmd: "talosctl {{.CLI_ARGS}}"
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG_FILE}}
@@ -200,18 +179,14 @@ tasks:
         kubectl get pods -n default -o name 2>/dev/null \
           | grep "^pod/node-debugger-$NODE-" \
           | xargs -r kubectl delete -n default --ignore-not-found >/dev/null
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: "Node not specified (usage: task talos:disks -- <node>)"
         sh: '[ -n "{{.CLI_ARGS}}" ]'
 
   dashboard:
     desc: Show talos dashboard for nodes
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmd: talosctl dashboard
-    requires:
-      vars: ["cluster"]
     preconditions:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG_FILE}}
@@ -219,11 +194,11 @@ tasks:
         sh: "talosctl config info >/dev/null 2>&1"
 
   support:
-    desc: Run talos command
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    desc: Generate a talos support bundle
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     cmd: "talosctl support -n {{.node}} -O {{.ROOT_DIR}}"
     requires:
-      vars: ["cluster", "node"]
+      vars: ["node"]
     preconditions:
       - msg: Missing talosconfig
         sh: test -f {{.TALOSCONFIG_FILE}}
@@ -232,8 +207,6 @@ tasks:
 
   destroy:
     desc: Resets nodes back to maintenance mode
-    dir: "/{{.BOOTSTRAP_TALOS_DIR}}"
+    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
     prompt: "This will destroy your cluster and reset the nodes back to maintenance mode… continue (force: {{.CLI_FORCE}})?"
     cmd: talhelper gencommand reset --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="--reboot {{- if eq .CLI_FORCE false }} --wipe-mode all --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL{{ end }} --graceful=false --wait=false" | bash
-    requires:
-      vars: ["cluster"]

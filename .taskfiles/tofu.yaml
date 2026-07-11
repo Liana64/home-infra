@@ -3,23 +3,27 @@
 version: "3"
 
 tasks:
-  provision:
-    desc: Provision a tofu project
-    cmd:
-      task: _apply
-      vars:
-        project: "{{.project}}"
-    requires:
-      vars: ["project"]
-
-  _apply:
-    internal: true
+  apply:
+    desc: Apply a tofu project, e.g. `task tofu:apply project=talos`
     cmd: tofu -chdir={{.ROOT_DIR}}/tofu/projects/{{.project}} apply
     requires:
       vars: ["project"]
     preconditions:
       - msg: Missing tofu project directory
         sh: test -d {{.ROOT_DIR}}/tofu/projects/{{.project}}
+
+  plan:
+    desc: Plan a tofu project, e.g. `task tofu:plan project=talos`
+    cmd: tofu -chdir={{.ROOT_DIR}}/tofu/projects/{{.project}} plan
+    requires:
+      vars: ["project"]
+    preconditions:
+      - msg: Missing tofu project directory
+        sh: test -d {{.ROOT_DIR}}/tofu/projects/{{.project}}
+
+  fmt:
+    desc: Format all tofu files
+    cmd: tofu fmt -recursive {{.ROOT_DIR}}/tofu
 
   nuke-talos:
     desc: Destroy the talos tofu project
