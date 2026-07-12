@@ -30,6 +30,9 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [200, 0],
+      "credentials": {
+        "httpHeaderAuth": { "id": "2xuyOUi7REA1aXA3", "name": "miniflux auth" }
+      },
       "parameters": {
         "url": "http://miniflux.home.svc.cluster.local/v1/feeds",
         "authentication": "genericCredentialType",
@@ -53,6 +56,9 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [600, 0],
+      "credentials": {
+        "httpHeaderAuth": { "id": "2xuyOUi7REA1aXA3", "name": "miniflux auth" }
+      },
       "parameters": {
         "url": "=http://miniflux.home.svc.cluster.local/v1/feeds/{{ $json.feedId }}/entries",
         "authentication": "genericCredentialType",
@@ -85,6 +91,9 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [1000, 0],
+      "credentials": {
+        "httpBearerAuth": { "id": "Q4IVcXxmB4Ic3kCZ", "name": "llama cpp auth" }
+      },
       "parameters": {
         "method": "POST",
         "url": "http://llama-cpp.ai.svc.cluster.local:8080/v1/chat/completions",
