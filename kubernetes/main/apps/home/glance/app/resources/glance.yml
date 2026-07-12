@@ -61,8 +61,6 @@ pages:
                   <ul class="list list-gap-2">
                   {{ range .JSON.Array "weekend" }}<li>{{ .String "" }}</li>{{ end }}
                   </ul>
-      - size: full
-        widgets:
           - type: group
             widgets:
               - type: lobsters
