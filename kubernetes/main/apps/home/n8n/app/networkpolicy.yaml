@@ -25,6 +25,13 @@ spec:
         - matchLabels:
             cnpg.io/cluster: postgres-1
             io.kubernetes.pod.namespace: database
+        - matchLabels:
+            app.kubernetes.io/name: miniflux
+        - matchLabels:
+            app.kubernetes.io/name: ntfy
+        - matchLabels:
+            io.kubernetes.pod.namespace: ai
+            app.kubernetes.io/name: llama-cpp
   egress:
     - toEndpoints:
         - matchLabels:
@@ -33,6 +40,23 @@ spec:
       toPorts:
         - ports:
             - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: miniflux
+        - matchLabels:
+            app.kubernetes.io/name: ntfy
+      toPorts:
+        - ports:
+            - port: "80"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: ai
+            app.kubernetes.io/name: llama-cpp
+      toPorts:
+        - ports:
+            - port: "8080"
               protocol: TCP
     # workflow nodes call external APIs
     - toEntities: ["world"]

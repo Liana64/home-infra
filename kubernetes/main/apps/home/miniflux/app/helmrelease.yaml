@@ -40,12 +40,12 @@ spec:
               tag: 2.3.2@sha256:cd353a6af9ce663291f405eddef26fa0d567f486b521c5d34e3fb50e41938b9a
             env:
               # DEBUG: "1"
-              BASE_URL: "https://rss.${PERSONAL_DOMAIN}"
+              BASE_URL: "https://rss.${LAB_DOMAIN}"
               CREATE_ADMIN: "1"
               LOG_DATE_TIME: "1"
               OAUTH2_CLIENT_ID: miniflux
               OAUTH2_USER_CREATION: "1"
-              OAUTH2_OIDC_DISCOVERY_ENDPOINT: "https://auth.${PERSONAL_DOMAIN}"
+              OAUTH2_OIDC_DISCOVERY_ENDPOINT: "https://id.${ORG_DOMAIN}"
               OAUTH2_PROVIDER: oidc
               OAUTH2_REDIRECT_URL: https://rss.${LAB_DOMAIN}/oauth2/oidc/callback
               METRICS_ALLOWED_NETWORKS: "${CLUSTER_CIDR}"
