@@ -8,7 +8,7 @@ resources:
   - ./filebrowser/ks.yaml
   #- ./openclaw/ks.yaml
   - ./claude-code/ks.yaml
+  - ./llama-cpp/ks.yaml
   - ./mcp-nixos/ks.yaml
-  - ./ollama/ks.yaml
   - ./open-webui/ks.yaml
   - ./qdrant-mcp/ks.yaml

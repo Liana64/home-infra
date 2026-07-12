@@ -11,7 +11,7 @@ spec:
     labels:
       app.kubernetes.io/name: *app
   dependsOn:
-    - name: ollama
+    - name: llama-cpp
       namespace: flux-system
   path: ./kubernetes/main/apps/ai/open-webui/app
   prune: true

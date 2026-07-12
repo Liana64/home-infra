@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app ollama
+  name: &app llama-cpp
 spec:
   interval: 1h
   chartRef:
@@ -11,8 +11,16 @@ spec:
     name: app-template
     namespace: flux-system
   values:
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
     controllers:
-      ollama:
+      llama-cpp:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -23,52 +31,65 @@ spec:
         containers:
           app:
             image:
-              repository: ollama/ollama
-              tag: 0.22.1@sha256:3ca37ec2b9cb6341b62554074205c616778fe98abcf9e4fc50361b79a07407ae
+              repository: ghcr.io/ggml-org/llama.cpp
+              tag: server-cuda-b9976@sha256:93b36c099c8fc978b79fec5a09dedf6573e5e3cef4f2223453dad93e6a273305
             env:
-              OLLAMA_HOST: "0.0.0.0:11434"
-              OLLAMA_KEEP_ALIVE: "5m"
-              OLLAMA_MODELS: /models
-              OLLAMA_FLASH_ATTENTION: "1"
-              OLLAMA_NUM_PARALLEL: "1"
+              LLAMA_ARG_HOST: "0.0.0.0"
+              LLAMA_ARG_PORT: "8080"
+              LLAMA_ARG_HF_REPO: "ggml-org/Qwen3-8B-GGUF:Q4_K_M"
+              LLAMA_ARG_ALIAS: "qwen3-8b"
+              LLAMA_ARG_N_GPU_LAYERS: "99"
+              LLAMA_ARG_CTX_SIZE: "8192"
+              LLAMA_ARG_SLEEP_IDLE_SECONDS: "600"
+              LLAMA_CACHE: /models
+            envFrom:
+              - secretRef:
+                  name: llama-cpp-secret
             probes:
               liveness: &probes
                 enabled: true
                 custom: true
                 spec:
                   httpGet:
-                    path: /api/tags
-                    port: &port 11434
-                  initialDelaySeconds: 30
+                    path: /health
+                    port: 8080
                   periodSeconds: 10
                   timeoutSeconds: 5
                   failureThreshold: 6
               readiness: *probes
+              # first boot downloads the model, allow up to 30m
               startup:
-                enabled: false
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 8080
+                  periodSeconds: 10
+                  failureThreshold: 180
             resources:
               requests:
                 cpu: 200m
                 memory: 2Gi
                 nvidia.com/gpu: 1
               limits:
-                memory: 16Gi
+                memory: 12Gi
                 nvidia.com/gpu: 1
             securityContext:
               allowPrivilegeEscalation: false
-              capabilities:
-                drop: [ALL]
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
     service:
       app:
         controller: *app
         ports:
           http:
-            port: *port
+            port: 8080
     persistence:
       models:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 100Gi
+        size: 50Gi
         retain: true
         globalMounts:
           - path: /models

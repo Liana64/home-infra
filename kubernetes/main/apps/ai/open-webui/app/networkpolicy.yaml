@@ -18,10 +18,6 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
-    - fromEndpoints:
-        - matchLabels:
-            app.kubernetes.io/name: ollama
-            io.kubernetes.pod.namespace: ai
   egress:
     - toEndpoints:
         - matchLabels:
@@ -36,11 +32,11 @@ spec:
               - matchPattern: "*"
     - toEndpoints:
         - matchLabels:
-            app.kubernetes.io/name: ollama
+            app.kubernetes.io/name: llama-cpp
             io.kubernetes.pod.namespace: ai
       toPorts:
         - ports:
-            - port: "11434"
+            - port: "8080"
               protocol: TCP
     - toEntities:
         - world
