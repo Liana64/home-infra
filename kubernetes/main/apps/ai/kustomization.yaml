@@ -5,9 +5,9 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./networkpolicy.yaml
-  #- ./filebrowser/ks.yaml
+  - ./filebrowser/ks.yaml
+  - ./claude-code/ks.yaml
   #- ./openclaw/ks.yaml
-  #- ./claude-code/ks.yaml
   - ./llama-cpp/ks.yaml
   #- ./mcp-nixos/ks.yaml
   - ./open-webui/ks.yaml
