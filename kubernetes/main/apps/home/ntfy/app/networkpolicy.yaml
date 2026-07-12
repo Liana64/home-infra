@@ -19,7 +19,7 @@ spec:
             app.kubernetes.io/name: n8n
       toPorts:
         - ports:
-            - port: "80"
+            - port: "8080"
               protocol: TCP
   egress:
     # upstream-base-url push relay (ntfy.sh) for iOS notifications
