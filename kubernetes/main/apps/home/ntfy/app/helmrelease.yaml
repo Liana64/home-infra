@@ -22,8 +22,6 @@ spec:
             image:
               repository: ghcr.io/liana64/ntfy
               tag: v2.26.0@sha256:4d241c2d77af9567d320f8128c57f44de41241bd0f71d09f7e47b079869a85cc
-            args:
-              - serve
             env:
               NTFY_BASE_URL: https://ntfy.${PERSONAL_DOMAIN}
               NTFY_UPSTREAM_BASE_URL: https://ntfy.sh
