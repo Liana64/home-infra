@@ -25,6 +25,9 @@ spec:
         - matchLabels:
             cnpg.io/cluster: postgres-1
             io.kubernetes.pod.namespace: database
+        - matchLabels:
+            app.kubernetes.io/name: lldap
+            io.kubernetes.pod.namespace: security
   egress:
     - toEndpoints:
         - matchLabels:
@@ -33,4 +36,12 @@ spec:
       toPorts:
         - ports:
             - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: security
+            app.kubernetes.io/name: lldap
+      toPorts:
+        - ports:
+            - port: "1389"
               protocol: TCP

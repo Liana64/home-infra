@@ -1,0 +1,7 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "externalsecret remoteRef keys are bitwarden secret ids, not secret values"
+regexTarget = "line"
+regexes = ['''key: "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"''']
