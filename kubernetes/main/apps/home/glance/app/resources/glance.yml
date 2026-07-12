@@ -49,16 +49,16 @@ pages:
           - type: group
             widgets:
               - type: custom-api
-                title: Chicago Report
+                title: Chicago
                 cache: 1h
                 url: http://n8n.home.svc.cluster.local:5678/webhook/chicago-digest
                 template: |
-                  <div class="size-h5">This week</div>
-                  <ul class="list list-gap-2">
+                  <div class="size-h3 color-primary margin-bottom-3">This week</div>
+                  <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
                   {{ range .JSON.Array "week" }}<li>{{ .String "" }}</li>{{ end }}
                   </ul>
-                  <div class="size-h5 margin-top-10">This weekend</div>
-                  <ul class="list list-gap-2">
+                  <div class="size-h3 color-primary margin-bottom-3 margin-top-10">This weekend</div>
+                  <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
                   {{ range .JSON.Array "weekend" }}<li>{{ .String "" }}</li>{{ end }}
                   </ul>
           - type: group

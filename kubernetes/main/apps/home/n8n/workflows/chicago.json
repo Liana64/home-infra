@@ -25,11 +25,35 @@
       }
     },
     {
-      "id": "a1000000-0000-0000-0000-000000000002",
+      "id": "a1000000-0000-0000-0000-000000000010",
+      "name": "Refresh webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, -200],
+      "webhookId": "b2000000-0000-0000-0000-000000000002",
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "chicago-refresh",
+        "responseMode": "lastNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "a1000000-0000-0000-0000-000000000011",
+      "name": "Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [200, -100],
+      "parameters": {
+        "jsCode": "return [{ json: {\n  feedPatterns: ['sun[-\\\\s]?times'],\n  skipPattern: 'obituar|dies at|dead at|in memoriam|death notice|horoscope|dear abby|crossword|puzzle|comics|murder|homicide|shooting|shot |stabb|fatal|killed|slain|body found|carjack|beaten',\n  priorityPattern: '\\\\btrans\\\\b|transgender|gender-affirming|nonbinary|non-binary|lgbt|drag show|drag brunch',\n  dedupThreshold: 0.5,\n  snippetWords: 40,\n  sections: ['week', 'weekend'],\n  maxItems: { week: 6, weekend: 6 },\n  maxWordsPerBullet: 18,\n  systemPrompt: 'You write ultra-concise dashboard digests as JSON. /no_think',\n  userPromptTemplate: 'From this week\\'s Chicago Sun-Times articles, build a \"Chicago Happenings\" digest as JSON. \"week\": at most {{MAX_WEEK}} bullets, top local stories, especially city/state politics. \"weekend\": at most {{MAX_WEEKEND}} bullets, events, openings, games, and closures happening Sat {{SAT}} or Sun {{SUN}}. Each bullet is ONE plain sentence, {{MAX_WORDS}} words max, rewritten in your own words -- never copy article text, no dates, no markers. Articles tagged [P] are priority: always include them first in their section (drop the tag). Skip national wire stories.\\n\\n{{ENTRIES}}'\n} }];"
+      }
+    },
+    {
+      "id": "b1000000-0000-0000-0000-000000000002",
       "name": "Get feeds",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [200, 0],
+      "position": [400, -100],
       "credentials": {
         "httpHeaderAuth": { "id": "2xuyOUi7REA1aXA3", "name": "miniflux auth" }
       },
@@ -41,21 +65,21 @@
       }
     },
     {
-      "id": "a1000000-0000-0000-0000-000000000003",
-      "name": "Find Sun-Times",
+      "id": "b1000000-0000-0000-0000-000000000003",
+      "name": "Match feeds",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [400, 0],
+      "position": [600, -100],
       "parameters": {
-        "jsCode": "const feeds = $input.all().map(i => i.json);\nconst feed = feeds.find(f => /sun[\\s-]?times/i.test(f.title || ''));\nif (!feed) throw new Error('Sun-Times feed not found in Miniflux');\nreturn [{ json: { feedId: feed.id } }];"
+        "jsCode": "const cfg = $('Config').first().json;\nconst patterns = cfg.feedPatterns.map(p => new RegExp(p, 'i'));\nconst feeds = $input.all().map(i => i.json);\nconst matched = feeds.filter(f => patterns.some(p => p.test(f.title || '')));\nif (!matched.length) throw new Error('no feeds matched cfg.feedPatterns');\nreturn matched.map(f => ({ json: { feedId: f.id, feedTitle: f.title } }));"
       }
     },
     {
-      "id": "a1000000-0000-0000-0000-000000000004",
-      "name": "Get week entries",
+      "id": "b1000000-0000-0000-0000-000000000004",
+      "name": "Get entries",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [600, 0],
+      "position": [800, -100],
       "credentials": {
         "httpHeaderAuth": { "id": "2xuyOUi7REA1aXA3", "name": "miniflux auth" }
       },
@@ -76,21 +100,51 @@
       }
     },
     {
-      "id": "a1000000-0000-0000-0000-000000000005",
-      "name": "Build prompt",
+      "id": "b1000000-0000-0000-0000-000000000005",
+      "name": "Flatten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [800, 0],
+      "position": [1000, -100],
       "parameters": {
-        "jsCode": "const all = $input.first().json.entries || [];\nconst skip = /obituar|dies at|dead at|in memoriam|death notice|horoscope|dear abby|crossword|puzzle|comics|murder|homicide|shooting|shot |stabb|fatal|killed|slain|body found|carjack/i;\nconst priority = /\\btrans\\b|transgender|gender-affirming|nonbinary|non-binary|lgbt|drag show|drag brunch/i;\nconst isPriority = e => priority.test(`${e.title} ${e.url}`);\nconst entries = all.filter(e => isPriority(e) || !skip.test(`${e.title} ${e.url}`));\nif (!entries.length) throw new Error('no Sun-Times entries in the last 7 days');\nconst WORDS = 40;\nconst text = entries.map(e => {\n  const snippet = (e.content || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim().split(' ').slice(0, WORDS).join(' ');\n  return `${isPriority(e) ? '[P] ' : '- '}${e.title} (${e.published_at.slice(0, 10)}): ${snippet}`;\n}).join('\\n');\nconst sat = $now.plus({ days: 1 }).toFormat('MMM d');\nconst sun = $now.plus({ days: 2 }).toFormat('MMM d');\nconst payload = {\n  model: 'qwen3',\n  temperature: 0.3,\n  response_format: { type: 'json_schema', json_schema: { name: 'digest', schema: { type: 'object', properties: { week: { type: 'array', items: { type: 'string' } }, weekend: { type: 'array', items: { type: 'string' } } }, required: ['week', 'weekend'] } } },\n  messages: [\n    { role: 'system', content: 'You write ultra-concise dashboard digests as JSON. /no_think' },\n    { role: 'user', content: `From this week's Chicago Sun-Times articles, build a \"Chicago Happenings\" digest as JSON. \"week\": at most 6 bullets, top local stories, especially city/state politics. \"weekend\": at most 6 bullets, events, openings, games, and closures happening Sat ${sat} or Sun ${sun}. Each bullet is ONE plain sentence, 18 words max, rewritten in your own words -- never copy article text, no dates, no markers. Articles tagged [P] are priority: always include them first in their section (drop the tag). Skip national wire stories.\\n\\n${text}` }\n  ]\n};\nreturn [{ json: { payload, count: entries.length } }];"
+        "jsCode": "return $input.all().flatMap(item => (item.json.entries || []).map(e => ({ json: e })));"
       }
     },
     {
-      "id": "a1000000-0000-0000-0000-000000000006",
+      "id": "b1000000-0000-0000-0000-000000000006",
+      "name": "Filter + tag priority",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "jsCode": "const cfg = $('Config').first().json;\nconst skip = new RegExp(cfg.skipPattern, 'i');\nconst priority = new RegExp(cfg.priorityPattern, 'i');\nconst entries = $input.all().map(i => i.json);\nconst isPriority = e => priority.test(`${e.title} ${e.url}`);\nconst kept = entries.filter(e => isPriority(e) || !skip.test(`${e.title} ${e.url}`));\nif (!kept.length) throw new Error('no entries survived skip/priority filtering');\nreturn kept.map(e => ({ json: { ...e, priority: isPriority(e) } }));"
+      }
+    },
+    {
+      "id": "b1000000-0000-0000-0000-000000000007",
+      "name": "Dedup cluster",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1400, -100],
+      "parameters": {
+        "jsCode": "function tokens(t) {\n  return new Set((t || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3));\n}\nfunction similarity(a, b) {\n  const ta = tokens(a), tb = tokens(b);\n  const inter = [...ta].filter(w => tb.has(w)).length;\n  return inter / Math.max(ta.size, tb.size, 1);\n}\nconst cfg = $('Config').first().json;\nconst items = $input.all().map(i => i.json).sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0));\nconst kept = [];\nfor (const e of items) {\n  if (!kept.some(k => similarity(k.title, e.title) > cfg.dedupThreshold)) kept.push(e);\n}\nreturn kept.map(e => ({\n  json: {\n    title: e.title,\n    published_at: e.published_at,\n    priority: e.priority,\n    snippet: (e.content || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim().split(' ').slice(0, cfg.snippetWords).join(' ')\n  }\n}));"
+      }
+    },
+    {
+      "id": "c1000000-0000-0000-0000-000000000002",
+      "name": "Build prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1600, -100],
+      "parameters": {
+        "jsCode": "const cfg = $('Config').first().json;\nconst entries = $input.all().map(i => i.json);\nif (!entries.length) throw new Error('no entries to summarize');\nconst text = entries.map(e => `${e.priority ? '[P] ' : '- '}${e.title} (${e.published_at.slice(0, 10)}): ${e.snippet}`).join('\\n');\nconst sat = $now.plus({ days: 1 }).toFormat('MMM d');\nconst sun = $now.plus({ days: 2 }).toFormat('MMM d');\nlet userPrompt = cfg.userPromptTemplate\n  .replaceAll('{{MAX_WORDS}}', cfg.maxWordsPerBullet)\n  .replaceAll('{{SAT}}', sat)\n  .replaceAll('{{SUN}}', sun)\n  .replaceAll('{{ENTRIES}}', text);\nfor (const name of cfg.sections) {\n  userPrompt = userPrompt.replaceAll(`{{MAX_${name.toUpperCase()}}}`, cfg.maxItems[name]);\n}\nconst properties = Object.fromEntries(cfg.sections.map(name => [name, { type: 'array', items: { type: 'string' } }]));\nconst payload = {\n  model: 'qwen3',\n  temperature: 0.3,\n  response_format: { type: 'json_schema', json_schema: { name: 'digest', schema: { type: 'object', properties, required: cfg.sections } } },\n  messages: [\n    { role: 'system', content: cfg.systemPrompt },\n    { role: 'user', content: userPrompt }\n  ]\n};\nreturn [{ json: { payload } }];"
+      }
+    },
+    {
+      "id": "c1000000-0000-0000-0000-000000000003",
       "name": "Summarize",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1000, 0],
+      "position": [1800, -100],
       "credentials": {
         "httpBearerAuth": { "id": "Q4IVcXxmB4Ic3kCZ", "name": "llama cpp auth" }
       },
@@ -108,27 +162,23 @@
       }
     },
     {
+      "id": "c1000000-0000-0000-0000-000000000004",
+      "name": "QA / clean digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, -100],
+      "parameters": {
+        "jsCode": "function tokens(t) {\n  return new Set((t || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3));\n}\nfunction similarity(a, b) {\n  const ta = tokens(a), tb = tokens(b);\n  const inter = [...ta].filter(w => tb.has(w)).length;\n  return inter / Math.max(ta.size, tb.size, 1);\n}\nconst cfg = $('Config').first().json;\nconst skip = new RegExp(cfg.skipPattern, 'i');\nconst raw = JSON.parse($input.first().json.choices[0].message.content);\nfunction clean(list, max) {\n  const kept = [];\n  for (const item of (list || [])) {\n    if (skip.test(item)) continue;\n    if (kept.some(k => similarity(k, item) > 0.6)) continue;\n    kept.push(item);\n    if (kept.length >= max) break;\n  }\n  return kept;\n}\nconst result = Object.fromEntries(cfg.sections.map(name => [name, clean(raw[name], cfg.maxItems[name])]));\nif (Object.values(result).every(list => !list.length)) throw new Error('QA: digest empty after cleanup');\nreturn [{ json: result }];"
+      }
+    },
+    {
       "id": "a1000000-0000-0000-0000-000000000007",
       "name": "Store digest",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1200, 0],
+      "position": [2200, -100],
       "parameters": {
-        "jsCode": "const d = JSON.parse($input.first().json.choices[0].message.content);\nconst s = $getWorkflowStaticData('global');\ns.digest = { week: d.week, weekend: d.weekend, updated: $now.toISO() };\nreturn [{ json: s.digest }];"
-      }
-    },
-    {
-      "id": "a1000000-0000-0000-0000-000000000010",
-      "name": "Refresh webhook",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [0, -200],
-      "webhookId": "b2000000-0000-0000-0000-000000000002",
-      "parameters": {
-        "httpMethod": "GET",
-        "path": "chicago-refresh",
-        "responseMode": "lastNode",
-        "options": {}
+        "jsCode": "const d = $input.first().json;\nconst s = $getWorkflowStaticData('global');\ns.digest = { week: d.week, weekend: d.weekend, updated: $now.toISO() };\nreturn [{ json: s.digest }];"
       }
     },
     {
@@ -158,24 +208,39 @@
   ],
   "connections": {
     "Friday 7am": {
-      "main": [[{ "node": "Get feeds", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Config", "type": "main", "index": 0 }]]
     },
     "Refresh webhook": {
+      "main": [[{ "node": "Config", "type": "main", "index": 0 }]]
+    },
+    "Config": {
       "main": [[{ "node": "Get feeds", "type": "main", "index": 0 }]]
     },
     "Get feeds": {
-      "main": [[{ "node": "Find Sun-Times", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Match feeds", "type": "main", "index": 0 }]]
     },
-    "Find Sun-Times": {
-      "main": [[{ "node": "Get week entries", "type": "main", "index": 0 }]]
+    "Match feeds": {
+      "main": [[{ "node": "Get entries", "type": "main", "index": 0 }]]
     },
-    "Get week entries": {
+    "Get entries": {
+      "main": [[{ "node": "Flatten", "type": "main", "index": 0 }]]
+    },
+    "Flatten": {
+      "main": [[{ "node": "Filter + tag priority", "type": "main", "index": 0 }]]
+    },
+    "Filter + tag priority": {
+      "main": [[{ "node": "Dedup cluster", "type": "main", "index": 0 }]]
+    },
+    "Dedup cluster": {
       "main": [[{ "node": "Build prompt", "type": "main", "index": 0 }]]
     },
     "Build prompt": {
       "main": [[{ "node": "Summarize", "type": "main", "index": 0 }]]
     },
     "Summarize": {
+      "main": [[{ "node": "QA / clean digest", "type": "main", "index": 0 }]]
+    },
+    "QA / clean digest": {
       "main": [[{ "node": "Store digest", "type": "main", "index": 0 }]]
     },
     "Digest webhook": {
