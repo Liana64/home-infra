@@ -1,5 +1,6 @@
 {
-  "name": "Chicago Happenings",
+  "id": "Chicago",
+  "name": "Chicago",
   "settings": {
     "executionOrder": "v1",
     "timezone": "America/Chicago"
