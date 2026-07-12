@@ -27,6 +27,9 @@ spec:
         - matchLabels:
             cnpg.io/cluster: postgres-1
             io.kubernetes.pod.namespace: database
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-external-networking
   egress:
     - toEndpoints:
         - matchLabels:
@@ -35,6 +38,14 @@ spec:
       toPorts:
         - ports:
             - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-external-networking
+      toPorts:
+        - ports:
+            - port: "8443"
               protocol: TCP
     # feed fetching
     - toEntities: ["world"]
