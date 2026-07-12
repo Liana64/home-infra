@@ -37,6 +37,9 @@ includes:
   volsync:
     taskfile: .taskfiles/volsync.yaml
     aliases: [v]
+  n8n:
+    taskfile: .taskfiles/n8n.yaml
+    aliases: [n]
   precommit: .taskfiles/precommit.yaml
 
 tasks:

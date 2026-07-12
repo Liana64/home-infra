@@ -1,0 +1,50 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  KUBECTL_CMD: "kubectl --context {{.CLUSTER_NAME}}"
+  N8N_EXEC: "kubectl --context {{.CLUSTER_NAME}} exec -i -n home deploy/n8n -c app --"
+  WORKFLOWS_DIR: "{{.KUBERNETES_DIR}}/{{.CLUSTER}}/apps/home/n8n/workflows"
+
+tasks:
+  sync-workflows:
+    desc: Import + publish every n8n workflow JSON from git, then restart to register webhooks
+    summary: n8n has no GitOps auto-apply; this covers import+publish+restart for every workflow file, present and future.
+    vars:
+      WORKFLOW_FILES:
+        sh: printf '%s\n' {{.WORKFLOWS_DIR}}/*.json
+    cmds:
+      - for: { var: WORKFLOW_FILES }
+        cmd: |
+          set -e
+          f="{{.ITEM}}"
+          name="$(basename "$f")"
+          id="$(jq -r .id "$f")"
+          {{.N8N_EXEC}} sh -c "cat > /tmp/$name" < "$f"
+          {{.N8N_EXEC}} n8n import:workflow --input="/tmp/$name"
+          {{.N8N_EXEC}} n8n publish:workflow --id="$id"
+      - "{{.KUBECTL_CMD}} -n home rollout restart deploy/n8n"
+      - "{{.KUBECTL_CMD}} -n home rollout status deploy/n8n --timeout=120s"
+    preconditions:
+      - msg: n8n workflows directory not found
+        sh: test -d "{{.WORKFLOWS_DIR}}"
+
+  refresh:
+    desc: Trigger an immediate production run of every digest workflow (present and future) via its -refresh webhook
+    vars:
+      REFRESH_PATHS:
+        sh: |
+          for f in {{.WORKFLOWS_DIR}}/*.json; do
+            jq -r '.nodes[] | select(.type == "n8n-nodes-base.webhook") | .parameters.path | select(endswith("-refresh"))' "$f"
+          done
+    cmds:
+      - for: { var: REFRESH_PATHS }
+        cmd: |
+          set -e
+          echo "-- {{.ITEM}} --"
+          {{.N8N_EXEC}} wget -qO- -T 300 "http://localhost:5678/webhook/{{.ITEM}}"
+          echo
+    preconditions:
+      - msg: n8n workflows directory not found
+        sh: test -d "{{.WORKFLOWS_DIR}}"
