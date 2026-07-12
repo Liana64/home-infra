@@ -13,20 +13,24 @@ spec:
   values:
     controllers:
       ntfy:
-        strategy: RollingUpdate
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
           app:
+            # renovate: datasource=docker depName=ghcr.io/liana64/ntfy
             image:
               repository: ghcr.io/liana64/ntfy
-              tag: 
+              tag: v2.24.0@sha256:f8a9b104313b87cc24ae4f775f39e6328205b57dff6ede3eaf098a91e5d79f59
             args:
               - serve
             env:
-              NTFY_BASE_URL: https://ntfy.${SECRET_DOMAIN}
+              NTFY_BASE_URL: https://ntfy.${PERSONAL_DOMAIN}
               NTFY_UPSTREAM_BASE_URL: https://ntfy.sh
               NTFY_BEHIND_PROXY: "true"
+              NTFY_AUTH_FILE: /var/lib/ntfy/user.db
+              NTFY_AUTH_DEFAULT_ACCESS: deny-all
+              NTFY_CACHE_FILE: /var/cache/ntfy/cache.db
               NTFY_ENABLE_LOGIN: "true"
               NTFY_ENABLE_SIGNUP: "false"
               NTFY_ENABLE_RESERVATIONS: "true"
@@ -78,10 +82,10 @@ spec:
           gethomepage.dev/name: Ntfy
           gethomepage.dev/description: Notification server
           gethomepage.dev/icon: ntfy
-          #gethomepage.dev/widget.url: "https://rss.${SECRET_INTERNAL_DOMAIN}"
+          #gethomepage.dev/widget.url: "https://rss.${LAB_DOMAIN}"
           #gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_MINIFLUX_TOKEN}}"
         hosts:
-          - host: &host "ntfy.${SECRET_DOMAIN}"
+          - host: &host "ntfy.${PERSONAL_DOMAIN}"
             paths:
               - path: /
                 service:
@@ -91,11 +95,14 @@ spec:
           - secretName: ntfy-tls
             hosts: [*host]
     persistence:
+      data:
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        retain: true
+        globalMounts:
+          - path: /var/lib/ntfy
       cache:
         type: emptyDir
         globalMounts:
           - path: /var/cache/ntfy
-      config:
-        type: emptyDir
-        globalMounts:
-          - path: /etc/ntfy
