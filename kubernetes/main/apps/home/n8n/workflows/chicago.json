@@ -1,6 +1,7 @@
 {
   "id": "Chicago",
   "name": "Chicago",
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "timezone": "America/Chicago"
@@ -75,7 +76,7 @@
       "typeVersion": 2,
       "position": [800, 0],
       "parameters": {
-        "jsCode": "const all = $input.first().json.entries || [];\nconst entries = all.filter(e => !/obituar|dies at|dead at|in memoriam/i.test(`${e.title} ${e.url}`));\nif (!entries.length) throw new Error('no Sun-Times entries in the last 7 days');\nconst text = entries.map(e =>\n  `## ${e.title} (${e.published_at.slice(0, 10)})\\n` +\n  (e.content || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim().slice(0, 1500)\n).join('\\n\\n');\nconst sat = $now.plus({ days: 1 }).toFormat('MMM d');\nconst sun = $now.plus({ days: 2 }).toFormat('MMM d');\nconst payload = {\n  model: 'qwen3',\n  temperature: 0.3,\n  response_format: { type: 'json_schema', json_schema: { name: 'digest', schema: { type: 'object', properties: { week: { type: 'array', items: { type: 'string' } }, weekend: { type: 'array', items: { type: 'string' } } }, required: ['week', 'weekend'] } } },\n  messages: [\n    { role: 'system', content: 'You summarize local news into JSON. /no_think' },\n    { role: 'user', content: `From this week's Chicago Sun-Times articles, build a \"Chicago Happenings\" digest as JSON. \"week\": one-line summaries of the top local stories of the week, especially city/state politics. \"weekend\": events, openings, games, and closures happening Sat ${sat} or Sun ${sun}. Skip national wire stories and omit obituaries or death notices entirely.\\n\\n${text}` }\n  ]\n};\nreturn [{ json: { payload, count: entries.length } }];"
+        "jsCode": "const all = $input.first().json.entries || [];\nconst skip = /obituar|dies at|dead at|in memoriam|death notice|horoscope|dear abby|crossword|puzzle|comics|murder|homicide|shooting|shot |stabb|fatal|killed|slain|body found|carjack/i;\nconst priority = /\\btrans\\b|transgender|gender-affirming|nonbinary|non-binary|lgbt|drag show|drag brunch/i;\nconst isPriority = e => priority.test(`${e.title} ${e.url}`);\nconst entries = all.filter(e => isPriority(e) || !skip.test(`${e.title} ${e.url}`));\nif (!entries.length) throw new Error('no Sun-Times entries in the last 7 days');\nconst WORDS = 40;\nconst text = entries.map(e => {\n  const snippet = (e.content || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim().split(' ').slice(0, WORDS).join(' ');\n  return `${isPriority(e) ? '[P] ' : '- '}${e.title} (${e.published_at.slice(0, 10)}): ${snippet}`;\n}).join('\\n');\nconst sat = $now.plus({ days: 1 }).toFormat('MMM d');\nconst sun = $now.plus({ days: 2 }).toFormat('MMM d');\nconst payload = {\n  model: 'qwen3',\n  temperature: 0.3,\n  response_format: { type: 'json_schema', json_schema: { name: 'digest', schema: { type: 'object', properties: { week: { type: 'array', items: { type: 'string' } }, weekend: { type: 'array', items: { type: 'string' } } }, required: ['week', 'weekend'] } } },\n  messages: [\n    { role: 'system', content: 'You write ultra-concise dashboard digests as JSON. /no_think' },\n    { role: 'user', content: `From this week's Chicago Sun-Times articles, build a \"Chicago Happenings\" digest as JSON. \"week\": at most 6 bullets, top local stories, especially city/state politics. \"weekend\": at most 6 bullets, events, openings, games, and closures happening Sat ${sat} or Sun ${sun}. Each bullet is ONE plain sentence, 18 words max, rewritten in your own words -- never copy article text, no dates, no markers. Articles tagged [P] are priority: always include them first in their section (drop the tag). Skip national wire stories.\\n\\n${text}` }\n  ]\n};\nreturn [{ json: { payload, count: entries.length } }];"
       }
     },
     {
@@ -108,6 +109,20 @@
       }
     },
     {
+      "id": "a1000000-0000-0000-0000-000000000010",
+      "name": "Refresh webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, -200],
+      "webhookId": "b2000000-0000-0000-0000-000000000002",
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "chicago-refresh",
+        "responseMode": "lastNode",
+        "options": {}
+      }
+    },
+    {
       "id": "a1000000-0000-0000-0000-000000000008",
       "name": "Digest webhook",
       "type": "n8n-nodes-base.webhook",
@@ -134,6 +149,9 @@
   ],
   "connections": {
     "Friday 7am": {
+      "main": [[{ "node": "Get feeds", "type": "main", "index": 0 }]]
+    },
+    "Refresh webhook": {
       "main": [[{ "node": "Get feeds", "type": "main", "index": 0 }]]
     },
     "Get feeds": {
