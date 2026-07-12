@@ -18,6 +18,15 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+    # same-node ClusterIP replies miss CT reverse-xlate (socketLB
+    # hostNamespaceOnly + endpointRoutes) and hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-external-networking
+        - matchLabels:
+            app.kubernetes.io/name: llama-cpp
+            io.kubernetes.pod.namespace: ai
   egress:
     - toEndpoints:
         - matchLabels:
@@ -43,4 +52,12 @@ spec:
       toPorts:
         - ports:
             - port: "443"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-external-networking
+      toPorts:
+        - ports:
+            - port: "8443"
               protocol: TCP
