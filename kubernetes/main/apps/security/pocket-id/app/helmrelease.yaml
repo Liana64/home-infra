@@ -14,7 +14,7 @@ spec:
     controllers:
       pocket-id:
         replicas: 1
-        strategy: RollingUpdate
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
