@@ -91,6 +91,19 @@ pages:
             location: Chicago, Illinois, United States
             units: imperial
             hour-format: 12h
+          - type: custom-api
+            title: Chicago happenings
+            cache: 1h
+            url: http://n8n.home.svc.cluster.local:5678/webhook/chicago-digest
+            template: |
+              <div class="size-h5">This week</div>
+              <ul class="list list-gap-2">
+              {{ range .JSON.Array "week" }}<li>{{ .String "" }}</li>{{ end }}
+              </ul>
+              <div class="size-h5 margin-top-10">This weekend</div>
+              <ul class="list list-gap-2">
+              {{ range .JSON.Array "weekend" }}<li>{{ .String "" }}</li>{{ end }}
+              </ul>
           - $include: /app/config/markets.yml
           - type: custom-api
             title: xkcd

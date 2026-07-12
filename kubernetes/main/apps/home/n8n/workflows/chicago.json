@@ -75,7 +75,7 @@
       "typeVersion": 2,
       "position": [800, 0],
       "parameters": {
-        "jsCode": "const all = $input.first().json.entries || [];\nconst entries = all.filter(e => !/obituar|dies at|dead at|in memoriam/i.test(`${e.title} ${e.url}`));\nif (!entries.length) throw new Error('no Sun-Times entries in the last 7 days');\nconst text = entries.map(e =>\n  `## ${e.title} (${e.published_at.slice(0, 10)})\\n` +\n  (e.content || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim().slice(0, 1500)\n).join('\\n\\n');\nconst sat = $now.plus({ days: 1 }).toFormat('MMM d');\nconst sun = $now.plus({ days: 2 }).toFormat('MMM d');\nconst payload = {\n  model: 'qwen3',\n  temperature: 0.3,\n  messages: [\n    { role: 'system', content: 'You summarize local news. Output terse markdown. /no_think' },\n    { role: 'user', content: `From this week's Chicago Sun-Times articles, write a \"Chicago Happenings\" digest focused on events and political happenings: 1) top local stories of the week, especially city/state politics, 2) a \"This Weekend (Sat ${sat} / Sun ${sun})\" section listing events, openings, games, and closures. Skip national wire stories and omit obituaries or death notices entirely.\\n\\n${text}` }\n  ]\n};\nreturn [{ json: { payload, count: entries.length } }];"
+        "jsCode": "const all = $input.first().json.entries || [];\nconst entries = all.filter(e => !/obituar|dies at|dead at|in memoriam/i.test(`${e.title} ${e.url}`));\nif (!entries.length) throw new Error('no Sun-Times entries in the last 7 days');\nconst text = entries.map(e =>\n  `## ${e.title} (${e.published_at.slice(0, 10)})\\n` +\n  (e.content || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim().slice(0, 1500)\n).join('\\n\\n');\nconst sat = $now.plus({ days: 1 }).toFormat('MMM d');\nconst sun = $now.plus({ days: 2 }).toFormat('MMM d');\nconst payload = {\n  model: 'qwen3',\n  temperature: 0.3,\n  response_format: { type: 'json_schema', json_schema: { name: 'digest', schema: { type: 'object', properties: { week: { type: 'array', items: { type: 'string' } }, weekend: { type: 'array', items: { type: 'string' } } }, required: ['week', 'weekend'] } } },\n  messages: [\n    { role: 'system', content: 'You summarize local news into JSON. /no_think' },\n    { role: 'user', content: `From this week's Chicago Sun-Times articles, build a \"Chicago Happenings\" digest as JSON. \"week\": one-line summaries of the top local stories of the week, especially city/state politics. \"weekend\": events, openings, games, and closures happening Sat ${sat} or Sun ${sun}. Skip national wire stories and omit obituaries or death notices entirely.\\n\\n${text}` }\n  ]\n};\nreturn [{ json: { payload, count: entries.length } }];"
       }
     },
     {
@@ -99,27 +99,36 @@
     },
     {
       "id": "a1000000-0000-0000-0000-000000000007",
-      "name": "Push to ntfy",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "name": "Store digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [1200, 0],
       "parameters": {
-        "method": "POST",
-        "url": "http://ntfy.home.svc.cluster.local/chicago",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "X-Title", "value": "Chicago Happenings" },
-            { "name": "X-Markdown", "value": "yes" }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "raw",
-        "rawContentType": "text/markdown",
-        "body": "={{ $json.choices[0].message.content }}",
+        "jsCode": "const d = JSON.parse($input.first().json.choices[0].message.content);\nconst s = $getWorkflowStaticData('global');\ns.digest = { week: d.week, weekend: d.weekend, updated: $now.toISO() };\nreturn [{ json: s.digest }];"
+      }
+    },
+    {
+      "id": "a1000000-0000-0000-0000-000000000008",
+      "name": "Digest webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 200],
+      "webhookId": "b2000000-0000-0000-0000-000000000001",
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "chicago-digest",
+        "responseMode": "lastNode",
         "options": {}
+      }
+    },
+    {
+      "id": "a1000000-0000-0000-0000-000000000009",
+      "name": "Serve digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [200, 200],
+      "parameters": {
+        "jsCode": "const s = $getWorkflowStaticData('global');\nreturn [{ json: s.digest ?? { week: [], weekend: [], updated: null } }];"
       }
     }
   ],
@@ -140,7 +149,10 @@
       "main": [[{ "node": "Summarize", "type": "main", "index": 0 }]]
     },
     "Summarize": {
-      "main": [[{ "node": "Push to ntfy", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Store digest", "type": "main", "index": 0 }]]
+    },
+    "Digest webhook": {
+      "main": [[{ "node": "Serve digest", "type": "main", "index": 0 }]]
     }
   }
 }

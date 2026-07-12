@@ -23,6 +23,10 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: networking
             app.kubernetes.io/name: traefik
+    # same-node ClusterIP replies miss CT reverse-xlate, hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: n8n
   egress:
     # widget feeds; cluster apps reached via ingress hostnames hairpin traefik
     - toEndpoints:
@@ -32,6 +36,13 @@ spec:
       toPorts:
         - ports:
             - port: "8443"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: n8n
+      toPorts:
+        - ports:
+            - port: "5678"
               protocol: TCP
     - toEntities: ["world"]
       toPorts:

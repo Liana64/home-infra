@@ -15,6 +15,8 @@ spec:
             io.kubernetes.pod.namespace: networking
             app.kubernetes.io/name: traefik
             app.kubernetes.io/instance: traefik-networking
+        - matchLabels:
+            app.kubernetes.io/name: glance
       toPorts:
         - ports:
             - port: "5678"
