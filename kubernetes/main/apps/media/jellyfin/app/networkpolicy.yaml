@@ -22,7 +22,21 @@ spec:
         - ports:
             - port: "8096"
               protocol: TCP
+    # same-node ClusterIP replies miss CT reverse-xlate (socketLB
+    # hostNamespaceOnly + endpointRoutes) and hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
   egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP
     # metadata providers
     - toEntities: ["world"]
       toPorts:

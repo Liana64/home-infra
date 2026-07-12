@@ -33,7 +33,18 @@ spec:
         - matchLabels:
             cnpg.io/cluster: postgres-1
             io.kubernetes.pod.namespace: database
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
   egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: kube-system

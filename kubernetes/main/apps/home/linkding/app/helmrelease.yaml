@@ -51,9 +51,18 @@ spec:
               LD_DB_DATABASE: *dbName
               LD_DB_HOST: *dbHost
               LD_DB_PORT: 5432
+              LD_ENABLE_OIDC: "True"
+              OIDC_OP_AUTHORIZATION_ENDPOINT: "https://id.${ORG_DOMAIN}/authorize"
+              OIDC_OP_TOKEN_ENDPOINT: "https://id.${ORG_DOMAIN}/api/oidc/token"
+              OIDC_OP_USER_ENDPOINT: "https://id.${ORG_DOMAIN}/api/oidc/userinfo"
+              OIDC_OP_JWKS_ENDPOINT: "https://id.${ORG_DOMAIN}/.well-known/jwks.json"
+              OIDC_RP_CLIENT_ID: linkding
+              OIDC_RP_SCOPES: "openid email profile"
             envFrom:
               - secretRef:
                   name: *secret
+              - secretRef:
+                  name: linkding-oidc-secret
             probes:
               liveness: &probes
                 enabled: true
