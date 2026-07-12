@@ -29,7 +29,7 @@ spec:
             io.kubernetes.pod.namespace: database
         - matchLabels:
             io.kubernetes.pod.namespace: networking
-            app.kubernetes.io/instance: traefik-external-networking
+            app.kubernetes.io/instance: traefik-networking
   egress:
     - toEndpoints:
         - matchLabels:
@@ -42,7 +42,7 @@ spec:
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: networking
-            app.kubernetes.io/instance: traefik-external-networking
+            app.kubernetes.io/instance: traefik-networking
       toPorts:
         - ports:
             - port: "8443"
