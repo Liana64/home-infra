@@ -9,7 +9,7 @@
   "nodes": [
     {
       "id": "a1000000-0000-0000-0000-000000000001",
-      "name": "Friday 7am",
+      "name": "Mon+Fri 8am",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [0, 0],
@@ -18,7 +18,7 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "0 7 * * 5"
+              "expression": "0 8 * * 1,5"
             }
           ]
         }
@@ -45,7 +45,7 @@
       "typeVersion": 2,
       "position": [200, -100],
       "parameters": {
-        "jsCode": "return [{ json: {\n  feedPatterns: ['sun[-\\\\s]?times'],\n  skipPattern: 'obituar|dies at|dead at|in memoriam|death notice|horoscope|dear abby|crossword|puzzle|comics|murder|homicide|shooting|shot |stabb|fatal|killed|slain|body found|carjack|\\\\bbeaten\\\\b',\n  priorityPattern: '\\\\btrans\\\\b|transgender|gender-affirming|nonbinary|non-binary|lgbt|drag show|drag brunch',\n  dedupThreshold: 0.5,\n  snippetWords: 40,\n  sections: ['week', 'weekend'],\n  maxItems: { week: 6, weekend: 6 },\n  maxWordsPerBullet: 18,\n  systemPrompt: 'You write ultra-concise dashboard digests as JSON. /no_think',\n  userPromptTemplate: 'From this week\\'s Chicago Sun-Times articles, build a \"Chicago Happenings\" digest as JSON. \"week\": at most {{MAX_WEEK}} bullets, top local stories, especially city/state politics. \"weekend\": at most {{MAX_WEEKEND}} bullets, events, openings, games, and closures happening Sat {{SAT}} or Sun {{SUN}}. Each bullet is ONE plain sentence, {{MAX_WORDS}} words max, rewritten in your own words -- never copy article text, no dates, no markers. Articles tagged [P] are priority: always include them first in their section (drop the tag). Skip national wire stories.\\n\\n{{ENTRIES}}'\n} }];"
+        "jsCode": "return [{ json: {\n  feedPatterns: ['sun[-\\\\s]?times'],\n  skipPattern: 'obituar|dies at|dead at|in memoriam|death notice|horoscope|dear abby|crossword|puzzle|comics|murder|homicide|shooting|shot |stabb|fatal|killed|slain|body found|carjack|\\\\bbeaten\\\\b',\n  priorityPattern: '\\\\btrans\\\\b|transgender|gender-affirming|nonbinary|non-binary|lgbt|drag show|drag brunch',\n  dedupThreshold: 0.5,\n  snippetWords: 40,\n  sections: ['week', 'weekend'],\n  maxItems: { week: 5, weekend: 5 },\n  maxWordsPerBullet: 22,\n  systemPrompt: 'You write ultra-concise dashboard digests as JSON.',\n  userPromptTemplate: 'From this week\\'s Chicago Sun-Times articles, build a \"Chicago Happenings\" digest as JSON. \"week\": at most {{MAX_WEEK}} bullets, top local stories, especially city/state politics. \"weekend\": at most {{MAX_WEEKEND}} bullets, events, openings, games, and closures happening Sat {{SAT}} or Sun {{SUN}}. Before writing, group articles that share the same story, location, or theme (e.g. multiple articles about the same event) and write ONE bullet per group covering all its articles together -- do not write one bullet per article. Each bullet is ONE plain sentence, {{MAX_WORDS}} words max, rewritten in your own words -- never copy article text, no dates, no markers. Articles tagged [P] are priority: always include them first in their section (drop the tag). Skip national wire stories.\\n\\n{{ENTRIES}}'\n} }];"
       }
     },
     {
@@ -136,7 +136,7 @@
       "typeVersion": 2,
       "position": [1600, -100],
       "parameters": {
-        "jsCode": "const cfg = $('Config').first().json;\nconst entries = $input.all().map(i => i.json);\nif (!entries.length) throw new Error('no entries to summarize');\nconst text = entries.map(e => `${e.priority ? '[P] ' : '- '}${e.title} (${e.published_at.slice(0, 10)}): ${e.snippet}`).join('\\n');\nconst sat = $now.plus({ days: 1 }).toFormat('MMM d');\nconst sun = $now.plus({ days: 2 }).toFormat('MMM d');\nlet userPrompt = cfg.userPromptTemplate\n  .replaceAll('{{MAX_WORDS}}', cfg.maxWordsPerBullet)\n  .replaceAll('{{SAT}}', sat)\n  .replaceAll('{{SUN}}', sun)\n  .replaceAll('{{ENTRIES}}', text);\nfor (const name of cfg.sections) {\n  userPrompt = userPrompt.replaceAll(`{{MAX_${name.toUpperCase()}}}`, cfg.maxItems[name]);\n}\nconst properties = Object.fromEntries(cfg.sections.map(name => [name, { type: 'array', items: { type: 'string' } }]));\nconst payload = {\n  model: 'qwen3',\n  temperature: 0.3,\n  response_format: { type: 'json_schema', json_schema: { name: 'digest', schema: { type: 'object', properties, required: cfg.sections } } },\n  messages: [\n    { role: 'system', content: cfg.systemPrompt },\n    { role: 'user', content: userPrompt }\n  ]\n};\nreturn [{ json: { payload } }];"
+        "jsCode": "const cfg = $('Config').first().json;\nconst entries = $input.all().map(i => i.json);\nif (!entries.length) throw new Error('no entries to summarize');\nconst text = entries.map(e => `${e.priority ? '[P] ' : '- '}${e.title} (${e.published_at.slice(0, 10)}): ${e.snippet}`).join('\\n');\nconst sat = $now.plus({ days: (6 - $now.weekday + 7) % 7 }).toFormat('MMM d');\nconst sun = $now.plus({ days: (7 - $now.weekday) % 7 }).toFormat('MMM d');\nlet userPrompt = cfg.userPromptTemplate\n  .replaceAll('{{MAX_WORDS}}', cfg.maxWordsPerBullet)\n  .replaceAll('{{SAT}}', sat)\n  .replaceAll('{{SUN}}', sun)\n  .replaceAll('{{ENTRIES}}', text);\nfor (const name of cfg.sections) {\n  userPrompt = userPrompt.replaceAll(`{{MAX_${name.toUpperCase()}}}`, cfg.maxItems[name]);\n}\nconst properties = Object.fromEntries(cfg.sections.map(name => [name, { type: 'array', items: { type: 'string' } }]));\nconst payload = {\n  model: 'qwen3.5-9b',\n  temperature: 0.3,\n  max_tokens: 2048,\n  chat_template_kwargs: { enable_thinking: false },\n  response_format: { type: 'json_schema', json_schema: { name: 'digest', schema: { type: 'object', properties, required: cfg.sections } } },\n  messages: [\n    { role: 'system', content: cfg.systemPrompt },\n    { role: 'user', content: userPrompt }\n  ]\n};\nreturn [{ json: { payload } }];"
       }
     },
     {
@@ -207,7 +207,7 @@
     }
   ],
   "connections": {
-    "Friday 7am": {
+    "Mon+Fri 8am": {
       "main": [[{ "node": "Config", "type": "main", "index": 0 }]]
     },
     "Refresh webhook": {

@@ -28,6 +28,21 @@ spec:
                   secretKeyRef:
                     name: glance-includes
                     key: forgejo-token
+              SONARR_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: glance-includes
+                    key: sonarr-api-key
+              RADARR_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: glance-includes
+                    key: radarr-api-key
+              SEERR_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: glance-includes
+                    key: seerr-api-key
             probes:
               liveness: &probes
                 enabled: true

@@ -1,6 +1,6 @@
 {
-  "id": "Industry",
-  "name": "Industry",
+  "id": "AI",
+  "name": "AI",
   "active": true,
   "settings": {
     "executionOrder": "v1",
@@ -8,7 +8,7 @@
   },
   "nodes": [
     {
-      "id": "d1000000-0000-0000-0000-000000000001",
+      "id": "e1000000-0000-0000-0000-000000000001",
       "name": "Mon+Fri 8am",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -25,31 +25,31 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000010",
+      "id": "e1000000-0000-0000-0000-000000000010",
       "name": "Refresh webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [0, -200],
-      "webhookId": "e2000000-0000-0000-0000-000000000002",
+      "webhookId": "c2000000-0000-0000-0000-000000000002",
       "parameters": {
         "httpMethod": "GET",
-        "path": "industry-refresh",
+        "path": "ai-refresh",
         "responseMode": "lastNode",
         "options": {}
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000011",
+      "id": "e1000000-0000-0000-0000-000000000011",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [200, -100],
       "parameters": {
-        "jsCode": "return [{ json: {\n  feedIds: [143, 144, 145, 146],\n  dedupThreshold: 0.5,\n  snippetWords: 40,\n  sections: ['week', 'month'],\n  maxItems: { week: 5, month: 6 },\n  maxWordsPerBullet: 22,\n  systemPrompt: 'You write ultra-concise dashboard digests as JSON.',\n  userPromptTemplate: 'Build an \"Industry\" digest as JSON from semiconductor and hardware industry articles (SemiAnalysis, The Chip Letter, ServeTheHome). \"week\": at most {{MAX_WEEK}} bullets covering the most significant developments from the past 7 days. \"month\": at most {{MAX_MONTH}} bullets covering the broader trends and most important stories from 8-30 days ago -- a separate, older set of articles listed below, so there is no overlap with \"week\" by construction. Before writing, group the source articles by shared company, product, or theme (e.g. multiple AI-datacenter-power stories, or several stories about the same company) and write ONE bullet per group covering all its articles together -- do not write one bullet per article. Each bullet is ONE plain sentence, {{MAX_WORDS}} words max, rewritten in your own words -- never copy article text, no dates, no markers. Be picky: cover real industry trends and genuinely important releases only. Some sources (especially ServeTheHome) run marketing-flavored pieces -- skip advertising, sponsored-sounding reviews, minor product refreshes, and listicles entirely, and return fewer bullets rather than pad with them.\\n\\nPast 7 days:\\n{{WEEK_ENTRIES}}\\n\\n8-30 days ago:\\n{{MONTH_ENTRIES}}'\n} }];"
+        "jsCode": "return [{ json: {\n  feedIds: [142, 152, 161],\n  dedupThreshold: 0.5,\n  snippetWords: 40,\n  sections: ['week', 'month'],\n  maxItems: { week: 5, month: 6 },\n  maxWordsPerBullet: 22,\n  systemPrompt: 'You write ultra-concise dashboard digests as JSON.',\n  userPromptTemplate: 'Build an \"AI\" digest as JSON from AI news articles. Focus on major trends and genuine innovations: new model capabilities, research breakthroughs, significant tooling or infrastructure shifts, and industry-shaping moves. Skip incremental product updates, funding gossip, and hype pieces. \"week\": at most {{MAX_WEEK}} bullets covering the most significant developments from the past 7 days. \"month\": at most {{MAX_MONTH}} bullets covering the broader trends and most important stories from 8-30 days ago -- a separate, older set of articles listed below, so there is no overlap with \"week\" by construction. Before writing, group the source articles by shared model, company, or theme and write ONE bullet per group covering all its articles together -- do not write one bullet per article. Each bullet is ONE plain sentence, {{MAX_WORDS}} words max, rewritten in your own words -- never copy article text, no dates, no markers.\\n\\nPast 7 days:\\n{{WEEK_ENTRIES}}\\n\\n8-30 days ago:\\n{{MONTH_ENTRIES}}'\n} }];"
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000012",
+      "id": "e1000000-0000-0000-0000-000000000012",
       "name": "Feed IDs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -59,7 +59,7 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000004",
+      "id": "e1000000-0000-0000-0000-000000000004",
       "name": "Get entries",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -84,7 +84,7 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000005",
+      "id": "e1000000-0000-0000-0000-000000000005",
       "name": "Flatten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -94,7 +94,7 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000007",
+      "id": "e1000000-0000-0000-0000-000000000007",
       "name": "Bucket + dedup",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -104,7 +104,7 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000002",
+      "id": "e1000000-0000-0000-0000-000000000002",
       "name": "Build prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -114,7 +114,7 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000003",
+      "id": "e1000000-0000-0000-0000-000000000003",
       "name": "Summarize",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -136,7 +136,7 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000004b",
+      "id": "e1000000-0000-0000-0000-000000000013",
       "name": "QA / clean digest",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -146,7 +146,7 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000013",
+      "id": "e1000000-0000-0000-0000-000000000014",
       "name": "Store digest",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -156,21 +156,21 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000008",
+      "id": "e1000000-0000-0000-0000-000000000008",
       "name": "Digest webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [0, 200],
-      "webhookId": "e2000000-0000-0000-0000-000000000001",
+      "webhookId": "c2000000-0000-0000-0000-000000000001",
       "parameters": {
         "httpMethod": "GET",
-        "path": "industry-digest",
+        "path": "ai-digest",
         "responseMode": "lastNode",
         "options": {}
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000009",
+      "id": "e1000000-0000-0000-0000-000000000009",
       "name": "Serve digest",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,

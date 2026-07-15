@@ -1,6 +1,6 @@
 {
-  "id": "Industry",
-  "name": "Industry",
+  "id": "Politics",
+  "name": "Politics",
   "active": true,
   "settings": {
     "executionOrder": "v1",
@@ -8,7 +8,7 @@
   },
   "nodes": [
     {
-      "id": "d1000000-0000-0000-0000-000000000001",
+      "id": "f1000000-0000-0000-0000-000000000001",
       "name": "Mon+Fri 8am",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
@@ -25,31 +25,31 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000010",
+      "id": "f1000000-0000-0000-0000-000000000010",
       "name": "Refresh webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [0, -200],
-      "webhookId": "e2000000-0000-0000-0000-000000000002",
+      "webhookId": "f2000000-0000-0000-0000-000000000002",
       "parameters": {
         "httpMethod": "GET",
-        "path": "industry-refresh",
+        "path": "politics-refresh",
         "responseMode": "lastNode",
         "options": {}
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000011",
+      "id": "f1000000-0000-0000-0000-000000000011",
       "name": "Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [200, -100],
       "parameters": {
-        "jsCode": "return [{ json: {\n  feedIds: [143, 144, 145, 146],\n  dedupThreshold: 0.5,\n  snippetWords: 40,\n  sections: ['week', 'month'],\n  maxItems: { week: 5, month: 6 },\n  maxWordsPerBullet: 22,\n  systemPrompt: 'You write ultra-concise dashboard digests as JSON.',\n  userPromptTemplate: 'Build an \"Industry\" digest as JSON from semiconductor and hardware industry articles (SemiAnalysis, The Chip Letter, ServeTheHome). \"week\": at most {{MAX_WEEK}} bullets covering the most significant developments from the past 7 days. \"month\": at most {{MAX_MONTH}} bullets covering the broader trends and most important stories from 8-30 days ago -- a separate, older set of articles listed below, so there is no overlap with \"week\" by construction. Before writing, group the source articles by shared company, product, or theme (e.g. multiple AI-datacenter-power stories, or several stories about the same company) and write ONE bullet per group covering all its articles together -- do not write one bullet per article. Each bullet is ONE plain sentence, {{MAX_WORDS}} words max, rewritten in your own words -- never copy article text, no dates, no markers. Be picky: cover real industry trends and genuinely important releases only. Some sources (especially ServeTheHome) run marketing-flavored pieces -- skip advertising, sponsored-sounding reviews, minor product refreshes, and listicles entirely, and return fewer bullets rather than pad with them.\\n\\nPast 7 days:\\n{{WEEK_ENTRIES}}\\n\\n8-30 days ago:\\n{{MONTH_ENTRIES}}'\n} }];"
+        "jsCode": "return [{ json: {\n  feedIds: [122, 156, 159],\n  skipPattern: '/opinion|op-ed|editorial|/commentary|/voices|personal essay',\n  dedupThreshold: 0.5,\n  snippetWords: 40,\n  sections: ['week', 'month'],\n  maxItems: { week: 6, month: 6 },\n  maxWordsPerBullet: 22,\n  systemPrompt: 'You write ultra-concise dashboard digests as JSON.',\n  userPromptTemplate: 'Build a \"Politics\" digest as JSON from LGBTQ+ news articles. Cover two kinds of stories, mixed together in each section: new or advancing legislation, court rulings, executive actions, and policy changes affecting LGBTQ+ people (prioritize dangerous or restrictive measures, say which state or body is acting), and genuinely positive stories -- protections passing, bans struck down, firsts, community support. \"week\": at most {{MAX_WEEK}} bullets from the past 7 days. \"month\": at most {{MAX_MONTH}} bullets from 8-30 days ago -- a separate, older set of articles listed below, so there is no overlap with \"week\" by construction. The limits are maximums, not targets: if there is little or no real news, return fewer bullets or an empty array -- never pad with weak items. Summarize aggressively: group articles covering the same story, bill, or theme into ONE bullet spanning all of them -- do not write one bullet per article. Each bullet is ONE plain sentence, {{MAX_WORDS}} words max, rewritten in your own words -- never copy article text, no dates, no markers. Exclude opinion pieces, editorials, personal essays, and advice columns entirely. Skip celebrity gossip.\\n\\nPast 7 days:\\n{{WEEK_ENTRIES}}\\n\\n8-30 days ago:\\n{{MONTH_ENTRIES}}'\n} }];"
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000012",
+      "id": "f1000000-0000-0000-0000-000000000012",
       "name": "Feed IDs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -59,7 +59,7 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000004",
+      "id": "f1000000-0000-0000-0000-000000000004",
       "name": "Get entries",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -84,7 +84,7 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000005",
+      "id": "f1000000-0000-0000-0000-000000000005",
       "name": "Flatten",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -94,31 +94,41 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000007",
-      "name": "Bucket + dedup",
+      "id": "f1000000-0000-0000-0000-000000000006",
+      "name": "Filter opinion",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1000, -100],
+      "parameters": {
+        "jsCode": "const cfg = $('Config').first().json;\nconst skip = new RegExp(cfg.skipPattern, 'i');\nconst entries = $input.all().map(i => i.json);\nconst kept = entries.filter(e => !skip.test(`${e.title} ${e.url}`));\nif (!kept.length) throw new Error('no entries survived opinion filtering');\nreturn kept.map(e => ({ json: e }));"
+      }
+    },
+    {
+      "id": "f1000000-0000-0000-0000-000000000007",
+      "name": "Dedup cluster",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, -100],
       "parameters": {
         "jsCode": "function tokens(t) {\n  return new Set((t || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3));\n}\nfunction similarity(a, b) {\n  const ta = tokens(a), tb = tokens(b);\n  const inter = [...ta].filter(w => tb.has(w)).length;\n  return inter / Math.max(ta.size, tb.size, 1);\n}\nconst cfg = $('Config').first().json;\nconst cutoffMs = $now.minus({ days: 7 }).toMillis();\nconst entries = $input.all().map(i => i.json).sort((a, b) => new Date(b.published_at) - new Date(a.published_at));\nconst buckets = { week: [], month: [] };\nfor (const e of entries) {\n  const bucket = new Date(e.published_at).getTime() >= cutoffMs ? 'week' : 'month';\n  if (buckets[bucket].some(k => similarity(k.title, e.title) > cfg.dedupThreshold)) continue;\n  buckets[bucket].push(e);\n}\nconst out = [];\nfor (const bucket of ['week', 'month']) {\n  for (const e of buckets[bucket]) {\n    out.push({ json: {\n      bucket,\n      title: e.title,\n      published_at: e.published_at,\n      snippet: (e.content || '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim().split(' ').slice(0, cfg.snippetWords).join(' ')\n    } });\n  }\n}\nif (!out.length) throw new Error('no entries in the last 30 days');\nreturn out;"
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000002",
+      "id": "f1000000-0000-0000-0000-000000000002",
       "name": "Build prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1200, -100],
+      "position": [1400, -100],
       "parameters": {
-        "jsCode": "const cfg = $('Config').first().json;\nconst items = $input.all().map(i => i.json);\nconst fmt = list => list.map(e => `- ${e.title} (${e.published_at.slice(0, 10)}): ${e.snippet}`).join('\\n') || '(none)';\nconst weekEntries = fmt(items.filter(e => e.bucket === 'week'));\nconst monthEntries = fmt(items.filter(e => e.bucket === 'month'));\nlet userPrompt = cfg.userPromptTemplate\n  .replaceAll('{{MAX_WORDS}}', cfg.maxWordsPerBullet)\n  .replaceAll('{{WEEK_ENTRIES}}', weekEntries)\n  .replaceAll('{{MONTH_ENTRIES}}', monthEntries);\nfor (const name of cfg.sections) {\n  userPrompt = userPrompt.replaceAll(`{{MAX_${name.toUpperCase()}}}`, cfg.maxItems[name]);\n}\nconst properties = Object.fromEntries(cfg.sections.map(name => [name, { type: 'array', items: { type: 'string' } }]));\nconst payload = {\n  model: 'qwen3.5-9b',\n  temperature: 0.3,\n  max_tokens: 2048,\n  chat_template_kwargs: { enable_thinking: false },\n  response_format: { type: 'json_schema', json_schema: { name: 'digest', schema: { type: 'object', properties, required: cfg.sections } } },\n  messages: [\n    { role: 'system', content: cfg.systemPrompt },\n    { role: 'user', content: userPrompt }\n  ]\n};\nreturn [{ json: { payload } }];"
+        "jsCode": "const cfg = $('Config').first().json;\nconst items = $input.all().map(i => i.json);\nif (!items.length) throw new Error('no entries to summarize');\nconst fmt = list => list.map(e => `- ${e.title} (${e.published_at.slice(0, 10)}): ${e.snippet}`).join('\\n') || '(none)';\nconst weekEntries = fmt(items.filter(e => e.bucket === 'week'));\nconst monthEntries = fmt(items.filter(e => e.bucket === 'month'));\nlet userPrompt = cfg.userPromptTemplate\n  .replaceAll('{{MAX_WORDS}}', cfg.maxWordsPerBullet)\n  .replaceAll('{{WEEK_ENTRIES}}', weekEntries)\n  .replaceAll('{{MONTH_ENTRIES}}', monthEntries);\nfor (const name of cfg.sections) {\n  userPrompt = userPrompt.replaceAll(`{{MAX_${name.toUpperCase()}}}`, cfg.maxItems[name]);\n}\nconst properties = Object.fromEntries(cfg.sections.map(name => [name, { type: 'array', items: { type: 'string' } }]));\nconst payload = {\n  model: 'qwen3.5-9b',\n  temperature: 0.3,\n  max_tokens: 2048,\n  chat_template_kwargs: { enable_thinking: false },\n  response_format: { type: 'json_schema', json_schema: { name: 'digest', schema: { type: 'object', properties, required: cfg.sections } } },\n  messages: [\n    { role: 'system', content: cfg.systemPrompt },\n    { role: 'user', content: userPrompt }\n  ]\n};\nreturn [{ json: { payload } }];"
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000003",
+      "id": "f1000000-0000-0000-0000-000000000003",
       "name": "Summarize",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1400, -100],
+      "position": [1600, -100],
       "credentials": {
         "httpBearerAuth": { "id": "Q4IVcXxmB4Ic3kCZ", "name": "llama cpp auth" }
       },
@@ -136,41 +146,41 @@
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000004b",
+      "id": "f1000000-0000-0000-0000-000000000013",
       "name": "QA / clean digest",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1600, -100],
+      "position": [1800, -100],
       "parameters": {
-        "jsCode": "function tokens(t) {\n  return new Set((t || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3));\n}\nfunction similarity(a, b) {\n  const ta = tokens(a), tb = tokens(b);\n  const inter = [...ta].filter(w => tb.has(w)).length;\n  return inter / Math.max(ta.size, tb.size, 1);\n}\nconst cfg = $('Config').first().json;\nconst raw = JSON.parse($input.first().json.choices[0].message.content);\nfunction clean(list, max) {\n  const kept = [];\n  for (const item of (list || [])) {\n    if (kept.some(k => similarity(k, item) > 0.6)) continue;\n    kept.push(item);\n    if (kept.length >= max) break;\n  }\n  return kept;\n}\nconst result = Object.fromEntries(cfg.sections.map(name => [name, clean(raw[name], cfg.maxItems[name])]));\nif (Object.values(result).every(list => !list.length)) throw new Error('QA: digest empty after cleanup');\nreturn [{ json: result }];"
+        "jsCode": "function tokens(t) {\n  return new Set((t || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').split(' ').filter(w => w.length > 3));\n}\nfunction similarity(a, b) {\n  const ta = tokens(a), tb = tokens(b);\n  const inter = [...ta].filter(w => tb.has(w)).length;\n  return inter / Math.max(ta.size, tb.size, 1);\n}\nconst cfg = $('Config').first().json;\nconst raw = JSON.parse($input.first().json.choices[0].message.content);\nfunction clean(list, max) {\n  const kept = [];\n  for (const item of (list || [])) {\n    if (kept.some(k => similarity(k, item) > 0.6)) continue;\n    kept.push(item);\n    if (kept.length >= max) break;\n  }\n  return kept;\n}\nconst result = Object.fromEntries(cfg.sections.map(name => [name, clean(raw[name], cfg.maxItems[name])]));\nreturn [{ json: result }];"
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000013",
+      "id": "f1000000-0000-0000-0000-000000000014",
       "name": "Store digest",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1800, -100],
+      "position": [2000, -100],
       "parameters": {
         "jsCode": "const d = $input.first().json;\nconst s = $getWorkflowStaticData('global');\ns.digest = { week: d.week, month: d.month, updated: $now.toISO() };\nreturn [{ json: s.digest }];"
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000008",
+      "id": "f1000000-0000-0000-0000-000000000008",
       "name": "Digest webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [0, 200],
-      "webhookId": "e2000000-0000-0000-0000-000000000001",
+      "webhookId": "f2000000-0000-0000-0000-000000000001",
       "parameters": {
         "httpMethod": "GET",
-        "path": "industry-digest",
+        "path": "politics-digest",
         "responseMode": "lastNode",
         "options": {}
       }
     },
     {
-      "id": "d1000000-0000-0000-0000-000000000009",
+      "id": "f1000000-0000-0000-0000-000000000009",
       "name": "Serve digest",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -197,9 +207,12 @@
       "main": [[{ "node": "Flatten", "type": "main", "index": 0 }]]
     },
     "Flatten": {
-      "main": [[{ "node": "Bucket + dedup", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Filter opinion", "type": "main", "index": 0 }]]
     },
-    "Bucket + dedup": {
+    "Filter opinion": {
+      "main": [[{ "node": "Dedup cluster", "type": "main", "index": 0 }]]
+    },
+    "Dedup cluster": {
       "main": [[{ "node": "Build prompt", "type": "main", "index": 0 }]]
     },
     "Build prompt": {
