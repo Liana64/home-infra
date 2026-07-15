@@ -36,10 +36,15 @@ spec:
             env:
               LLAMA_ARG_HOST: "0.0.0.0"
               LLAMA_ARG_PORT: "8080"
-              LLAMA_ARG_HF_REPO: "ggml-org/Qwen3-8B-GGUF:Q4_K_M"
-              LLAMA_ARG_ALIAS: "qwen3-8b"
+              LLAMA_ARG_HF_REPO: "unsloth/Qwen3.5-9B-GGUF:Q4_K_M"
+              LLAMA_ARG_MMPROJ_AUTO: "0"
+              LLAMA_ARG_ALIAS: "qwen3.5-9b"
               LLAMA_ARG_N_GPU_LAYERS: "99"
-              LLAMA_ARG_CTX_SIZE: "8192"
+              # 64k q8_0 kv ~1.1GB fits the 8GB card only because GDN keeps kv on 8/32 layers, on OOM drop to 49152
+              LLAMA_ARG_CTX_SIZE: "65536"
+              LLAMA_ARG_FLASH_ATTN: "on"
+              LLAMA_ARG_CACHE_TYPE_K: "q8_0"
+              LLAMA_ARG_CACHE_TYPE_V: "q8_0"
               LLAMA_ARG_SLEEP_IDLE_SECONDS: "600"
               LLAMA_CACHE: /models
             envFrom:

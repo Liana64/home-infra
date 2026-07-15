@@ -41,12 +41,19 @@ spec:
               OPENID_PROVIDER_URL: "https://id.${ORG_DOMAIN}/.well-known/openid-configuration"
               ENABLE_OLLAMA_API: "false"
               ENABLE_OPENAI_API: "true"
-              OPENAI_API_BASE_URL: http://llama-cpp.ai.svc.cluster.local:8080/v1
-              OPENAI_API_KEY:
+              # env renders sorted, $() expansion breaks if key vars sort after OPENAI_API_KEYS
+              LLAMA_CPP_API_KEY:
                 valueFrom:
                   secretKeyRef:
                     name: llama-cpp-secret
                     key: LLAMA_ARG_API_KEY
+              FIREWORKS_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: open-webui-secret
+                    key: FIREWORKS_API_KEY
+              OPENAI_API_BASE_URLS: http://llama-cpp.ai.svc.cluster.local:8080/v1;https://api.fireworks.ai/inference/v1
+              OPENAI_API_KEYS: $(LLAMA_CPP_API_KEY);$(FIREWORKS_API_KEY)
               DATA_DIR: /app/backend/data
             envFrom:
               - secretRef:
