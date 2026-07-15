@@ -68,3 +68,6 @@ spec:
         - ports:
             - port: "443"
               protocol: TCP
+    # dashboard/datasource sidecars watch configmaps
+    - toEntities:
+        - kube-apiserver

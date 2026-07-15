@@ -1,0 +1,274 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: speedtest-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Network
+data:
+  speedtest.json: |
+    {
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "editable": false,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Download",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 4, "w": 5, "x": 0, "y": 0 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "decimals": 0,
+              "color": { "mode": "fixed", "fixedColor": "text" }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "targets": [
+            {
+              "expr": "last_over_time(speedtest_download_bits_per_second[3h])",
+              "instant": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Upload",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 4, "w": 5, "x": 5, "y": 0 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "decimals": 0,
+              "color": { "mode": "fixed", "fixedColor": "text" }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "targets": [
+            {
+              "expr": "last_over_time(speedtest_upload_bits_per_second[3h])",
+              "instant": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Ping",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 4, "w": 5, "x": 10, "y": 0 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "decimals": 1,
+              "color": { "mode": "fixed", "fixedColor": "text" }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "targets": [
+            {
+              "expr": "last_over_time(speedtest_ping_latency_milliseconds[3h])",
+              "instant": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Jitter",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 4, "w": 5, "x": 15, "y": 0 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "decimals": 1,
+              "color": { "mode": "fixed", "fixedColor": "text" }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "targets": [
+            {
+              "expr": "last_over_time(speedtest_jitter_latency_milliseconds[3h])",
+              "instant": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Last run",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 4, "w": 4, "x": 20, "y": 0 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "dtdurations",
+              "decimals": 1,
+              "color": { "mode": "fixed", "fixedColor": "text" }
+            },
+            "overrides": []
+          },
+          "options": {
+            "colorMode": "none",
+            "graphMode": "none",
+            "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }
+          },
+          "targets": [
+            {
+              "expr": "time() - timestamp(last_over_time(speedtest_up[24h]))",
+              "instant": true,
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Bandwidth",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 4 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "min": 0,
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "spanNulls": true,
+                "showPoints": "always",
+                "pointSize": 5
+              }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Download" },
+                "properties": [
+                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "#3987e5" } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Upload" },
+                "properties": [
+                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "#199e70" } }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "none" }
+          },
+          "targets": [
+            {
+              "expr": "speedtest_download_bits_per_second",
+              "legendFormat": "Download",
+              "refId": "A"
+            },
+            {
+              "expr": "speedtest_upload_bits_per_second",
+              "legendFormat": "Upload",
+              "refId": "B"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Latency",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "gridPos": { "h": 10, "w": 12, "x": 12, "y": 4 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "min": 0,
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "spanNulls": true,
+                "showPoints": "always",
+                "pointSize": 5
+              }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Ping" },
+                "properties": [
+                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "#3987e5" } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Jitter" },
+                "properties": [
+                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "#199e70" } }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "none" }
+          },
+          "targets": [
+            {
+              "expr": "speedtest_ping_latency_milliseconds",
+              "legendFormat": "Ping",
+              "refId": "A"
+            },
+            {
+              "expr": "speedtest_jitter_latency_milliseconds",
+              "legendFormat": "Jitter",
+              "refId": "B"
+            }
+          ]
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["network"],
+      "templating": { "list": [] },
+      "time": { "from": "now-7d", "to": "now" },
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "Speedtest",
+      "uid": "speedtest",
+      "version": 1,
+      "weekStart": ""
+    }
