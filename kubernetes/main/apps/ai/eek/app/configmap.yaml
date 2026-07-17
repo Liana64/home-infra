@@ -6,8 +6,8 @@ metadata:
 data:
   config.toml: |
     listen = "0.0.0.0:8551"
-    gateway_keys = ["${GATEWAY_KEY}"]
+    gateway_keys = ["$${GATEWAY_KEY}"]
 
     [providers.fireworks]
     base_url = "https://api.fireworks.ai/inference"
-    api_key = "${FIREWORKS_API_KEY}"
+    api_key = "$${FIREWORKS_API_KEY}"
