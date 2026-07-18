@@ -28,7 +28,7 @@ spec:
           app:
             image:
               repository: ghcr.io/liana64/eek
-              tag: latest@sha256:c6035aa9bb580d5df7e8f9ebc4f15a29f594eb483b8d366dce1071af1358e638
+              tag: latest@sha256:78e51160f988621d6a717ab44ca9821fd68193ee5ea8a8c857c66decee166887
             env:
               TZ: "${TIMEZONE}"
               EEK_CONFIG: /config/config.toml
