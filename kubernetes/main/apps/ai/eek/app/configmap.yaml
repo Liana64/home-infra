@@ -13,5 +13,6 @@ data:
     api_key = "$${FIREWORKS_API_KEY}"
 
     [providers.openai]
-    base_url = "https://api.openai.com/v1"
+    base_url = "https://api.openai.com"
     api_key = "$${OPENAI_API_KEY}"
+    protocol = "openai"
