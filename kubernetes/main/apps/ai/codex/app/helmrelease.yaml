@@ -29,7 +29,7 @@ spec:
         containers:
           app:
             image:
-              repository: ghcr.io/openai/universal-codex
+              repository: ghcr.io/openai/codex-universal
               tag: latest@sha256:905e512f36460e1be4cfedb30928a8a28299edb0fcd5de7998ceaa72d27fe304
             env:
               CODEX_HOME: /workspace/codex
