@@ -104,6 +104,13 @@ spec:
         size: 8Gi
         globalMounts:
           - path: /workspace/claude
+      codex:
+        enabled: true
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        globalMounts:
+          - path: /workspace/codex
       openclaw:
         enabled: true
         storageClass: cluster-nvme
