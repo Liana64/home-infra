@@ -9,15 +9,11 @@ spec:
     matchLabels:
       app.kubernetes.io/name: codex
   ingress:
+    # same-node ClusterIP SYN-ACK replies miss CT reverse-xlate, hit client ingress
     - fromEndpoints:
         - matchLabels:
-            app.kubernetes.io/name: traefik
-            app.kubernetes.io/instance: traefik-networking
-            io.kubernetes.pod.namespace: networking
-      toPorts:
-        - ports:
-            - port: "80"
-              protocol: TCP
+            io.kubernetes.pod.namespace: labs
+            app.kubernetes.io/name: forgejo
   egress:
     - toEndpoints:
         - matchLabels:
@@ -31,11 +27,22 @@ spec:
             dns:
               - matchPattern: "*"
     - toFQDNs:
+        - matchName: auth.openai.com
         - matchName: api.openai.com
+        - matchName: chatgpt.com
         - matchName: github.com
-    - toEntities:
-        - world
+        - matchName: gitlab.com
       toPorts:
         - ports:
             - port: "443"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: labs
+            app.kubernetes.io/name: forgejo
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+            - port: "2222"
               protocol: TCP

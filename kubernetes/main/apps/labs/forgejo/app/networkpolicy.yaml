@@ -27,6 +27,16 @@ spec:
         - ports:
             - port: "3000"
               protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: codex
+            io.kubernetes.pod.namespace: ai
+      toPorts:
+        - ports:
+            - port: "3000"
+              protocol: TCP
+            - port: "2222"
+              protocol: TCP
     # same-node ClusterIP replies miss CT reverse-xlate (socketLB
     # hostNamespaceOnly + endpointRoutes) and hit ingress policy
     - fromEndpoints:
