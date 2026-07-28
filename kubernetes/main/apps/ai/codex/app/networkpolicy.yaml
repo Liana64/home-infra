@@ -12,8 +12,8 @@ spec:
     # same-node ClusterIP SYN-ACK replies miss CT reverse-xlate, hit client ingress
     - fromEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: labs
-            app.kubernetes.io/name: forgejo
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
   egress:
     - toEndpoints:
         - matchLabels:
@@ -38,11 +38,11 @@ spec:
               protocol: TCP
     - toEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: labs
-            app.kubernetes.io/name: forgejo
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
       toPorts:
         - ports:
-            - port: "3000"
+            - port: "8443"
               protocol: TCP
             - port: "2222"
               protocol: TCP
