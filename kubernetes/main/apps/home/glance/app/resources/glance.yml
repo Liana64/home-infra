@@ -52,6 +52,8 @@ pages:
                     url: https://docs.google.com/document/d/1-267mJ9Km8iLBJym0Hw0ZzYB6mrTGJaP-F5OHjJEMNc/edit?tab=t.0
                   - title: Hardware Prices
                     url: https://pcpartpicker.com/trends/
+                  - title: Wordle
+                    url: https://www.nytimes.com/games/wordle/index.html
               - title: AI
                 links:
                   - title: Rankings
@@ -70,6 +72,31 @@ pages:
               <p style="margin-top:.5rem;font-size:.9em">{{ .JSON.String "title" }}</p>
       - size: full
         widgets:
+          # glance has no hide-when-empty; the template hides the widget itself
+          - type: custom-api
+            title: Alerts
+            css-class: alerts
+            cache: 2m
+            url: https://alertmanager.labs.lianas.org/api/v2/alerts?active=true&silenced=false&inhibited=false
+            template: |
+              {{ $cutoff := offsetNow "-168h" }}
+              {{ $alerts := 0 }}
+              <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
+              {{ range sortByTime "startsAt" "rfc3339" "desc" (.JSON.Array "") }}
+                {{ if and (ne (.String "labels.alertname") "Watchdog") ((.String "startsAt" | parseTime "rfc3339").After $cutoff) }}
+                {{ $alerts = add $alerts 1 }}
+                <li>
+                  <div class="size-h4{{ if eq (.String "labels.severity") "critical" }} color-negative{{ end }}">{{ .String "labels.alertname" }}</div>
+                  <ul class="list-horizontal-text">
+                    <li>{{ .String "labels.severity" }}</li>
+                    {{ if .Exists "labels.namespace" }}<li>{{ .String "labels.namespace" }}</li>{{ end }}
+                    <li {{ .String "startsAt" | parseTime "rfc3339" | toRelativeTime }}></li>
+                  </ul>
+                </li>
+                {{ end }}
+              {{ end }}
+              </ul>
+              {{ if eq $alerts 0 }}<style>.widget.alerts{display:none}</style>{{ end }}
           - type: group
             widgets:
               - type: custom-api
@@ -130,11 +157,11 @@ pages:
                   {{ end }}
           - type: group
             widgets:
+              - type: hacker-news
               - type: lobsters
                 sort-by: hot
                 limit: 18
                 collapse-after: 10
-              - type: hacker-news
               - type: rss
                 title: LWN
                 limit: 15
@@ -169,28 +196,6 @@ pages:
               </ul>
       - size: small
         widgets:
-          - type: custom-api
-            title: Alerts
-            cache: 2m
-            url: https://alertmanager.labs.lianas.org/api/v2/alerts?active=true&silenced=false&inhibited=false
-            template: |
-              {{ $alerts := 0 }}
-              <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
-              {{ range sortByTime "startsAt" "rfc3339" "desc" (.JSON.Array "") }}
-                {{ if ne (.String "labels.alertname") "Watchdog" }}
-                {{ $alerts = add $alerts 1 }}
-                <li>
-                  <div class="size-h4{{ if eq (.String "labels.severity") "critical" }} color-negative{{ end }}">{{ .String "labels.alertname" }}</div>
-                  <ul class="list-horizontal-text">
-                    <li>{{ .String "labels.severity" }}</li>
-                    {{ if .Exists "labels.namespace" }}<li>{{ .String "labels.namespace" }}</li>{{ end }}
-                    <li {{ .String "startsAt" | parseTime "rfc3339" | toRelativeTime }}></li>
-                  </ul>
-                </li>
-                {{ end }}
-              {{ end }}
-              </ul>
-              {{ if eq $alerts 0 }}<p class="color-positive">All clear</p>{{ end }}
           - type: custom-api
             title: Speedtest
             cache: 1h
