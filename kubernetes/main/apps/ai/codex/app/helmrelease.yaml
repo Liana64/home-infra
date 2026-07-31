@@ -30,17 +30,13 @@ spec:
           app:
             image:
               repository: ghcr.io/liana64/codex
-              tag: 0.145.0@sha256:77ed155355a5cc74a88e5e2dfaa37603548c6ff449f124fdb83d5c9b763c85e6
-            env:
-              CODEX_HOME: /workspace/codex
-              HOME: /workspace/codex
-            command: ["sleep", "infinity"]
+              tag: 0.145.0@sha256:d2b78318851b8ca46abbe0f35fa8715f4d09d2bf4b227e3a20528a57d6f57f06
             resources:
               requests:
                 cpu: 100m
                 memory: 512Mi
               limits:
-                memory: 4Gi
+                memory: 8Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -48,6 +44,13 @@ spec:
                 drop:
                   - ALL
     persistence:
+      home:
+        enabled: true
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 4Gi
+        globalMounts:
+          - path: /home/codex
       codex:
         enabled: true
         existingClaim: filebrowser-codex

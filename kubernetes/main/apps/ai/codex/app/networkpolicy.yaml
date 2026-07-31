@@ -32,9 +32,19 @@ spec:
         - matchName: chatgpt.com
         - matchName: github.com
         - matchName: gitlab.com
+        - matchName: crates.io
+        - matchName: index.crates.io
+        - matchName: static.crates.io
       toPorts:
         - ports:
             - port: "443"
+              protocol: TCP
+    - toFQDNs:
+        - matchName: github.com
+        - matchName: gitlab.com
+      toPorts:
+        - ports:
+            - port: "22"
               protocol: TCP
     - toEndpoints:
         - matchLabels:
