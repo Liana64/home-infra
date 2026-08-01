@@ -23,3 +23,31 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: allow-volsync-movers
+  namespace: games
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/created-by: volsync
+  egress:
+    # toCIDR because B2 rotates IPs with TTL 30s, faster than long-lived
+    # dialers re-resolve; FQDNs kept for any out-of-block endpoints
+    - toCIDR:
+        - 149.137.128.0/20
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+    - toFQDNs:
+        - matchName: api.backblazeb2.com
+        - matchPattern: "*.backblazeb2.com"
+        # B2 returns upload hosts under backblaze.com (pod-XXX.backblaze.com)
+        - matchPattern: "*.backblaze.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

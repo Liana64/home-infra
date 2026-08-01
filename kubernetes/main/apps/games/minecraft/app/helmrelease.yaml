@@ -15,22 +15,22 @@ spec:
       minecraft:
         annotations:
           reloader.stakater.com/auto: "true"
+        strategy: Recreate
         containers:
           app:
             image:
               repository: ghcr.io/itzg/minecraft-server
-              tag: 2026.1.2@sha256:b27a382b660ffee91866c1441ca3f2166461921bff4284c48674e0d143c5f6fb
+              tag: 2026.7.2@sha256:6ec1110e4d9236d00ae9436a3e4a5929583e5b19cc94b756a7c603f7cf647a77
             env:
               EULA: true
               SERVER_NAME: Shoujo Magical Gamers
               MOTD: "Minecraft Server"
               MAX_PLAYERS: 16
               MODE: survival
-              VERSION: "1.21.10"
+              VERSION: "26.2"
               DIFFICULTY: normal
               LEVEL: world
-              MEMORY: 8192M
-              JVM_XX_OPTS: "-XX:MaxRAMPercentage=75"
+              MEMORY: 6144M
               ENABLE_WHITELIST: true
               MAX_TICK_TIME: -1
               MAX_WORLD_SIZE: 29999984
@@ -43,50 +43,10 @@ spec:
               FORCE_GAMEMODE: true
               OVERRIDE_ICON: true
               ICON: https://i.ibb.co/q7PkGt4/shoujomagical.png
-              TYPE: FABRIC
-              #FABRIC_LAUNCHER_VERSION: 1.1.1
-              #FABRIC_LOADER_VERSION: 0.16.9
-              CURSEFORGE_FILES: |
-                balm-fabric:5848095
-                collective:5847007
-                glitchcore:5884524
-                fabric-api:5937030
-                cristel-lib:5871655
-                advanced-shulkerboxes:5850153
-                waystones:5841762
-                serene-seasons:5861336
-                mouse-tweaks:5856191
-                towns-and-towers:5871683
-                gui-clock:5847307
-                gui-compass:5847304
-                hand-over-your-items:5847302
-                husk-spawn:5847275
-                pet-names:5847197
-                stray-spawn:5847085
-                villager-names:5847043
-                dismount-entity:5847382
-                stack-refill:5847097
-                bottled-air:5847458
-                cave-spider-spawn:5847436
-                areas:5847486
-                spark:5924846
-                chat-heads:5902516
-                first-join-message:5847342
-              #              OPS:
-              #                valueFrom:
-              #                  secretKeyRef:
-              #                    name: minecraft-secret
-              #                    key: OPS
-              #              WHITELIST:
-              #                valueFrom:
-              #                  secretKeyRef:
-              #                    name: minecraft-secret
-              #                    key: WHITELIST
-              #              CF_API_KEY:
-              #                valueFrom:
-              #                  secretKeyRef:
-              #                    name: minecraft-secret
-              #                    key: CF_API_KEY
+              TYPE: MODRINTH
+              MODRINTH_MODPACK: vanilla-perfected
+              MODRINTH_VERSION: 1.0.3+26.2
+              MODRINTH_LOADER: fabric
             envFrom:
               - secretRef:
                   name: minecraft-secret
@@ -115,9 +75,43 @@ spec:
                 spec:
                   initialDelaySeconds: 30
                   periodSeconds: 1
-                  failureThreshold: 300
+                  failureThreshold: 900
                   exec: *probeexec
+          backup:
+            image:
+              repository: docker.io/itzg/mc-backup
+              tag: 2026.7.3@sha256:e1b9133777e99fe58be14690a4c93c8053efdc49e3f69fc67b0932b666ee2e33
+            env:
+              BACKUP_INTERVAL: 4h
+              PRUNE_BACKUPS_DAYS: 7
+              PAUSE_IF_NO_PLAYERS: true
+              TAR_COMPRESS_METHOD: zstd
+              EXCLUDES: "*.jar,cache,logs,libraries,mods"
+            envFrom:
+              - secretRef:
+                  name: minecraft-secret
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 512Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
         pod:
+          terminationGracePeriodSeconds: 120
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: kubernetes.io/hostname
+                        operator: In
+                        values:
+                          - "n1"
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
@@ -128,9 +122,9 @@ spec:
       app:
         controller: minecraft
         annotations:
-          external-dns.alpha.kubernetes.io/hostname: "shoujo.${PERSONAL_DOMAIN}"
-          external-dns.alpha.kubernetes.io/target: "mc-router.${PERSONAL_DOMAIN}"
-          mc-router.itzg.me/externalServerName: shoujo.${PERSONAL_DOMAIN}
+          external-dns.alpha.kubernetes.io/hostname: "shoujo.${ORG_DOMAIN}"
+          external-dns.alpha.kubernetes.io/target: "mc-router.${ORG_DOMAIN}"
+          mc-router.itzg.me/externalServerName: shoujo.${ORG_DOMAIN}
         ports:
           minecraft:
             port: 25565
@@ -138,10 +132,19 @@ spec:
       data:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 64Gi
+        size: 32Gi
         retain: true
         globalMounts:
           - path: /data
+      backups:
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 64Gi
+        retain: true
+        advancedMounts:
+          minecraft:
+            backup:
+              - path: /backups
       tmp:
         type: emptyDir
         medium: Memory
