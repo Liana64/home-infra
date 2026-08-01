@@ -8,13 +8,13 @@ resources:
   - ./glance/ks.yaml
   - ./homepage/ks.yaml
   - ./linkding/ks.yaml
-  - ./memos/ks.yaml
   - ./miniflux/ks.yaml
   - ./syncthing/ks.yaml
-  - ./grocy/ks.yaml
   - ./radicale/ks.yaml
   - ./immich/ks.yaml
   - ./n8n/ks.yaml
   - ./ntfy/ks.yaml
-  - ./opengist/ks.yaml
   - ./thelounge/ks.yaml
+  #- ./opengist/ks.yaml
+  #- ./grocy/ks.yaml
+  #- ./memos/ks.yaml
