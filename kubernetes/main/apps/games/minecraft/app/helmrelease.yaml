@@ -37,9 +37,6 @@ spec:
               VIEW_DISTANCE: 12
               MAX_BUILD_HEIGHT: 320
               SPAWN_PROTECTION: 0
-              ENABLE_AUTOPAUSE: true
-              AUTOPAUSE_TIMEOUT_EST: 600
-              AUTOPAUSE_TIMEOUT_INIT: 300
               FORCE_GAMEMODE: true
               OVERRIDE_ICON: true
               ICON: https://i.ibb.co/q7PkGt4/shoujomagical.png
@@ -57,10 +54,9 @@ spec:
               limits:
                 memory: 7Gi
             securityContext:
-              allowPrivilegeEscalation: true
+              allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
               capabilities:
-                add: ["NET_RAW"]
                 drop: ["ALL"]
             probes:
               liveness: &probe
