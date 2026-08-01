@@ -9,8 +9,8 @@ resources:
   - ./claude-code/ks.yaml
   - ./codex/ks.yaml
   - ./eek/ks.yaml
-  #- ./openclaw/ks.yaml
   - ./llama-cpp/ks.yaml
-  #- ./mcp-nixos/ks.yaml
   - ./open-webui/ks.yaml
+  #- ./mcp-nixos/ks.yaml
+  #- ./openclaw/ks.yaml
   #- ./qdrant-mcp/ks.yaml

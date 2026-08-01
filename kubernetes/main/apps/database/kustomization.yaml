@@ -6,11 +6,11 @@ resources:
   - ./namespace.yaml
   - ./networkpolicy.yaml
   - ./dragonfly/ks.yaml
-  - ./qdrant/ks.yaml
   - ./cloudnative-pg/ks.yaml
   - ./cnpg-barman-plugin/ks.yaml
   - ./pgadmin/ks.yaml
   - ./mosquitto/ks.yaml
+  #- ./qdrant/ks.yaml
   #- ./minio/ks.yaml
   #- ./rabbitmq/ks.yaml
   #- ./mysql/ks.yaml
