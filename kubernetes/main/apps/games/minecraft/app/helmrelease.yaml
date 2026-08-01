@@ -30,7 +30,7 @@ spec:
               VERSION: "26.2"
               DIFFICULTY: normal
               LEVEL: world
-              MEMORY: 2560M
+              MEMORY: 6144M
               ENABLE_WHITELIST: true
               MAX_TICK_TIME: -1
               MAX_WORLD_SIZE: 29999984
@@ -55,7 +55,7 @@ spec:
                 cpu: 100m
                 memory: 2Gi
               limits:
-                memory: 4Gi
+                memory: 7Gi
             securityContext:
               allowPrivilegeEscalation: true
               readOnlyRootFilesystem: true
@@ -112,7 +112,7 @@ spec:
                       - key: kubernetes.io/hostname
                         operator: In
                         values:
-                          - "n2"
+                          - "n1"
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
