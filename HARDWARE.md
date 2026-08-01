@@ -38,6 +38,12 @@ Dell OptiPlex 7050. VM: 4 cores, 3.5 GiB. One NIC. Datastore `local-ssd`, VM dis
 Tainted `node-role.kubernetes.io/etcd-only=true:NoSchedule` — **quorum member only**. Its 512 GB data
 disk is mounted and idle (2% used); no PVs land there while the taint stands.
 
+### Power
+
+CyberPower UPS (VA rating unrecorded — check the unit) backs the cluster. Not monitored: no NUT or
+apcupsd in-cluster, so there is no automated shutdown on battery and no runtime telemetry. The USB
+HID interface is unclaimed; `system/generic-device-plugin` already exists for device passthrough.
+
 ## Storage
 
 Two provisioners, both `openebs.io/local`, both `WaitForFirstConsumer`, `Delete` reclaim,
@@ -54,6 +60,11 @@ Consequences that drive architecture:
   node loss takes its apps offline until restored from backup. Multi-attach and rescheduling are
   not options.
 - Resizing means recreate + restore, not `kubectl edit`.
+- **hostpath enforces no quota.** A PVC's requested size is advisory; a volume can and does overrun
+  it and fill the shared pool, taking every other volume on that node with it.
+- **Per-volume usage metrics do not exist.** `kubelet_volume_stats_used_bytes` reports the whole
+  filesystem for every PVC on a node, so per-volume capacity alerting is impossible as configured.
+  Use `task talos:disks -- <node>` and `du` instead.
 - Durability tiering is manual: pick n2 (mirror) via affinity for anything you would grieve, leave
   the rest on n1.
 - Backups are the only redundancy for n1 data — volsync/kopia to Backblaze B2 (`copyMethod: Direct`,
@@ -70,10 +81,13 @@ Consequences that drive architecture:
 | n3 | `/var/mnt/local-pool` | 511.7G | 9.8G | 501.9G (2%) | — |
 | n3 | `/var/openebs/local` | 125.8G | 7.2G | 118.6G (6%) | — |
 
-Requests are not reservations — hostpath volumes have no quota, so subscription can exceed the pool
-(n1: 750 GiB subscribed on 755 GB). **n1 is effectively full**; new PVCs there need reclaim first.
-n2 is oversubscribed on paper (1261 GiB / 1.2 T) but the two large claims are sparse — syncthing
-700 GiB and immich 256 GiB dominate the ceiling.
+**n1 is effectively full, and it is one application.** `media/qbittorrent-media` measures 684 GB of
+the 684.6 GB used; every other volume on n1 sums to roughly 2 GB. Its PVC requests 512Gi and has
+overrun that by 34%, because nothing enforces it. Moving that data to mechanical disk reclaims ~90%
+of n1's flash.
+
+n2 is oversubscribed on paper (1261 GiB / 1.2 T) but the large claims are sparse — syncthing 700 GiB
+and immich 256 GiB dominate the ceiling.
 
 Largest claims: `home/syncthing` 700Gi (n2), `media/qbittorrent-media` 512Gi (n1),
 `home/immich-data` 256Gi (n2), `database/postgres-1-{1,2}` 128Gi each (n2/n1),
@@ -92,7 +106,23 @@ Refresh these numbers with `task talos:disks -- <node>`.
 Memory limits are deliberately overcommitted (269% on n1) — infra and backup-critical workloads get
 requests only, never memory limits; leaf apps get memory limits and never CPU limits.
 
+## The hypervisor layer is unmanaged
+
+Tofu declares the *VMs*, not the hosts they run on. Proxmox itself — install, ZFS pool creation,
+network bridges (`vmbr1`/`vmbr2`/`vmbr4`), PCIe passthrough config, datastore names
+(`local-mirror`, `local-ssd`) — is hand-built on each machine and recorded nowhere. There are also
+no backups of the Proxmox hosts: no config export, no `/etc/pve` snapshot, nothing offsite.
+
+Consequences: rebuilding a host after hardware failure is an undocumented manual exercise that must
+be reproduced exactly, since the Tofu VM definitions and the Talos `/dev/sdb` mount assumptions both
+depend on host-side layout that exists only in the running system. The GitOps guarantee stops at the
+VM boundary.
+
 ## Known drift
 
-`hostpci` for the GTX 1080 is commented out in `tofu/projects/talos/main.tf` while the card is live
-and advertised on n2 — a `tofu apply` would detach it.
+- `hostpci` for the GTX 1080 is commented out in `tofu/projects/talos/main.tf` while the card is
+  live and advertised on n2 — a `tofu apply` would detach it.
+- `default/filebrowser` and `default/codex` HelmReleases are live but absent from git, stuck
+  `InstallFailed` since 2026-07-22, duplicating the `ai/` copies and holding 30 GiB of PVCs.
+- `home/n8n`, `home/ntfy`, `home/opengist` ReplicationSources name PVCs that do not exist
+  (`n8n-data`, `ntfy-data`, `opengist-config`) and have never completed a backup.
