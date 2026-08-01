@@ -94,27 +94,20 @@ spec:
         enabled: true
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 12Gi
+        size: 1Gi
         globalMounts:
           - path: /workspace
       claude:
         enabled: true
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 8Gi
+        size: 1Gi
         globalMounts:
           - path: /workspace/claude
       codex:
         enabled: true
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 2Gi
+        size: 1Gi
         globalMounts:
           - path: /workspace/codex
-      openclaw:
-        enabled: true
-        storageClass: cluster-nvme
-        accessMode: ReadWriteOnce
-        size: 8Gi
-        globalMounts:
-          - path: /home/

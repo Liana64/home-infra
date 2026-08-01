@@ -36,7 +36,7 @@ spec:
                 cpu: 100m
                 memory: 512Mi
               limits:
-                memory: 8Gi
+                memory: 2Gi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -48,7 +48,7 @@ spec:
         enabled: true
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 4Gi
+        size: 1Gi
         globalMounts:
           - path: /home/codex
       codex:
