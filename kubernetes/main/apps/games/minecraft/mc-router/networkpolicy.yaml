@@ -18,6 +18,11 @@ spec:
         - ports:
             - port: "25565"
               protocol: TCP
+    # same-node ClusterIP replies miss CT reverse-xlate; arrive on ephemeral ports
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: games
+            app.kubernetes.io/name: minecraft
   egress:
     - toEndpoints:
         - matchLabels:
