@@ -45,8 +45,10 @@ spec:
               LLAMA_ARG_FLASH_ATTN: "on"
               LLAMA_ARG_CACHE_TYPE_K: "q8_0"
               LLAMA_ARG_CACHE_TYPE_V: "q8_0"
-              LLAMA_ARG_SLEEP_IDLE_SECONDS: "600"
               LLAMA_CACHE: /models
+            args:
+              - --sleep-idle-seconds
+              - "600"
             envFrom:
               - secretRef:
                   name: llama-cpp-secret
