@@ -53,7 +53,9 @@ spec:
           - path: /home/codex
       codex:
         enabled: true
-        existingClaim: filebrowser-codex
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 1Gi
         globalMounts:
           - path: /workspace/codex
       tmp:
