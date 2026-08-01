@@ -3,5 +3,8 @@ machine:
   kubelet:
     extraConfig:
       serializeImagePulls: false
+      imageGCHighThresholdPercent: 60
+      imageGCLowThresholdPercent: 45
+      imageMaximumGCAge: 168h
     extraArgs:
       rotate-server-certificates: true
