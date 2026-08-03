@@ -58,8 +58,10 @@ spec:
             regex: (apiserver_response_sizes_bucket|apiserver_watch_events_sizes_bucket)
     kubeControllerManager:
       enabled: true
-      endpoints: &kubeApiIP
-        - 172.16.4.10
+      endpoints: &controlPlaneIPs
+        - 172.16.4.11
+        - 172.16.4.12
+        - 172.16.4.13
     kubeScheduler:
       enabled: true
       endpoints: *kubeApiIP
