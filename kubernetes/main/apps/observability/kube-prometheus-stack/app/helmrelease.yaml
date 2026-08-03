@@ -64,7 +64,7 @@ spec:
         - 172.16.4.13
     kubeScheduler:
       enabled: true
-      endpoints: *kubeApiIP
+      endpoints: *controlPlaneIPs
     kubeEtcd:
       enabled: false
     kubeProxy:
