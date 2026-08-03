@@ -89,3 +89,20 @@ spec:
   egress:
     - toEntities:
         - kube-apiserver
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: admission-webhook-jobs
+  namespace: observability
+spec:
+  endpointSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - kube-prometheus-stack-admission-create
+          - kube-prometheus-stack-admission-patch
+  egress:
+    - toEntities:
+        - kube-apiserver
