@@ -26,9 +26,7 @@ spec:
     stsIncludeSubdomains: true
     stsPreload: true
     forceSTSHeader: true
-    customFrameOptionsValue: "allow-from https:${PERSONAL_DOMAIN}"
     contentTypeNosniff: true
-    frameDeny: true
     referrerPolicy: "strict-origin-when-cross-origin"
     contentSecurityPolicy: "upgrade-insecure-requests;"
     customResponseHeaders:
@@ -78,9 +76,7 @@ spec:
     stsIncludeSubdomains: true
     stsPreload: true
     forceSTSHeader: true
-    customFrameOptionsValue: "allow-from https:${PERSONAL_DOMAIN}"
     contentTypeNosniff: true
-    frameDeny: true
     referrerPolicy: "strict-origin-when-cross-origin"
     contentSecurityPolicy: >-
       default-src 'none';
@@ -105,7 +101,7 @@ spec:
       Cross-Origin-Opener-Policy: same-origin
       Cross-Origin-Resource-Policy: same-origin
       Cross-Origin-Embedder-Policy: require-corp
-      X-Frame-Options: "SAMEORIGIN"
+      X-Frame-Options: "DENY"
       X-Robots-Tag: "index, follow"
       X-Permitted-Cross-Domain-Policies: "none"
       X-Forwarded-Proto: "https"
@@ -143,7 +139,6 @@ spec:
     stsPreload: true
     forceSTSHeader: true
     contentTypeNosniff: true
-    frameDeny: true
     referrerPolicy: "same-origin"
     contentSecurityPolicy: "upgrade-insecure-requests;"
     customResponseHeaders:
@@ -199,7 +194,6 @@ spec:
     stsPreload: true
     forceSTSHeader: true
     contentTypeNosniff: true
-    frameDeny: true
     accessControlAllowCredentials: true
     addVaryHeader: true
     referrerPolicy: "same-origin"
