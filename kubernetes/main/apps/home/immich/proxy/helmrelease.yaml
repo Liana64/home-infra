@@ -71,8 +71,8 @@ spec:
           # Inert until external-dns covers the ${ORG_DOMAIN} zone; record is manual.
           external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          # Streaming variant (20 r/s, burst 50): galleries fire dozens of thumbnail requests per scroll.
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-no-auth@kubernetescrd"
+          # Streaming variant (100 r/s, burst 300): galleries fire dozens of thumbnail requests per scroll.
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-no-auth-anubis-org@kubernetescrd"
         hosts:
           - host: &host "photos.${ORG_DOMAIN}"
             paths:
@@ -83,6 +83,35 @@ spec:
         tls:
           - secretName: immich-proxy-tls
             hosts: [*host]
+
+      assets:
+        className: traefik-external
+        annotations:
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-no-auth@kubernetescrd"
+        hosts:
+          - host: *host
+            paths:
+              - path: /share/static
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+              - path: /share/photo
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+              - path: /share/video
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
+              - path: /share/meta
+                pathType: Prefix
+                service:
+                  identifier: app
+                  port: http
     persistence:
       tmp:
         type: emptyDir
