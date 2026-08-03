@@ -13,7 +13,6 @@ spec:
   values:
     controllers:
       jellyfin:
-        # Recreate + grace: never two writers on the SQLite config, and let WAL checkpoint on shutdown
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -59,7 +58,6 @@ spec:
                   timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
-              # 10.11 EF Core migrations can block /health for minutes; hold liveness off for up to 10m
               startup:
                 enabled: true
                 custom: true
@@ -122,6 +120,25 @@ spec:
         tls:
           - secretName: jellyfin-tls
             hosts: [*host]
+
+      web:
+        className: traefik-external
+        annotations:
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-no-auth-anubis@kubernetescrd"
+        hosts:
+          - host: *host
+            paths:
+              - path: /web/
+                pathType: Exact
+                service:
+                  identifier: app
+                  port: http
+              - path: /web/index.html
+                pathType: Exact
+                service:
+                  identifier: app
+                  port: http
 
     persistence:
       config:
