@@ -10,6 +10,10 @@
         siteMonitor: https://oob.${PERSONAL_DOMAIN}:8443
         icon: unifi
         description: Unifi Controller
+    - Carrot:
+        href: http://172.16.200.20/
+        icon: valetudo
+        description: Robot vacuum
 - Devices:
     - n1:
         href: http://ms-01.${PERSONAL_DOMAIN}:8006
