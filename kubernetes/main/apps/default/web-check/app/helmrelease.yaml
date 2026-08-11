@@ -27,7 +27,7 @@ spec:
           app:
             image:
               repository: ghcr.io/lissy93/web-check
-              tag: latest@sha256:a2ae048b601c7d44ab148d746f5836ace7b4e8514ba8f905c4890b90635c62c5
+              tag: latest@sha256:7ca557beb271b8711aa5b82bc185ccad04b3120b0b3b995f82866957361d76f5
             resources:
               requests:
                 cpu: 5m
