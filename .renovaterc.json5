@@ -7,9 +7,13 @@
   ],
   timezone: "America/Chicago",
   automerge: false,
-  prConcurrentLimit: 20,
+  prConcurrentLimit: 32,
   prHourlyLimit: 0,
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
+  prBodyDefinitions: {
+    Release: "{{#if sourceUrl}}[releases]({{{sourceUrl}}}/releases){{/if}}",
+  },
+  prBodyColumns: ["Package", "Type", "Update", "Change", "Release"],
   ignorePaths: [
     ".archive/**",
     "**/.terraform/**",
