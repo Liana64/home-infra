@@ -40,6 +40,9 @@ includes:
   n8n:
     taskfile: .taskfiles/n8n.yaml
     aliases: [n]
+  renovate:
+    taskfile: .taskfiles/renovate.yaml
+    aliases: [r]
   precommit: .taskfiles/precommit.yaml
 
 tasks:

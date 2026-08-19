@@ -1,0 +1,13 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  KUBECTL_CMD: "kubectl --context {{.CLUSTER_NAME}} -n renovate"
+
+tasks:
+  run:
+    desc: Trigger an immediate Renovate run to regenerate pull requests
+    cmds:
+      - "{{.KUBECTL_CMD}} delete job renovate-manual --ignore-not-found"
+      - "{{.KUBECTL_CMD}} create job renovate-manual --from=cronjob/renovate"
