@@ -31,7 +31,7 @@ spec:
             # renovate: datasource=docker depName=ghcr.io/liana64/bazarr
             image:
               repository: ghcr.io/liana64/bazarr
-              tag: 1.5.6@sha256:580d09ab089e249a6afb9bbc89025bd4ebef09e560ce04d7b01a846ffe11d966
+              tag: 1.6.0@sha256:10e3189da2e2cc67e60f6e138caea193de71dc6458edecb4fb420a4cb7436d69
             probes:
               liveness: &probes
                 enabled: true
