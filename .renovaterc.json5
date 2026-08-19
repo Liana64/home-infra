@@ -7,7 +7,7 @@
   ],
   timezone: "America/Chicago",
   automerge: false,
-  prConcurrentLimit: 10,
+  prConcurrentLimit: 20,
   prHourlyLimit: 0,
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   ignorePaths: [
