@@ -21,7 +21,7 @@ spec:
             # renovate: datasource=docker depName=ghcr.io/thomiceli/opengist
             image:
               repository: ghcr.io/thomiceli/opengist
-              tag: 1.12.2@sha256:5cdaaeaf2d73a9c87100fed850416bc258e5ef1fe5208cfa9153f992a6285be5
+              tag: 1.15.1@sha256:038d47937d3ba4b49ec28a76d3966383e0a46acf7ee1f19b1bae4ac0758c694c
             command:
               - "./opengist"
             env:
