@@ -12,4 +12,4 @@ spec:
     operation: copy
   url: oci://ghcr.io/element-hq/ess-helm/matrix-stack
   ref:
-    tag: 25.12.2
+    tag: 26.8.0
