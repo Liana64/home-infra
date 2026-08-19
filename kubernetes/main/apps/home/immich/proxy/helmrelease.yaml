@@ -21,7 +21,7 @@ spec:
             # renovate: datasource=docker depName=alangrainger/immich-public-proxy
             image:
               repository: docker.io/alangrainger/immich-public-proxy
-              tag: 3.0.1@sha256:bc42ab09bce13fa4972861ddd45ff9a1ed82f590121409519af91546edb8dd77
+              tag: 3.2.0@sha256:5af9a12815699942c3055f0f90608c75f955224963fc5912ea221f6ec26ccb8c
             env:
               TZ: "${TIMEZONE}"
               IMMICH_URL: http://immich.home.svc.cluster.local:2283
