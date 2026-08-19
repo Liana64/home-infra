@@ -24,7 +24,7 @@ spec:
           app:
             image:
               repository: lscr.io/linuxserver/grocy
-              tag: 4.5.0@sha256:b54ce832dadc8e6fac6cc8d8f0d5f1c32b54da2e2d7605ac203a3683523f31b3
+              tag: 4.6.0@sha256:0a59bdad2a45f5b7aef1549d80dca8e8296facb66b6fdb38868818ba5b93c20b
             # TODO: Make my own container
             #securityContext:
             #  allowPrivilegeEscalation: false
