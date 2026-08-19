@@ -21,7 +21,7 @@ spec:
           app:
             image:
               repository: ghcr.io/kozea/radicale
-              tag: 3.7.6@sha256:00a3d8e1f04b5c61b8ad36a86515e5665153bc6126df1c97f7114c479b634b22
+              tag: 3.7.8@sha256:3a0080ea51ac69dcd74e345b9587dc14a8c8af0652046069005749f9a75c5c80
             probes:
               liveness: &probes
                 enabled: true
