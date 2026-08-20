@@ -33,7 +33,7 @@ spec:
             image:
               # renovate: datasource=docker depName=ghcr.io/renovatebot/renovate
               repository: ghcr.io/renovatebot/renovate
-              tag: 44.33.2
+              tag: 44.35.4
             env:
               LOG_LEVEL: info
               RENOVATE_PLATFORM: forgejo
