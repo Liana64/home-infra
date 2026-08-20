@@ -8,6 +8,6 @@ resources:
   - ./echo-server/ks.yaml
   - ./it-tools/ks.yaml
   - ./web-check/ks.yaml
-  - ./stirling-pdf/ks.yaml
+  #- ./stirling-pdf/ks.yaml
   #- ./sec-tools/ks.yaml
   - ./blog/ks.yaml

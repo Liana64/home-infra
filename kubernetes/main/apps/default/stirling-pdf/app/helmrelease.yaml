@@ -24,9 +24,9 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 50M
+                memory: 512Mi
               limits:
-                memory: 512M
+                memory: 2Gi
     service:
       app:
         controller: stirling-pdf
