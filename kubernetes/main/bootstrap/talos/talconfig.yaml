@@ -78,38 +78,9 @@ nodes:
       #- interface: eth1
       #  addresses:
       #    - 10.10.10.12/24
-    # https://factory.talos.dev/?arch=amd64&bootloader=sd-boot&cmdline=-console+console%3Dtty0&cmdline-set=true&extensions=-&extensions=siderolabs%2Fnvidia-container-toolkit-lts&extensions=siderolabs%2Fqemu-guest-agent&extensions=siderolabs%2Fnonfree-kmod-nvidia-lts&platform=nocloud&secureboot=true&target=cloud&version=1.12.6
-    talosImageURL: &talosNvidiaImage factory.talos.dev/nocloud-installer-secureboot/6951b9af7ee1333ba6431429e14c6f096ef257d27c82ffdfa976ff55a293b409
-    schematic: &schematicNvidia
-      customization:
-        systemExtensions:
-          officialExtensions:
-            - siderolabs/qemu-guest-agent
-            - siderolabs/nonfree-kmod-nvidia-lts
-            - siderolabs/nvidia-container-toolkit-lts
-    patches: &nvidiaPatches
-      - |
-        machine:
-          kubelet:
-            nodeIP:
-              validSubnets:
-                - 172.16.4.0/24
-            extraMounts:
-              - destination: /var/mnt/local-pool
-                type: bind
-                source: /var/mnt/local-pool
-                options:
-                  - bind
-                  - rshared
-                  - rw
-          disks:
-            - device: /dev/sdb
-              partitions:
-                - mountpoint: /var/mnt/local-pool
-      - "@./patches/control/disable-admission-control.yaml"
-      - "@./patches/mesh/etcd.yaml"
-      - "@./patches/mesh/nvidia.yaml"
-      - "@./patches/global/containerd-nvidia.yaml"
+    talosImageURL: *talosMinimalImage
+    schematic: *schematicMinimal
+    patches: *clusterPatches
     nodeLabels: *ms01cluster
   - hostname: n3
     nodeTaints:
@@ -129,6 +100,48 @@ nodes:
       hardware/manufacturer: "dell"
       hardware/model: "optiplex-7050"
       node-role.kubernetes.io/control-plane: "control-plane"
+      topology.kubernetes.io/region: "us-central"
+      topology.kubernetes.io/zone: *clustername
+  - hostname: m1
+    controlPlane: false
+    ipAddress: 172.16.4.14
+    installDiskSelector: *bootdisk
+    networkInterfaces:
+      - interface: eth0
+        dhcp: true
+    # https://factory.talos.dev/?arch=amd64&bootloader=sd-boot&cmdline=-console+console%3Dtty0&cmdline-set=true&extensions=-&extensions=siderolabs%2Fnvidia-container-toolkit-lts&extensions=siderolabs%2Fqemu-guest-agent&extensions=siderolabs%2Fnonfree-kmod-nvidia-lts&platform=nocloud&secureboot=true&target=cloud&version=1.12.6
+    talosImageURL: factory.talos.dev/nocloud-installer-secureboot/6951b9af7ee1333ba6431429e14c6f096ef257d27c82ffdfa976ff55a293b409
+    schematic:
+      customization:
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/qemu-guest-agent
+            - siderolabs/nonfree-kmod-nvidia-lts
+            - siderolabs/nvidia-container-toolkit-lts
+    patches:
+      - |
+        machine:
+          kubelet:
+            nodeIP:
+              validSubnets:
+                - 172.16.4.0/24
+            extraMounts:
+              - destination: /var/mnt/local-pool
+                type: bind
+                source: /var/mnt/local-pool
+                options:
+                  - bind
+                  - rshared
+                  - rw
+          disks:
+            - device: /dev/sdb
+              partitions:
+                - mountpoint: /var/mnt/local-pool
+      - "@./patches/mesh/nvidia.yaml"
+      - "@./patches/global/containerd-nvidia.yaml"
+    nodeLabels:
+      hardware/manufacturer: "asus"
+      hardware/model: "tuf-z390m"
       topology.kubernetes.io/region: "us-central"
       topology.kubernetes.io/zone: *clustername
 
