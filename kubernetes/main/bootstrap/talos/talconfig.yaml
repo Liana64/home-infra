@@ -109,15 +109,8 @@ nodes:
     networkInterfaces:
       - interface: eth0
         dhcp: true
-    # https://factory.talos.dev/?arch=amd64&bootloader=sd-boot&cmdline=-console+console%3Dtty0&cmdline-set=true&extensions=-&extensions=siderolabs%2Fnvidia-container-toolkit-lts&extensions=siderolabs%2Fqemu-guest-agent&extensions=siderolabs%2Fnonfree-kmod-nvidia-lts&platform=nocloud&secureboot=true&target=cloud&version=1.12.6
-    talosImageURL: factory.talos.dev/nocloud-installer-secureboot/6951b9af7ee1333ba6431429e14c6f096ef257d27c82ffdfa976ff55a293b409
-    schematic:
-      customization:
-        systemExtensions:
-          officialExtensions:
-            - siderolabs/qemu-guest-agent
-            - siderolabs/nonfree-kmod-nvidia-lts
-            - siderolabs/nvidia-container-toolkit-lts
+    talosImageURL: *talosMinimalImage
+    schematic: *schematicMinimal
     patches:
       - |
         machine:
@@ -137,8 +130,7 @@ nodes:
             - device: /dev/sdb
               partitions:
                 - mountpoint: /var/mnt/local-pool
-      - "@./patches/mesh/nvidia.yaml"
-      - "@./patches/global/containerd-nvidia.yaml"
+      - "@./patches/global/containerd.yaml"
     nodeLabels:
       hardware/manufacturer: "asus"
       hardware/model: "tuf-z390m"

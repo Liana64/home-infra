@@ -16,6 +16,8 @@ data:
   MGMT_CIDR: "172.16.99.0/24"
   VPN_CIDR: "172.17.0.0/24"
 
+  M1_HOST: "172.16.4.5"
+
   #NFS_HOST: "10.28.20.10"
   #NFS_PATH: "/mnt/r720xd-nvme/r720xd-nfs"
   #NFS_MEDIA: "/mnt/r720xd-array/r720xd-media"

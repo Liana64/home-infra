@@ -26,6 +26,17 @@ spec:
     # scrapes every namespace, kubelets and the apiserver
     - toEntities:
         - cluster
+    # m1 NAS exporters — outside the cluster, `world` to cilium
+    - toCIDR:
+        - ${M1_HOST}/32
+      toPorts:
+        - ports:
+            - port: "9100"
+              protocol: TCP
+            - port: "9134"
+              protocol: TCP
+            - port: "9633"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy

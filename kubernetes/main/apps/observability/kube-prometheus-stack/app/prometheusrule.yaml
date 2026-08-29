@@ -6,6 +6,22 @@ metadata:
   name: miscellaneous-rules
 spec:
   groups:
+    - name: zfs
+      rules:
+        - alert: ZfsPoolUnhealthy
+          annotations:
+            summary: ZFS pool {{ $labels.pool }} on {{ $labels.host }} is unhealthy (state {{ $value }}, 1=degraded 2=faulted 3=offline 4=unavail 5=removed 6=suspended)
+          expr: zfs_pool_health > 0
+          for: 5m
+          labels:
+            severity: critical
+        - alert: ZfsExporterAbsent
+          annotations:
+            summary: zfs_pool_health has no series — m1 zfs exporter down or scrape unwired
+          expr: absent(zfs_pool_health)
+          for: 6h
+          labels:
+            severity: warning
     - name: dockerhub
       rules:
         - alert: BootstrapRateLimitRisk

@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: m1
+  namespace: observability
+spec:
+  staticConfigs:
+    - targets:
+        - "${M1_HOST}:9100"
+        - "${M1_HOST}:9134"
+        - "${M1_HOST}:9633"
+      labels:
+        host: m1

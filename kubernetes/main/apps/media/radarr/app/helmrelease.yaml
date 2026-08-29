@@ -21,8 +21,10 @@ spec:
             runAsUser: 1000
             runAsGroup: 1000
             runAsNonRoot: true
-            #fsGroup: 3005
             fsGroupChangePolicy: "OnRootMismatch"
+            # 2000 = m1 media share gid (tank/media 2775 root 2000:2000)
+            supplementalGroups:
+              - 2000
 
         containers:
           app:
