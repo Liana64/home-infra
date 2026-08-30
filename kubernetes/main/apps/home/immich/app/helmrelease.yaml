@@ -177,6 +177,14 @@ spec:
           immich:
             main:
               - path: /library
+      nfs-photos:
+        type: nfs
+        server: ${M1_HOST}
+        path: /tank/home/photos
+        advancedMounts:
+          immich:
+            main:
+              - path: /photos
       machine-learning-cache:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
