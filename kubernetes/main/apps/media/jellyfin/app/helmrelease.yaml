@@ -150,20 +150,13 @@ spec:
         globalMounts:
           - path: /config
       media:
-        enabled: true
-        existingClaim: qbittorrent-media
-        advancedMounts:
-          jellyfin:
-            app:
-              - path: /media
-      nfs-media:
         type: nfs
         server: ${M1_HOST}
         path: /tank/media
         advancedMounts:
           jellyfin:
             app:
-              - path: /media-nfs
+              - path: /media
       tmpfs:
         type: emptyDir
         advancedMounts:

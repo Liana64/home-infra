@@ -26,7 +26,7 @@ spec:
               - matchExpressions:
                   - key: kubernetes.io/hostname
                     operator: In
-                    values: ["n2"]
+                    values: ["m1"]
 
     controllers:
       immich:
@@ -59,10 +59,6 @@ spec:
                   secretKeyRef:
                     name: cloudnative-pg-secret
                     key: password
-        pod:
-          runtimeClassName: nvidia
-          nodeSelector:
-            feature.node.kubernetes.io/pci-10de.present: "true"
         containers:
           main:
             image:
@@ -78,10 +74,8 @@ spec:
               requests:
                 cpu: 100m
                 memory: 512Mi
-                nvidia.com/gpu: 1
               limits:
                 memory: 8Gi
-                nvidia.com/gpu: 1
 
       machine-learning:
         strategy: RollingUpdate
@@ -89,16 +83,12 @@ spec:
           reloader.stakater.com/auto: "true"
           secret.reloader.stakater.com/reload: immich-secret
           configmap.reloader.stakater.com/reload: immich-configmap
-        pod:
-          runtimeClassName: nvidia
-          nodeSelector:
-            feature.node.kubernetes.io/pci-10de.present: "true"
         containers:
           main:
             image:
               # renovate: datasource=docker depName=ghcr.io/immich-app/immich-machine-learning
               repository: ghcr.io/immich-app/immich-machine-learning
-              tag: v3.0.1-cuda@sha256:e5b2e693c5531e5794d96213409f0ce122eccd25feec91a9cd74b99eba183d65
+              tag: v3.0.1@sha256:cb2128c5cbc554fdaa2a036fb4419c808a9f3e0f27170e569dd9e727243da909
             envFrom:
               - secretRef:
                   name: *secret
@@ -110,10 +100,8 @@ spec:
               requests:
                 cpu: 100m
                 memory: 512Mi
-                nvidia.com/gpu: 1
               limits:
                 memory: 4Gi
-                nvidia.com/gpu: 1
 
     service:
       immich:
@@ -169,22 +157,13 @@ spec:
 
     persistence:
       data:
-        storageClass: cluster-nvme
-        accessMode: ReadWriteOnce
-        size: 256Gi
-        retain: true
-        advancedMounts:
-          immich:
-            main:
-              - path: /library
-      nfs-photos:
         type: nfs
         server: ${M1_HOST}
         path: /tank/home/photos
         advancedMounts:
           immich:
             main:
-              - path: /photos
+              - path: /library
       machine-learning-cache:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
