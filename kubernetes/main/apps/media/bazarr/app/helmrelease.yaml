@@ -67,7 +67,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - "n1"
+                      - "m1"
 
     service:
       app:
@@ -108,18 +108,10 @@ spec:
         globalMounts:
           - path: /config
       media:
-        enabled: true
-        existingClaim: qbittorrent-media
+        type: nfs
+        server: ${M1_HOST}
+        path: /tank/media
         advancedMounts:
           bazarr:
             app:
               - path: /media
-      #      nfs-media:
-      #        type: nfs
-      #        server: ${NFS_HOST}
-      #        path: ${NFS_MEDIA}
-      #        advancedMounts:
-      #          bazarr:
-      #            app:
-      #              - path: /data/r720xd-media
-      #                readOnly: false

@@ -55,6 +55,17 @@ spec:
                 drop:
                   - ALL
 
+    defaultPodOptions:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - "m1"
+
     persistence:
       config:
         storageClass: cluster-nvme

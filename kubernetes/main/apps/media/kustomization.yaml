@@ -14,5 +14,5 @@ resources:
   - ./radarr/ks.yaml
   - ./recyclarr/ks.yaml
   - ./sonarr/ks.yaml
-  - ./filebrowser/ks.yaml
+  #- ./filebrowser/ks.yaml
   - ./qui/ks.yaml

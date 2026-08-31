@@ -18,6 +18,8 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+          - 2000
         seccompProfile:
           type: RuntimeDefault
       affinity:
@@ -28,7 +30,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - "n1"
+                      - "m1"
     controllers:
       filebrowser:
         annotations:
@@ -101,7 +103,8 @@ spec:
 
     persistence:
       media:
-        enabled: true
-        existingClaim: qbittorrent-media
+        type: nfs
+        server: ${M1_HOST}
+        path: /tank/media
         globalMounts:
           - path: /var/mnt/media

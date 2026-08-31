@@ -71,7 +71,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - "n1"
+                      - "m1"
 
     service:
       app:

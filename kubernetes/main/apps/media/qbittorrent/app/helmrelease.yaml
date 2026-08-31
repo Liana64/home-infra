@@ -54,11 +54,9 @@ spec:
                 add:
                   - NET_ADMIN
         pod:
-          #securityContext:
-          # fsGroup: 2000
-          # fsGroupChangePolicy: "OnRootMismatch"
-          # supplementalGroups:
-          #   - 3005
+          securityContext:
+            supplementalGroups:
+              - 2000
           terminationGracePeriodSeconds: 120
         containers:
           app:
@@ -162,7 +160,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - "n1"
+                      - "m1"
     service:
       app:
         controller: qbittorrent
@@ -209,10 +207,9 @@ spec:
             port-forward:
               - path: /config
       media:
-        storageClass: cluster-nvme
-        accessMode: ReadWriteOnce
-        size: 512Gi
-        retain: true
+        type: nfs
+        server: ${M1_HOST}
+        path: /tank/media
         advancedMounts:
           qbittorrent:
             app:
