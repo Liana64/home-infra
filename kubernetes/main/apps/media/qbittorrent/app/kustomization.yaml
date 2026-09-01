@@ -26,9 +26,6 @@ patches:
         path: /spec/trigger
         value:
           schedule: "0 4 * * 6"
-      - op: replace
-        path: /spec/sourcePVC
-        value: qbittorrent-config
   - patch: |
       $patch: delete
       apiVersion: volsync.backube/v1alpha1
