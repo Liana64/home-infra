@@ -1,0 +1,2034 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zfs-arc-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  zfs-arc.json: |
+    {
+      "__elements": {},
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": {
+              "type": "grafana",
+              "uid": "-- Grafana --"
+            },
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "description": "ZFS Pool Performance and Health",
+      "editable": false,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "links": [],
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [
+                {
+                  "options": {
+                    "0": {
+                      "index": 0,
+                      "text": "NO"
+                    },
+                    "1": {
+                      "index": 1,
+                      "text": "YES"
+                    }
+                  },
+                  "type": "value"
+                }
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 0,
+            "y": 0
+          },
+          "id": 1,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "horizontal",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value_and_name",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "min(node_zfs_zpool_state{instance=~\"$instance\",zpool=~\"$zpool\",state=\"online\"})",
+              "legendFormat": "Online",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Pools Online",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 2
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 4,
+            "y": 0
+          },
+          "id": 2,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "horizontal",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value_and_name",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(max by (zpool, state) (node_zfs_zpool_state{instance=~\"$instance\",zpool=~\"$zpool\",state=~\"degraded|faulted|offline|removed|suspended|unavail\"}))",
+              "legendFormat": "Unhealthy State Count",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Unhealthy States",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": 0
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 80
+                  },
+                  {
+                    "color": "green",
+                    "value": 90
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 8,
+            "y": 0
+          },
+          "id": 3,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "horizontal",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value_and_name",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "100 * (sum(rate(node_zfs_arc_hits{instance=~\"$instance\"}[$__rate_interval])) / clamp_min(sum(rate(node_zfs_arc_hits{instance=~\"$instance\"}[$__rate_interval])) + sum(rate(node_zfs_arc_misses{instance=~\"$instance\"}[$__rate_interval])), 1e-9))",
+              "legendFormat": "ARC Hit Ratio",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "ARC Hit Ratio",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "text",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 12,
+            "y": 0
+          },
+          "id": 4,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "horizontal",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value_and_name",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "100 * (sum(rate(node_zfs_arc_l2_hits{instance=~\"$instance\"}[$__rate_interval])) / clamp_min(sum(rate(node_zfs_arc_l2_hits{instance=~\"$instance\"}[$__rate_interval])) + sum(rate(node_zfs_arc_l2_misses{instance=~\"$instance\"}[$__rate_interval])), 1e-9))",
+              "legendFormat": "L2ARC Hit Ratio",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "L2ARC Hit Ratio",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "continuous-GrYlRd"
+              },
+              "decimals": 2,
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 16,
+            "y": 0
+          },
+          "id": 5,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "horizontal",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value_and_name",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "100 * (sum(node_zfs_arc_size{instance=~\"$instance\"}) / clamp_min(sum(node_zfs_arc_c_max{instance=~\"$instance\"}), 1e-9))",
+              "legendFormat": "ARC Fill",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "ARC Fill vs c_max",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 5
+                  }
+                ]
+              },
+              "unit": "ops"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 20,
+            "y": 0
+          },
+          "id": 6,
+          "options": {
+            "colorMode": "background",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "horizontal",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "value_and_name",
+            "wideLayout": true
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_zil_zil_commit_error_count{instance=~\"$instance\"}[$__rate_interval])) + sum(rate(node_zfs_arc_l2_io_error{instance=~\"$instance\"}[$__rate_interval]))",
+              "legendFormat": "Errors/s",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Write/Cache Errors per sec",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": true,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "Bps"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/write/i"
+                },
+                "properties": [
+                  {
+                    "id": "custom.transform",
+                    "value": "negative-Y"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 4
+          },
+          "id": 7,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max",
+                "mean"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum by (zpool) (rate(node_zfs_zpool_dataset_nread{instance=~\"$instance\",zpool=~\"$zpool\",dataset=~\"$dataset\"}[$__rate_interval]))",
+              "legendFormat": "{{zpool}} read",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum by (zpool) (rate(node_zfs_zpool_dataset_nwritten{instance=~\"$instance\",zpool=~\"$zpool\",dataset=~\"$dataset\"}[$__rate_interval]))",
+              "legendFormat": "{{zpool}} write",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Pool Throughput (Read/Write)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": true,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "iops"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/write/i"
+                },
+                "properties": [
+                  {
+                    "id": "custom.transform",
+                    "value": "negative-Y"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 4
+          },
+          "id": 8,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max",
+                "mean"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum by (zpool) (rate(node_zfs_zpool_dataset_reads{instance=~\"$instance\",zpool=~\"$zpool\",dataset=~\"$dataset\"}[$__rate_interval]))",
+              "legendFormat": "{{zpool}} read IOPS",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum by (zpool) (rate(node_zfs_zpool_dataset_writes{instance=~\"$instance\",zpool=~\"$zpool\",dataset=~\"$dataset\"}[$__rate_interval]))",
+              "legendFormat": "{{zpool}} write IOPS",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Pool IOPS (Read/Write)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 12
+          },
+          "id": 9,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "min",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "avg_over_time((100 * (sum(rate(node_zfs_arc_hits{instance=~\"$instance\"}[$__rate_interval])) / clamp_min(sum(rate(node_zfs_arc_hits{instance=~\"$instance\"}[$__rate_interval])) + sum(rate(node_zfs_arc_misses{instance=~\"$instance\"}[$__rate_interval])), 1e-9)))[$__range:])",
+              "legendFormat": "ARC Hit %",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "avg_over_time((100 * (sum(rate(node_zfs_arc_l2_hits{instance=~\"$instance\"}[$__rate_interval])) / clamp_min(sum(rate(node_zfs_arc_l2_hits{instance=~\"$instance\"}[$__rate_interval])) + sum(rate(node_zfs_arc_l2_misses{instance=~\"$instance\"}[$__rate_interval])), 1e-9)))[$__range:])",
+              "legendFormat": "L2ARC Hit %",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Cache Hit Ratios",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 8,
+            "y": 12
+          },
+          "id": 10,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(node_zfs_arc_size{instance=~\"$instance\"})",
+              "legendFormat": "ARC size",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(node_zfs_arc_c{instance=~\"$instance\"})",
+              "legendFormat": "ARC target c",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(node_zfs_arc_c_max{instance=~\"$instance\"})",
+              "legendFormat": "ARC max c_max",
+              "refId": "C",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "ARC Size vs Targets",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": true,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "Bps"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/write/i"
+                },
+                "properties": [
+                  {
+                    "id": "custom.transform",
+                    "value": "negative-Y"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 12
+          },
+          "id": 11,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_arc_l2_read_bytes{instance=~\"$instance\"}[$__rate_interval]))",
+              "legendFormat": "L2ARC read",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_arc_l2_write_bytes{instance=~\"$instance\"}[$__rate_interval]))",
+              "legendFormat": "L2ARC write",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "L2ARC Traffic",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "ops"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 20
+          },
+          "id": 12,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max",
+                "mean"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_zil_zil_commit_count{instance=~\"$instance\"}[$__rate_interval]))",
+              "legendFormat": "Commit/s",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_zil_zil_commit_writer_count{instance=~\"$instance\"}[$__rate_interval]))",
+              "legendFormat": "Writer commit/s",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_zil_zil_commit_stall_count{instance=~\"$instance\"}[$__rate_interval]))",
+              "legendFormat": "Stall/s",
+              "refId": "C",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_zil_zil_commit_error_count{instance=~\"$instance\"}[$__rate_interval]))",
+              "legendFormat": "Error/s",
+              "refId": "D",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "ZIL Commit Behavior",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "Bps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 20
+          },
+          "id": 13,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_zpool_dataset_zil_itx_metaslab_slog_write{instance=~\"$instance\",zpool=~\"$zpool\",dataset=~\"$dataset\"}[$__rate_interval]))",
+              "legendFormat": "SLOG write bytes/s",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_zpool_dataset_zil_itx_needcopy_bytes{instance=~\"$instance\",zpool=~\"$zpool\",dataset=~\"$dataset\"}[$__rate_interval]))",
+              "legendFormat": "Needcopy bytes/s",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_zpool_dataset_zil_itx_indirect_bytes{instance=~\"$instance\",zpool=~\"$zpool\",dataset=~\"$dataset\"}[$__rate_interval]))",
+              "legendFormat": "Indirect bytes/s",
+              "refId": "C",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Dataset ZIL Data Path",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": true,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "Bps"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/write/i"
+                },
+                "properties": [
+                  {
+                    "id": "custom.transform",
+                    "value": "negative-Y"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 28
+          },
+          "id": 19,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max",
+                "mean"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "rate(node_disk_read_bytes_total{instance=~\"$instance\",device!~\"loop.*|dm-.*|sr.*\"}[$__rate_interval])",
+              "legendFormat": "{{device}} read",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "rate(node_disk_written_bytes_total{instance=~\"$instance\",device!~\"loop.*|dm-.*|sr.*\"}[$__rate_interval])",
+              "legendFormat": "{{device}} write",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Disk Throughput (Read/Write)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": true,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "iops"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/write/i"
+                },
+                "properties": [
+                  {
+                    "id": "custom.transform",
+                    "value": "negative-Y"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 8,
+            "y": 28
+          },
+          "id": 20,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max",
+                "mean"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "rate(node_disk_reads_completed_total{instance=~\"$instance\",device!~\"loop.*|dm-.*|sr.*\"}[$__rate_interval])",
+              "legendFormat": "{{device}} read",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "rate(node_disk_writes_completed_total{instance=~\"$instance\",device!~\"loop.*|dm-.*|sr.*\"}[$__rate_interval])",
+              "legendFormat": "{{device}} write",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Disk IOPS (Read/Write)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": true,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "s"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byRegexp",
+                  "options": "/write/i"
+                },
+                "properties": [
+                  {
+                    "id": "custom.transform",
+                    "value": "negative-Y"
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 28
+          },
+          "id": 21,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max",
+                "mean"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "pluginVersion": "12.4.2",
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "rate(node_disk_read_time_seconds_total{instance=~\"$instance\",device!~\"loop.*|dm-.*|sr.*\"}[$__rate_interval]) / clamp_min(rate(node_disk_reads_completed_total{instance=~\"$instance\",device!~\"loop.*|dm-.*|sr.*\"}[$__rate_interval]), 1e-9)",
+              "legendFormat": "{{device}} read latency",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "rate(node_disk_write_time_seconds_total{instance=~\"$instance\",device!~\"loop.*|dm-.*|sr.*\"}[$__rate_interval]) / clamp_min(rate(node_disk_writes_completed_total{instance=~\"$instance\",device!~\"loop.*|dm-.*|sr.*\"}[$__rate_interval]), 1e-9)",
+              "legendFormat": "{{device}} write latency",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Disk Latency (Read/Write)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 36
+          },
+          "id": 16,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(node_zfs_arc_data_size{instance=~\"$instance\"})",
+              "legendFormat": "Data",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(node_zfs_arc_metadata_size{instance=~\"$instance\"})",
+              "legendFormat": "Metadata",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(node_zfs_arc_overhead_size{instance=~\"$instance\"})",
+              "legendFormat": "Overhead",
+              "refId": "C",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(node_zfs_arc_dnode_size{instance=~\"$instance\"})",
+              "legendFormat": "Dnode",
+              "refId": "D",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "ARC Composition",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "decimals": 2,
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 8,
+            "y": 36
+          },
+          "id": 17,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(node_zfs_arc_uncompressed_size{instance=~\"$instance\"}) / clamp_min(sum(node_zfs_arc_compressed_size{instance=~\"$instance\"}), 1e-9)",
+              "legendFormat": "ARC compression ratio",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(node_zfs_arc_data_size{instance=~\"$instance\"}) / clamp_min(sum(node_zfs_arc_size{instance=~\"$instance\"}), 1e-9)",
+              "legendFormat": "Data fraction",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(node_zfs_arc_metadata_size{instance=~\"$instance\"}) / clamp_min(sum(node_zfs_arc_size{instance=~\"$instance\"}), 1e-9)",
+              "legendFormat": "Metadata fraction",
+              "refId": "C",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "ARC Efficiency Ratios",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "unit": "ops"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 16,
+            "y": 36
+          },
+          "id": 18,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_dmu_tx_dmu_tx_dirty_delay{instance=~\"$instance\"}[$__rate_interval]))",
+              "legendFormat": "DMU dirty delay/s",
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_dmu_tx_dmu_tx_wrlog_delay{instance=~\"$instance\"}[$__rate_interval]))",
+              "legendFormat": "DMU wrlog delay/s",
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            },
+            {
+              "editorMode": "code",
+              "expr": "sum(rate(node_zfs_arc_mutex_miss{instance=~\"$instance\"}[$__rate_interval]))",
+              "legendFormat": "ARC mutex miss/s",
+              "refId": "C",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              }
+            }
+          ],
+          "title": "Contention and Delay Signals",
+          "type": "timeseries"
+        }
+      ],
+      "preload": false,
+      "refresh": "30s",
+      "schemaVersion": 42,
+      "tags": [
+        "zfs",
+        "storage",
+        "performance"
+      ],
+      "templating": {
+        "list": [
+          {
+            "current": {},
+            "includeAll": false,
+            "label": "Datasource",
+            "name": "datasource",
+            "options": [],
+            "query": "prometheus",
+            "refresh": 1,
+            "regex": "",
+            "type": "datasource"
+          },
+          {
+            "current": {},
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "definition": "label_values(node_zfs_zpool_state, instance)",
+            "includeAll": false,
+            "label": "Instance",
+            "multi": false,
+            "name": "instance",
+            "options": [],
+            "query": {
+              "qryType": 1,
+              "query": "label_values(node_zfs_zpool_state, instance)",
+              "refId": "Prometheus-instance-Variable-Query"
+            },
+            "refresh": 2,
+            "regex": "",
+            "regexApplyTo": "value",
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "allValue": ".*",
+            "current": {},
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "definition": "label_values(node_zfs_zpool_state{instance=~\"$instance\"}, zpool)",
+            "includeAll": true,
+            "label": "Zpool",
+            "multi": true,
+            "name": "zpool",
+            "options": [],
+            "query": {
+              "qryType": 1,
+              "query": "label_values(node_zfs_zpool_state{instance=~\"$instance\"}, zpool)",
+              "refId": "Prometheus-zpool-Variable-Query"
+            },
+            "refresh": 2,
+            "regex": "",
+            "regexApplyTo": "value",
+            "sort": 1,
+            "type": "query"
+          },
+          {
+            "allValue": ".*",
+            "current": {},
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "definition": "label_values(node_zfs_zpool_dataset_reads{instance=~\"$instance\",zpool=~\"$zpool\"}, dataset)",
+            "includeAll": true,
+            "label": "Dataset",
+            "multi": true,
+            "name": "dataset",
+            "options": [],
+            "query": {
+              "qryType": 1,
+              "query": "label_values(node_zfs_zpool_dataset_reads{instance=~\"$instance\",zpool=~\"$zpool\"}, dataset)",
+              "refId": "Prometheus-dataset-Variable-Query"
+            },
+            "refresh": 2,
+            "regex": "",
+            "regexApplyTo": "value",
+            "sort": 1,
+            "type": "query"
+          }
+        ]
+      },
+      "time": {
+        "from": "now-24h",
+        "to": "now"
+      },
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "ZFS Pool Performance and Health",
+      "uid": "zfs-pool-performance",
+      "version": 1,
+      "weekStart": "",
+      "gnetId": 24987,
+      "id": null
+    }
