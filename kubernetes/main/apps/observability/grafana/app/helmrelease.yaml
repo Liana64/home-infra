@@ -155,6 +155,14 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/default
+          - name: storage
+            orgId: 1
+            folder: Storage
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/storage
     dashboards:
       default:
         external-dns:
@@ -253,6 +261,7 @@ spec:
           gnetId: 19105
           revision: 6
           datasource: Prometheus
+      storage:
         smartctl-exporter:
           # renovate: depName="SMARTctl Exporter Dashboard"
           gnetId: 22604
