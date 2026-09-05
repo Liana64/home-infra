@@ -74,7 +74,7 @@ spec:
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
           traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Tools
+          gethomepage.dev/group: AI
           gethomepage.dev/name: File Browser (AI)
           gethomepage.dev/description: Browse agent files
           gethomepage.dev/icon: filebrowser

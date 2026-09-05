@@ -3,36 +3,48 @@ title: Dashboard
 theme: dark
 color: slate
 headerStyle: clean
-#favicon: /images/vines.png
-background:
-  #image: /images/greenbg.png
-  blur: lg
-  opacity: 11
-providers:
-  openweathermap: "{{OPENWEATHERMAP_API_KEY}}"
+statusStyle: dot
+useEqualHeights: true
+hideVersion: true
+disableUpdateCheck: true
+disableIndexing: true
 layout:
-  Overview:
-    tab: Main
-    style: row
-    columns: 5
   Home:
     tab: Main
-    columns: 5
+    style: row
+    columns: 4
   Services:
     tab: Main
-    columns: 5
+    style: row
+    columns: 4
   Media:
-    tab: Main
-    columns: 5
+    tab: Media
+    style: row
+    columns: 4
+  AI:
+    tab: AI
+    style: row
+    columns: 4
   Tools:
-    tab: Main
-    columns: 5
+    tab: Tools
+    style: row
+    columns: 4
   Observability:
-    tab: Main
-    columns: 5
+    tab: Infra
+    style: row
+    columns: 3
+  Security:
+    tab: Infra
+    style: row
+    columns: 3
+  Network:
+    tab: Infra
+    style: row
+    columns: 3
   Devices:
-    tab: Main
-    columns: 5
+    tab: Infra
+    style: row
+    columns: 4
 quicklaunch:
   searchDescriptions: true
   hideInternetSearch: false

@@ -60,7 +60,7 @@ spec:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Tools
-          gethomepage.dev/name: *app
+          gethomepage.dev/name: Change Detection
           gethomepage.dev/description: Change monitoring
           gethomepage.dev/icon: changedetection
         hosts:

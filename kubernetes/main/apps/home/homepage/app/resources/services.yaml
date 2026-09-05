@@ -1,37 +1,31 @@
 ---
-- Overview:
+- Network:
     - OPNsense:
         href: https://edge.${PERSONAL_DOMAIN}
-        siteMonitor: https://edge.${PERSONAL_DOMAIN}
         icon: opnsense
         description: Edge networking
     - Unifi:
         href: https://oob.${PERSONAL_DOMAIN}:8443
-        siteMonitor: https://oob.${PERSONAL_DOMAIN}:8443
         icon: unifi
-        description: Unifi Controller
-    - Carrot:
-        href: http://172.16.200.20/
-        icon: valetudo
-        description: Robot vacuum
+        description: Unifi controller
+    - SLZB06:
+        href: http://slzb.${PERSONAL_DOMAIN}
+        icon: zigbee2mqtt
+        description: Zigbee coordinator
 - Devices:
     - n1:
         href: http://ms-01.${PERSONAL_DOMAIN}:8006
-        siteMonitor: http://ms-01.${PERSONAL_DOMAIN}:8006
         icon: proxmox
-        description: Node 1
+        description: Node 1 (MS-01)
     - n2:
         href: http://n2.${PERSONAL_DOMAIN}:8006
-        siteMonitor: http://n2.${PERSONAL_DOMAIN}:8006
         icon: proxmox
-        description: Node 2
+        description: Node 2 (MS-01)
     - n3:
         href: http://n3.${PERSONAL_DOMAIN}:8006
-        siteMonitor: http://n3.${PERSONAL_DOMAIN}:8006
         icon: proxmox
-        description: Node 3
-    - SLZB06:
-        href: http://slzb.${PERSONAL_DOMAIN}
-        siteMonitor: http://slzb.${PERSONAL_DOMAIN}
-        icon: zigbee2mqtt
-        description: Zigbee adapter
+        description: Node 3 (OptiPlex 7050)
+    - Carrot:
+        href: http://172.16.200.20
+        icon: valetudo
+        description: Robot vacuum

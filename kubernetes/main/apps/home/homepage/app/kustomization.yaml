@@ -10,7 +10,6 @@ resources:
 configMapGenerator:
   - name: homepage-config
     files:
-      - docker.yaml=./resources/docker.yaml
       - kubernetes.yaml=./resources/kubernetes.yaml
       - services.yaml=./resources/services.yaml
       - settings.yaml=./resources/settings.yaml

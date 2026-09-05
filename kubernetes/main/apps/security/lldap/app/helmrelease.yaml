@@ -98,7 +98,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Services
+          gethomepage.dev/group: Security
           gethomepage.dev/name: LLDAP
           gethomepage.dev/description: LDAP server
           gethomepage.dev/icon: mdi-account-key

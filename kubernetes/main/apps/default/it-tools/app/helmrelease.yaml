@@ -53,7 +53,7 @@ spec:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Tools
-          gethomepage.dev/name: *app
+          gethomepage.dev/name: IT Tools
           gethomepage.dev/description: Tools for developers
           gethomepage.dev/icon: it-tools
         hosts:

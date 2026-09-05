@@ -142,7 +142,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Services
+          gethomepage.dev/group: Security
           gethomepage.dev/name: Authelia
           gethomepage.dev/description: OIDC/MFA provider
           gethomepage.dev/icon: *app

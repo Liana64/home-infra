@@ -31,7 +31,7 @@
       cpu: true
       memory: true
     nodes:
-      show: false
-      showLabel: false
+      show: true
+      showLabel: true
       cpu: true
       memory: true

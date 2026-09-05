@@ -13,7 +13,6 @@ spec:
   values:
     controllers:
       homepage:
-        strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -66,9 +65,6 @@ spec:
         type: configMap
         name: homepage-config
         globalMounts:
-          - subPath: docker.yaml
-            path: /app/config/docker.yaml
-            readOnly: true
           - subPath: kubernetes.yaml
             path: /app/config/kubernetes.yaml
             readOnly: true
@@ -81,30 +77,6 @@ spec:
           - subPath: widgets.yaml
             path: /app/config/widgets.yaml
             readOnly: true
-      #      images:
-      #        enabled: true
-      #        type: nfs
-      #        server: ${NFS_HOST}
-      #        path: ${NFS_PATH}/k8s/homepage/images
-      #        globalMounts:
-      #          - subPath: greenbg.png
-      #            path: /app/public/images/greenbg.png
-      #            readOnly: true
-      #          - subPath: vines.png
-      #            path: /app/public/images/vines.png
-      #            readOnly: true
-      #      icons:
-      #        enabled: true
-      #        type: nfs
-      #        server: ${NFS_HOST}
-      #        path: ${NFS_PATH}/k8s/homepage/icons
-      #        globalMounts:
-      #          - subPath: atuin.png
-      #            path: /app/public/icons/atuin.png
-      #            readOnly: true
-      #          - subPath: plane.png
-      #            path: /app/public/icons/plane.png
-      #            readOnly: true
       bookmarks:
         type: secret
         name: homepage-secret

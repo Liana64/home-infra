@@ -53,7 +53,7 @@ spec:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Tools
-          gethomepage.dev/name: *app
+          gethomepage.dev/name: Web Check
           gethomepage.dev/description: OSINT tool
           gethomepage.dev/icon: web-check
         hosts:

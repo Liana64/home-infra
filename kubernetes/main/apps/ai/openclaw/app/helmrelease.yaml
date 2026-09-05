@@ -94,7 +94,7 @@ spec:
           #traefik.ingress.kubernetes.io/transport.respondingTimeouts.writeTimeout: "0"
           #traefik.ingress.kubernetes.io/transport.respondingTimeouts.idleTimeout: "3600s"
           gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Tools
+          gethomepage.dev/group: AI
           gethomepage.dev/name: OpenClaw
           gethomepage.dev/description: OpenClaw
           gethomepage.dev/icon: openclaw
