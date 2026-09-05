@@ -40,11 +40,13 @@ spec:
     env:
       - name: TZ
         value: "${TIMEZONE}"
+    global:
+      checkNewVersion: false
+      sendAnonymousUsage: false
     log:
-      general:
-        level: INFO
-      access:
-        enabled: true
+      level: INFO
+    accessLog:
+      enabled: true
     ingressClass:
       enabled: true
       isDefaultClass: false
@@ -54,7 +56,6 @@ spec:
         enabled: false
     additionalArguments:
       - "--serversTransport.insecureSkipVerify=true"
-      - "--global.sendanonymoususage=false"
       - "--entrypoints.web.transport.respondingTimeouts.readTimeout=0"
       - "--entrypoints.websecure.transport.respondingTimeouts.readTimeout=0"
     ports:
