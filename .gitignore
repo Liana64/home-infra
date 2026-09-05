@@ -33,3 +33,4 @@ identity
 # Misc
 .claude
 .direnv
+.pre-commit-config.yaml
