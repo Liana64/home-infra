@@ -24,14 +24,3 @@
     cache: 5
     format:
       maximumFractionDigits: 1
-- kubernetes:
-    cluster:
-      show: true
-      showLabel: false
-      cpu: true
-      memory: true
-    nodes:
-      show: true
-      showLabel: true
-      cpu: true
-      memory: true

@@ -10,6 +10,7 @@ resources:
 configMapGenerator:
   - name: homepage-config
     files:
+      - custom.css=./resources/custom.css
       - kubernetes.yaml=./resources/kubernetes.yaml
       - services.yaml=./resources/services.yaml
       - settings.yaml=./resources/settings.yaml

@@ -3,46 +3,36 @@ title: Dashboard
 theme: dark
 color: slate
 headerStyle: clean
-statusStyle: dot
 useEqualHeights: true
 hideVersion: true
 disableUpdateCheck: true
 disableIndexing: true
 layout:
   Home:
-    tab: Main
     style: row
     columns: 4
   Services:
-    tab: Main
     style: row
     columns: 4
   Media:
-    tab: Media
     style: row
     columns: 4
   AI:
-    tab: AI
     style: row
     columns: 4
   Tools:
-    tab: Tools
     style: row
     columns: 4
   Observability:
-    tab: Infra
     style: row
-    columns: 3
+    columns: 4
   Security:
-    tab: Infra
     style: row
-    columns: 3
+    columns: 4
   Network:
-    tab: Infra
     style: row
-    columns: 3
+    columns: 4
   Devices:
-    tab: Infra
     style: row
     columns: 4
 quicklaunch:
