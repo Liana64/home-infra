@@ -26,50 +26,7 @@ pages:
           - type: calendar
             first-day-of-week: monday
           - $include: /app/config/events.yml
-          - type: bookmarks
-            groups:
-              - title: Home
-                links:
-                  - title: Bookmarks
-                    url: https://bookmarks.milberry.org
-                  - title: RSS
-                    url: https://rss.labs.lianas.org
-                  - title: Photos
-                    url: https://immich.milberry.org
-              - title: Lab
-                links:
-                  - title: Dashboard
-                    url: https://labs.lianas.org
-                  - title: Pull Requests
-                    url: https://git.milberry.org/liana/home-infra/pulls
-                  - title: Forgejo
-                    url: https://git.milberry.org
-                  - title: Speedtest
-                    url: https://grafana.labs.lianas.org/d/speedtest/speedtest?orgId=1&from=now-7d&to=now&timezone=browser
-              - title: Links
-                links:
-                  - title: Weekly Meal Plan
-                    url: https://docs.google.com/document/d/1-267mJ9Km8iLBJym0Hw0ZzYB6mrTGJaP-F5OHjJEMNc/edit?tab=t.0
-                  - title: Hardware Prices
-                    url: https://pcpartpicker.com/trends/
-                  - title: Wordle
-                    url: https://www.nytimes.com/games/wordle/index.html
-              - title: AI
-                links:
-                  - title: Rankings
-                    url: https://openrouter.ai/rankings
-                  - title: Leaderboard
-                    url: https://lmarena.ai/leaderboard
           - $include: /app/config/markets.yml
-          - type: custom-api
-            title: xkcd
-            cache: 12h
-            url: https://xkcd.com/info.0.json
-            template: |
-              <a href="https://xkcd.com/{{ .JSON.Int "num" }}" target="_blank">
-                <img src="{{ .JSON.String "img" }}" alt="{{ .JSON.String "alt" }}" title="{{ .JSON.String "alt" }}" referrerpolicy="no-referrer" style="max-width:100%;height:auto">
-              </a>
-              <p style="margin-top:.5rem;font-size:.9em">{{ .JSON.String "title" }}</p>
       - size: full
         widgets:
           # glance has no hide-when-empty; the template hides the widget itself
@@ -97,71 +54,71 @@ pages:
               {{ end }}
               </ul>
               {{ if eq $alerts 0 }}<style>.widget.alerts{display:none}</style>{{ end }}
+          # - type: group
+          #   widgets:
+          #     - type: custom-api
+          #       title: Chicago
+          #       cache: 1h
+          #       url: http://n8n.home.svc.cluster.local:5678/webhook/chicago-digest
+          #       template: |
+          #         <div class="size-h3 color-primary margin-bottom-3">This week</div>
+          #         <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
+          #         {{ range .JSON.Array "week" }}<li>{{ .String "" }}</li>{{ end }}
+          #         </ul>
+          #         <div class="size-h3 color-primary margin-bottom-3 margin-top-10">This weekend</div>
+          #         <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
+          #         {{ range .JSON.Array "weekend" }}<li>{{ .String "" }}</li>{{ end }}
+          #         </ul>
+          #     - type: custom-api
+          #       title: Industry
+          #       cache: 1h
+          #       url: http://n8n.home.svc.cluster.local:5678/webhook/industry-digest
+          #       template: |
+          #         <div class="size-h3 color-primary margin-bottom-3">Week</div>
+          #         <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
+          #         {{ range .JSON.Array "week" }}<li>{{ .String "" }}</li>{{ end }}
+          #         </ul>
+          #         <div class="size-h3 color-primary margin-bottom-3 margin-top-10">Month</div>
+          #         <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
+          #         {{ range .JSON.Array "month" }}<li>{{ .String "" }}</li>{{ end }}
+          #         </ul>
+          #     - type: custom-api
+          #       title: AI
+          #       cache: 1h
+          #       url: http://n8n.home.svc.cluster.local:5678/webhook/ai-digest
+          #       template: |
+          #         <div class="size-h3 color-primary margin-bottom-3">Week</div>
+          #         <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
+          #         {{ range .JSON.Array "week" }}<li>{{ .String "" }}</li>{{ end }}
+          #         </ul>
+          #         <div class="size-h3 color-primary margin-bottom-3 margin-top-10">Month</div>
+          #         <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
+          #         {{ range .JSON.Array "month" }}<li>{{ .String "" }}</li>{{ end }}
+          #         </ul>
+          #     - type: custom-api
+          #       title: Politics
+          #       cache: 1h
+          #       url: http://n8n.home.svc.cluster.local:5678/webhook/politics-digest
+          #       template: |
+          #         {{ if .JSON.Array "week" }}
+          #         <div class="size-h3 color-primary margin-bottom-3">Week</div>
+          #         <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
+          #         {{ range .JSON.Array "week" }}<li>{{ .String "" }}</li>{{ end }}
+          #         </ul>
+          #         {{ end }}
+          #         {{ if .JSON.Array "month" }}
+          #         <div class="size-h3 color-primary margin-bottom-3 margin-top-10">Month</div>
+          #         <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
+          #         {{ range .JSON.Array "month" }}<li>{{ .String "" }}</li>{{ end }}
+          #         </ul>
+          #         {{ end }}
           - type: group
             widgets:
-              - type: custom-api
-                title: Chicago
-                cache: 1h
-                url: http://n8n.home.svc.cluster.local:5678/webhook/chicago-digest
-                template: |
-                  <div class="size-h3 color-primary margin-bottom-3">This week</div>
-                  <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
-                  {{ range .JSON.Array "week" }}<li>{{ .String "" }}</li>{{ end }}
-                  </ul>
-                  <div class="size-h3 color-primary margin-bottom-3 margin-top-10">This weekend</div>
-                  <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
-                  {{ range .JSON.Array "weekend" }}<li>{{ .String "" }}</li>{{ end }}
-                  </ul>
-              - type: custom-api
-                title: Industry
-                cache: 1h
-                url: http://n8n.home.svc.cluster.local:5678/webhook/industry-digest
-                template: |
-                  <div class="size-h3 color-primary margin-bottom-3">Week</div>
-                  <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
-                  {{ range .JSON.Array "week" }}<li>{{ .String "" }}</li>{{ end }}
-                  </ul>
-                  <div class="size-h3 color-primary margin-bottom-3 margin-top-10">Month</div>
-                  <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
-                  {{ range .JSON.Array "month" }}<li>{{ .String "" }}</li>{{ end }}
-                  </ul>
-              - type: custom-api
-                title: AI
-                cache: 1h
-                url: http://n8n.home.svc.cluster.local:5678/webhook/ai-digest
-                template: |
-                  <div class="size-h3 color-primary margin-bottom-3">Week</div>
-                  <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
-                  {{ range .JSON.Array "week" }}<li>{{ .String "" }}</li>{{ end }}
-                  </ul>
-                  <div class="size-h3 color-primary margin-bottom-3 margin-top-10">Month</div>
-                  <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
-                  {{ range .JSON.Array "month" }}<li>{{ .String "" }}</li>{{ end }}
-                  </ul>
-              - type: custom-api
-                title: Politics
-                cache: 1h
-                url: http://n8n.home.svc.cluster.local:5678/webhook/politics-digest
-                template: |
-                  {{ if .JSON.Array "week" }}
-                  <div class="size-h3 color-primary margin-bottom-3">Week</div>
-                  <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
-                  {{ range .JSON.Array "week" }}<li>{{ .String "" }}</li>{{ end }}
-                  </ul>
-                  {{ end }}
-                  {{ if .JSON.Array "month" }}
-                  <div class="size-h3 color-primary margin-bottom-3 margin-top-10">Month</div>
-                  <ul class="list list-gap-2" style="list-style: disc; padding-left: 1.2rem;">
-                  {{ range .JSON.Array "month" }}<li>{{ .String "" }}</li>{{ end }}
-                  </ul>
-                  {{ end }}
-          - type: group
-            widgets:
-              - type: hacker-news
               - type: lobsters
                 sort-by: hot
                 limit: 18
                 collapse-after: 10
+              - type: hacker-news
               - type: rss
                 title: LWN
                 limit: 15
@@ -218,26 +175,57 @@ pages:
                   <div class="size-h6">PING MS</div>
                 </div>
               </div>
-          - type: releases
-            title: Infra
-            show-source-icon: true
-            collapse-after: 5
-            repositories:
-              - siderolabs/talos
-              - kubernetes/kubernetes
-              - syncthing/syncthing
-              - fluxcd/flux2
-              - openebs/openebs
-          - type: rss
-            title: GrapheneOS
-            limit: 3
-            collapse-after: 3
-            feeds:
-              - url: https://grapheneos.org/releases.atom
+          - type: bookmarks
+            groups:
+              - title: Home
+                links:
+                  - title: Bookmarks
+                    url: https://bookmarks.milberry.org
+                  - title: RSS
+                    url: https://rss.labs.lianas.org
+                  - title: Photos
+                    url: https://immich.milberry.org
+              - title: Lab
+                links:
+                  - title: Dashboard
+                    url: https://labs.lianas.org
+                  - title: Pull Requests
+                    url: https://git.milberry.org/liana/home-infra/pulls
+                  - title: Forgejo
+                    url: https://git.milberry.org
+                  - title: Speedtest
+                    url: https://grafana.labs.lianas.org/d/speedtest/speedtest?orgId=1&from=now-7d&to=now&timezone=browser
+              - title: Links
+                links:
+                  - title: Weekly Meal Plan
+                    url: https://docs.google.com/document/d/1-267mJ9Km8iLBJym0Hw0ZzYB6mrTGJaP-F5OHjJEMNc/edit?tab=t.0
+                  - title: Hardware Prices
+                    url: https://pcpartpicker.com/trends/
+                  - title: Wordle
+                    url: https://www.nytimes.com/games/wordle/index.html
+              - title: AI
+                links:
+                  - title: Rankings
+                    url: https://openrouter.ai/rankings
+                  - title: Leaderboard
+                    url: https://lmarena.ai/leaderboard
+          - type: custom-api
+            title: xkcd
+            cache: 12h
+            url: https://xkcd.com/info.0.json
+            template: |
+              <a href="https://xkcd.com/{{ .JSON.Int "num" }}" target="_blank">
+                <img src="{{ .JSON.String "img" }}" alt="{{ .JSON.String "alt" }}" title="{{ .JSON.String "alt" }}" referrerpolicy="no-referrer" style="max-width:100%;height:auto">
+              </a>
+              <p style="margin-top:.5rem;font-size:.9em">{{ .JSON.String "title" }}</p>
+  - name: Releases
+    columns:
+      - size: small
+        widgets:
           - type: releases
             title: Android
             show-source-icon: true
-            collapse-after: 5
+            collapse-after: 10
             repositories:
               - bitfireAT/davx5-ose
               - ente/ente
@@ -248,6 +236,26 @@ pages:
               - futo-org/android-keyboard
               - localsend/localsend
               - librepods-org/librepods
+      - size: full
+        widgets:
+          - type: releases
+            title: Infra
+            show-source-icon: true
+            collapse-after: 10
+            repositories:
+              - siderolabs/talos
+              - kubernetes/kubernetes
+              - syncthing/syncthing
+              - fluxcd/flux2
+              - openebs/openebs
+      - size: small
+        widgets:
+          - type: rss
+            title: GrapheneOS
+            limit: 10
+            collapse-after: 10
+            feeds:
+              - url: https://grapheneos.org/releases.atom
   - name: Media
     columns:
       - size: small

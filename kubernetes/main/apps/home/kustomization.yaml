@@ -12,7 +12,7 @@ resources:
   - ./syncthing/ks.yaml
   - ./radicale/ks.yaml
   - ./immich/ks.yaml
-  - ./n8n/ks.yaml
+  #- ./n8n/ks.yaml
   - ./ntfy/ks.yaml
   - ./thelounge/ks.yaml
   #- ./opengist/ks.yaml

@@ -14,9 +14,9 @@ spec:
         - matchLabels:
             app.kubernetes.io/name: open-webui
             io.kubernetes.pod.namespace: ai
-        - matchLabels:
-            io.kubernetes.pod.namespace: home
-            app.kubernetes.io/name: n8n
+        # - matchLabels:
+        #     io.kubernetes.pod.namespace: home
+        #     app.kubernetes.io/name: n8n
       toPorts:
         - ports:
             - port: "8080"
