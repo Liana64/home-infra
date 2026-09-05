@@ -40,7 +40,7 @@ spec:
     env:
       - name: TZ
         value: "${TIMEZONE}"
-    logs:
+    log:
       general:
         level: INFO
       access:
