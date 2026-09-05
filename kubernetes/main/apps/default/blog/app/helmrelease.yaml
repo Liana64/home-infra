@@ -117,3 +117,12 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /var/cache/nginx
+      status:
+        type: custom
+        volumeSpec:
+          configMap:
+            name: blog-status
+            optional: true
+        globalMounts:
+          - path: /var/status
+            readOnly: true
