@@ -1,0 +1,233 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zfs-snapshots-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Storage
+data:
+  zfs-snapshots.json: |
+    {
+      "annotations": {"list": []},
+      "editable": false,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Snapshot space",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "color": {"mode": "fixed", "fixedColor": "text"}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area"},
+          "targets": [
+            {"expr": "sum(zfs_dataset_usedbysnapshots_bytes)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Snapshots",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {"mode": "fixed", "fixedColor": "text"}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area"},
+          "targets": [
+            {"expr": "sum(zfs_snapshot_count)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Max autosnap staleness",
+          "description": "Age of the newest snapshot on the worst hourly-autosnap dataset. Green under 2h.",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "green", "value": null},
+                {"color": "orange", "value": 7200},
+                {"color": "red", "value": 10800}
+              ]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "max(time() - zfs_snapshot_latest_time_seconds{dataset!~\"tank/backups(/.*)?|tank/home/shared/landfill\"})", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Volsync repo snap age",
+          "description": "Daily cadence. Green under 26h.",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "green", "value": null},
+                {"color": "orange", "value": 93600},
+                {"color": "red", "value": 108000}
+              ]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "time() - zfs_snapshot_latest_time_seconds{dataset=\"tank/backups/volsync\"}", "refId": "A", "instant": false, "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Datasets",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 10, "w": 24, "x": 0, "y": 4},
+          "fieldConfig": {
+            "defaults": {"custom": {"align": "left"}},
+            "overrides": [
+              {"matcher": {"id": "byName", "options": "Latest snapshot age"}, "properties": [{"id": "unit", "value": "s"}]},
+              {"matcher": {"id": "byName", "options": "Snapshot space"}, "properties": [{"id": "unit", "value": "bytes"}]}
+            ]
+          },
+          "options": {"sortBy": [{"displayName": "Snapshot space", "desc": true}]},
+          "targets": [
+            {"expr": "zfs_snapshot_count{dataset=~\"$dataset\"}", "refId": "A", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "time() - zfs_snapshot_latest_time_seconds{dataset=~\"$dataset\"}", "refId": "B", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "zfs_dataset_usedbysnapshots_bytes{dataset=~\"$dataset\"}", "refId": "C", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ],
+          "transformations": [
+            {"id": "joinByField", "options": {"byField": "dataset", "mode": "outer"}},
+            {"id": "organize", "options": {
+              "excludeByName": {"Time 1": true, "Time 2": true, "Time 3": true, "__name__ 1": true, "__name__ 3": true, "host 1": true, "host 2": true, "host 3": true, "instance 1": true, "instance 2": true, "instance 3": true, "job 1": true, "job 2": true, "job 3": true},
+              "renameByName": {"Value #A": "Snapshots", "Value #B": "Latest snapshot age", "Value #C": "Snapshot space"}
+            }}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Space used by snapshots",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 12, "x": 0, "y": 14},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "min": 0,
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 1,
+                "fillOpacity": 30,
+                "stacking": {"mode": "normal", "group": "A"},
+                "showPoints": "never"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "targets": [
+            {"expr": "zfs_dataset_usedbysnapshots_bytes{dataset=~\"$dataset\"} > 0", "refId": "A", "legendFormat": "{{dataset}}", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Latest snapshot age",
+          "description": "Sawtooth = healthy cadence; a climbing line = snapshots stopped.",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 12, "x": 12, "y": 14},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "min": 0,
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "targets": [
+            {"expr": "time() - zfs_snapshot_latest_time_seconds{dataset=~\"$dataset\"}", "refId": "A", "legendFormat": "{{dataset}}", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Snapshot count",
+          "description": "Steps up on take, down on prune; drift up = retention not converging.",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 24, "x": 0, "y": 23},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "custom": {
+                "drawStyle": "line",
+                "lineInterpolation": "stepAfter",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "never"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {"displayMode": "table", "placement": "right", "calcs": ["lastNotNull"], "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "targets": [
+            {"expr": "zfs_snapshot_count{dataset=~\"$dataset\"}", "refId": "A", "legendFormat": "{{dataset}}", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["zfs", "sanoid"],
+      "templating": {
+        "list": [
+          {
+            "allValue": ".*",
+            "current": {},
+            "datasource": {"type": "prometheus", "uid": "prometheus"},
+            "definition": "label_values(zfs_snapshot_count, dataset)",
+            "includeAll": true,
+            "label": "Dataset",
+            "multi": true,
+            "name": "dataset",
+            "options": [],
+            "query": {"qryType": 1, "query": "label_values(zfs_snapshot_count, dataset)", "refId": "dataset-var"},
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          }
+        ]
+      },
+      "time": {"from": "now-24h", "to": "now"},
+      "timezone": "browser",
+      "title": "ZFS Snapshots (sanoid)",
+      "uid": "zfs-snapshots",
+      "version": 1
+    }

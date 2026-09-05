@@ -22,6 +22,27 @@ spec:
           for: 6h
           labels:
             severity: warning
+        - alert: ZfsSnapshotStale
+          annotations:
+            summary: Newest snapshot of {{ $labels.dataset }} is {{ $value | humanizeDuration }} old — sanoid autosnap stalled
+          expr: time() - zfs_snapshot_latest_time_seconds{dataset!~"tank/backups(/.*)?|tank/home/shared/landfill"} > 3 * 3600
+          for: 30m
+          labels:
+            severity: warning
+        - alert: ZfsVolsyncSnapshotStale
+          annotations:
+            summary: Newest volsync repo snapshot is {{ $value | humanizeDuration }} old — daily sanoid snap missed
+          expr: time() - zfs_snapshot_latest_time_seconds{dataset="tank/backups/volsync"} > 26 * 3600
+          for: 1h
+          labels:
+            severity: warning
+        - alert: ZfsSnapshotMetricsAbsent
+          annotations:
+            summary: zfs_snapshot_latest_time_seconds has no series — zfs-snapshot-metrics timer on m1 dead
+          expr: absent(zfs_snapshot_latest_time_seconds)
+          for: 6h
+          labels:
+            severity: warning
     - name: dockerhub
       rules:
         - alert: BootstrapRateLimitRisk

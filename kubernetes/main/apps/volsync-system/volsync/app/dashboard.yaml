@@ -1,0 +1,239 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: volsync-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Storage
+data:
+  volsync.json: |
+    {
+      "annotations": {"list": []},
+      "editable": false,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Volumes out of sync",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "green", "value": null},
+                {"color": "red", "value": 1}
+              ]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "sum(volsync_volume_out_of_sync{obj_namespace=~\"$namespace\"}) or vector(0)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Replication objects",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {"mode": "fixed", "fixedColor": "text"}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "count(volsync_volume_out_of_sync{obj_namespace=~\"$namespace\"})", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Syncs (24h)",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {"mode": "fixed", "fixedColor": "text"}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area"},
+          "targets": [
+            {"expr": "sum(increase(volsync_sync_duration_seconds_count{obj_namespace=~\"$namespace\"}[24h]))", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Missed intervals (24h)",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "green", "value": null},
+                {"color": "orange", "value": 1},
+                {"color": "red", "value": 5}
+              ]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "sum(increase(volsync_missed_intervals_total{obj_namespace=~\"$namespace\"}[24h])) or vector(0)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Replication objects",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 10, "w": 24, "x": 0, "y": 4},
+          "fieldConfig": {
+            "defaults": {"custom": {"align": "left"}},
+            "overrides": [
+              {"matcher": {"id": "byName", "options": "Avg sync duration (24h)"}, "properties": [{"id": "unit", "value": "s"}]},
+              {"matcher": {"id": "byName", "options": "Out of sync"}, "properties": [
+                {"id": "unit", "value": "short"},
+                {"id": "custom.cellOptions", "value": {"type": "color-text"}},
+                {"id": "thresholds", "value": {"mode": "absolute", "steps": [
+                  {"color": "green", "value": null},
+                  {"color": "red", "value": 1}
+                ]}},
+                {"id": "color", "value": {"mode": "thresholds"}}
+              ]}
+            ]
+          },
+          "options": {"sortBy": [{"displayName": "Out of sync", "desc": true}]},
+          "targets": [
+            {"expr": "volsync_volume_out_of_sync{obj_namespace=~\"$namespace\"}", "refId": "A", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "increase(volsync_missed_intervals_total{obj_namespace=~\"$namespace\"}[24h])", "refId": "B", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "increase(volsync_sync_duration_seconds_sum{obj_namespace=~\"$namespace\"}[24h]) / increase(volsync_sync_duration_seconds_count{obj_namespace=~\"$namespace\"}[24h])", "refId": "C", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ],
+          "transformations": [
+            {"id": "joinByField", "options": {"byField": "obj_name", "mode": "outer"}},
+            {"id": "organize", "options": {
+              "excludeByName": {"Time 1": true, "Time 2": true, "Time 3": true, "__name__ 1": true, "container 1": true, "container 2": true, "container 3": true, "endpoint 1": true, "endpoint 2": true, "endpoint 3": true, "instance 1": true, "instance 2": true, "instance 3": true, "job 1": true, "job 2": true, "job 3": true, "namespace 1": true, "namespace 2": true, "namespace 3": true, "obj_namespace 2": true, "obj_namespace 3": true, "pod 1": true, "pod 2": true, "pod 3": true, "role 2": true, "role 3": true, "method 2": true, "method 3": true, "service 1": true, "service 2": true, "service 3": true},
+              "renameByName": {"obj_namespace 1": "namespace", "obj_name": "object", "role 1": "role", "method 1": "method", "Value #A": "Out of sync", "Value #B": "Missed intervals (24h)", "Value #C": "Avg sync duration (24h)"}
+            }}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Sync duration",
+          "description": "Per-object average over each hour of completed syncs.",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 12, "x": 0, "y": 14},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "min": 0,
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 0,
+                "showPoints": "auto",
+                "spanNulls": true
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "targets": [
+            {"expr": "increase(volsync_sync_duration_seconds_sum{obj_namespace=~\"$namespace\"}[1h]) / (increase(volsync_sync_duration_seconds_count{obj_namespace=~\"$namespace\"}[1h]) > 0)", "refId": "A", "legendFormat": "{{obj_namespace}}/{{obj_name}}", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Syncs completed per hour",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 12, "x": 12, "y": 14},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "custom": {
+                "drawStyle": "bars",
+                "lineWidth": 1,
+                "fillOpacity": 60,
+                "stacking": {"mode": "normal", "group": "A"},
+                "showPoints": "never"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "targets": [
+            {"expr": "sum by (obj_namespace) (increase(volsync_sync_duration_seconds_count{obj_namespace=~\"$namespace\"}[1h]))", "refId": "A", "legendFormat": "{{obj_namespace}}", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Missed intervals",
+          "description": "Increase per hour — any bar means a scheduled sync was skipped.",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 24, "x": 0, "y": 23},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "custom": {
+                "drawStyle": "bars",
+                "lineWidth": 1,
+                "fillOpacity": 60,
+                "stacking": {"mode": "normal", "group": "A"},
+                "showPoints": "never"
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "targets": [
+            {"expr": "increase(volsync_missed_intervals_total{obj_namespace=~\"$namespace\"}[1h])", "refId": "A", "legendFormat": "{{obj_namespace}}/{{obj_name}}", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["volsync", "backup"],
+      "templating": {
+        "list": [
+          {
+            "allValue": ".*",
+            "current": {},
+            "datasource": {"type": "prometheus", "uid": "prometheus"},
+            "definition": "label_values(volsync_volume_out_of_sync, obj_namespace)",
+            "includeAll": true,
+            "label": "Namespace",
+            "multi": true,
+            "name": "namespace",
+            "options": [],
+            "query": {"qryType": 1, "query": "label_values(volsync_volume_out_of_sync, obj_namespace)", "refId": "namespace-var"},
+            "refresh": 2,
+            "sort": 1,
+            "type": "query"
+          }
+        ]
+      },
+      "time": {"from": "now-24h", "to": "now"},
+      "timezone": "browser",
+      "title": "VolSync",
+      "uid": "volsync",
+      "version": 1
+    }
