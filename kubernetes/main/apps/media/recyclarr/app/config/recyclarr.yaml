@@ -9,6 +9,13 @@ sonarr:
 
     quality_definition:
       type: series
+      qualities:
+        - name: WEBDL-1080p
+          max: 45
+          preferred: 44
+        - name: WEBRip-1080p
+          max: 45
+          preferred: 44
 
     quality_profiles:
       - trash_id: 72dae194fc92bf828f32cde7744e51a1 # WEB-1080p
@@ -36,6 +43,16 @@ radarr:
 
     quality_definition:
       type: sqp-streaming
+      qualities:
+        - name: WEBDL-1080p
+          max: 50
+          preferred: 49
+        - name: WEBRip-1080p
+          max: 50
+          preferred: 49
+        - name: Bluray-1080p
+          max: 50
+          preferred: 49
 
     quality_profiles:
       - trash_id: 90a3370d2d30cbaf08d9c23b856a12c8 # [SQP] SQP-1 WEB (1080p)

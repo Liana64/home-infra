@@ -91,12 +91,7 @@ spec:
               QBT_Preferences__WebUI__CSRFProtection: "false"
               QBT_Preferences__WebUI__HostHeaderValidation: "false"
               QBT_Preferences__WebUI__LocalHostAuth: "false"
-              QBT_Application__MemoryWorkingSetLimit:
-                valueFrom:
-                  resourceFieldRef:
-                    containerName: qbittorrent
-                    resource: limits.memory
-                    divisor: 1Mi
+              QBT_Application__MemoryWorkingSetLimit: 3072
               QBT_Preferences__WebUI__Username:
                 valueFrom:
                   secretKeyRef:
@@ -118,9 +113,9 @@ spec:
             resources:
               requests:
                 cpu: 150m
-                memory: 256Mi
+                memory: 512Mi
               limits:
-                memory: 2048Mi
+                memory: 4096Mi
             securityContext:
               runAsUser: 1000
               runAsGroup: 1000
