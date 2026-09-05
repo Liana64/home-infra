@@ -58,7 +58,7 @@ module "n3" {
   target_node  = "n3"
   vm_id        = 100
   cores        = 4
-  memory       = 3584
+  memory       = 6144
   datastore_id = "local-ssd"
 
   disks = [
