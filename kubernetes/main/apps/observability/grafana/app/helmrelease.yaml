@@ -163,13 +163,32 @@ spec:
             editable: true
             options:
               path: /var/lib/grafana/dashboards/storage
+          - name: network
+            orgId: 1
+            folder: Network
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/network
+          - name: kubernetes
+            orgId: 1
+            folder: Kubernetes
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/kubernetes
+          - name: services
+            orgId: 1
+            folder: Services
+            type: file
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/services
     dashboards:
       default:
-        external-dns:
-          # renovate: depName="External-dns"
-          gnetId: 15038
-          revision: 3
-          datasource: Prometheus
         cert-manager:
           url: https://gitlab.com/uneeq-oss/cert-manager-mixin/-/raw/master/dashboards/cert-manager.json?ref_type=heads
           datasource: Prometheus
@@ -179,15 +198,43 @@ spec:
         flux-control-plane:
           url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/control-plane.json
           datasource: Prometheus
-        kubernetes-api-server:
-          # renovate: depName="Kubernetes / System / API Server"
-          gnetId: 15761
-          revision: 18
+        nvidia-dcgm-exporter:
+          # renovate: depName="NVIDIA DCGM Exporter Dashboard"
+          gnetId: 15117
+          revision: 2
+          datasource:
+            - { name: DS_PROMETHEUS, value: Prometheus }
+            - { name: DS_PROMETHEUS-HPC, value: Prometheus }
+        node-exporter-full:
+          # renovate: depName="Node Exporter Full"
+          gnetId: 1860
+          revision: 37
+          datasource:
+            - { name: DS_PROMETHEUS, value: Prometheus }
+        prometheus:
+          # renovate: depName="Prometheus"
+          gnetId: 19105
+          revision: 6
+          datasource: Prometheus
+      network:
+        external-dns:
+          # renovate: depName="External-dns"
+          gnetId: 15038
+          revision: 3
           datasource: Prometheus
         kubernetes-coredns:
           # renovate: depName="Kubernetes / System / CoreDNS"
           gnetId: 15762
           revision: 19
+          datasource: Prometheus
+        traefik:
+          url: https://raw.githubusercontent.com/traefik/traefik/aa8eb1af6eb5457516169315676ec22f968e727d/contrib/grafana/traefik-kubernetes.json
+          datasource: Prometheus
+      kubernetes:
+        kubernetes-api-server:
+          # renovate: depName="Kubernetes / System / API Server"
+          gnetId: 15761
+          revision: 18
           datasource: Prometheus
         kubernetes-global:
           # renovate: depName="Kubernetes / Views / Global"
@@ -214,6 +261,7 @@ spec:
           gnetId: 11454
           revision: 14
           datasource: Prometheus
+      services:
         miniflux:
           url: https://raw.githubusercontent.com/miniflux/v2/main/contrib/grafana/dashboard.json
           datasource: Prometheus
@@ -223,22 +271,6 @@ spec:
         #   revision: 26
         #   datasource:
         #     - { name: DS_PROMETHEUS, value: Prometheus }
-        traefik:
-          url: https://raw.githubusercontent.com/traefik/traefik/aa8eb1af6eb5457516169315676ec22f968e727d/contrib/grafana/traefik-kubernetes.json
-          datasource: Prometheus
-        nvidia-dcgm-exporter:
-          # renovate: depName="NVIDIA DCGM Exporter Dashboard"
-          gnetId: 15117
-          revision: 2
-          datasource:
-            - { name: DS_PROMETHEUS, value: Prometheus }
-            - { name: DS_PROMETHEUS-HPC, value: Prometheus }
-        node-exporter-full:
-          # renovate: depName="Node Exporter Full"
-          gnetId: 1860
-          revision: 37
-          datasource:
-            - { name: DS_PROMETHEUS, value: Prometheus }
         redis:
           # renovate: depName="Redis Dashboard for Prometheus Redis Exporter 1.x"
           gnetId: 763 # https://grafana.com/grafana/dashboards/763?tab=revisions
@@ -255,11 +287,6 @@ spec:
           datasource: Prometheus
         rabbitmq-stream:
           url: https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/b836ca1d0824d8d4c24a62985ce869c388697c79/deps/rabbitmq_prometheus/docker/grafana/dashboards/RabbitMQ-Stream.json
-          datasource: Prometheus
-        prometheus:
-          # renovate: depName="Prometheus"
-          gnetId: 19105
-          revision: 6
           datasource: Prometheus
       storage:
         smartctl-exporter:
