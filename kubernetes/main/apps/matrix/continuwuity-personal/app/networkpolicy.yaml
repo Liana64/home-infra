@@ -48,6 +48,15 @@ spec:
               protocol: TCP
             - port: "80"
               protocol: TCP
+    # traefik LB VIPs carry a CIDR identity, not an endpoint one, so the RFC1918
+    # exception above blackholes sibling federation unless punched back through
+    - toCIDR:
+        - ${LB_TRAEFIK}/32
+        - ${LB_TRAEFIK_EXTERNAL}/32
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: networking
