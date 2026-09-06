@@ -10,11 +10,17 @@ spec:
     matchLabels:
       app.kubernetes.io/name: continuwuity-org
   ingress:
+    # unported: a same-node socketLB reply misses CT reverse-xlate and lands here
+    # as a new connection from the traefik pod, so both instances must be listed
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: networking
             app.kubernetes.io/name: traefik
             app.kubernetes.io/instance: traefik-external-networking
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-networking
   egress:
     - toEndpoints:
         - matchLabels:
