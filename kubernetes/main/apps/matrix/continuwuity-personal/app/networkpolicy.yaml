@@ -1,0 +1,52 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: continuwuity-personal
+  namespace: matrix
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: continuwuity-personal
+  ingress:
+    # unported: same-node socketLB replies miss CT reverse-xlate and arrive on an
+    # ephemeral port, so a port-scoped rule drops sibling federation responses
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-external-networking
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    # federation reaches arbitrary homeservers; 8448 is the undelegated default
+    - toEntities: ["world"]
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
+            - port: "8448"
+              protocol: TCP
+            - port: "80"
+              protocol: TCP
+    # the sibling homeserver resolves to the traefik-external LB, so federation
+    # between the two is translated to the traefik pod port, not "world"
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-external-networking
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP

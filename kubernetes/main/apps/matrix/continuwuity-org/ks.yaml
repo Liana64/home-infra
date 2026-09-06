@@ -3,7 +3,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: &app continuwuity
+  name: &app continuwuity-org
   namespace: flux-system
 spec:
   targetNamespace: matrix
@@ -14,7 +14,7 @@ spec:
     - name: traefik
     - name: volsync
     - name: kopia
-  path: ./kubernetes/main/apps/matrix/continuwuity/app
+  path: ./kubernetes/main/apps/matrix/continuwuity-org/app
   prune: true
   sourceRef:
     kind: GitRepository

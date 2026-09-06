@@ -16,7 +16,7 @@ patches:
     patch: |
       - op: replace
         path: /spec/sourcePVC
-        value: continuwuity
+        value: continuwuity-org
   - patch: |
       $patch: delete
       apiVersion: volsync.backube/v1alpha1

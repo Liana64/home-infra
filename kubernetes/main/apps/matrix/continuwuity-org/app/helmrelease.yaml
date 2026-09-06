@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app continuwuity
+  name: &app continuwuity-org
 spec:
   interval: 1h
   chartRef:
@@ -12,7 +12,7 @@ spec:
     namespace: flux-system
   values:
     controllers:
-      continuwuity:
+      continuwuity-org:
         # RocksDB is a single writer
         strategy: Recreate
         annotations:
@@ -43,7 +43,7 @@ spec:
               CONTINUWUITY_LOG: info
             envFrom:
               - secretRef:
-                  name: continuwuity-secret
+                  name: continuwuity-org-secret
             probes:
               liveness: &probes
                 enabled: true
@@ -109,7 +109,7 @@ spec:
                   identifier: app
                   port: http
         tls:
-          - secretName: continuwuity-tls
+          - secretName: continuwuity-org-tls
             hosts: [*host]
       # delegation for the apex server_name; the blog serves / on this host
       wellknown:
@@ -126,7 +126,7 @@ spec:
                   identifier: app
                   port: http
         tls:
-          - secretName: continuwuity-wellknown-tls
+          - secretName: continuwuity-org-wellknown-tls
             hosts: [*apexHost]
 
     persistence:
