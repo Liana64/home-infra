@@ -29,8 +29,17 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
-    # federation reaches arbitrary homeservers; 8448 is the undelegated default
-    - toEntities: ["world"]
+    # federation reaches arbitrary homeservers; 8448 is the undelegated default.
+    # remote content steers these fetches and "world" spans RFC1918: carve the LAN out
+    - toCIDRSet:
+        - cidr: 0.0.0.0/0
+          except:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+            - 169.254.0.0/16
+            - 127.0.0.0/8
+            - 100.64.0.0/10
       toPorts:
         - ports:
             - port: "443"

@@ -95,8 +95,9 @@ spec:
             port: 8008
 
     ingress:
+      # /login and /register are the only unauthenticated surface: keep internal
       app:
-        className: traefik-external
+        className: traefik
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
@@ -110,6 +111,28 @@ spec:
                   port: http
         tls:
           - secretName: continuwuity-personal-tls
+            hosts: [*host]
+      # /_matrix/media is deliberately absent: authenticated media moved under
+      # /_matrix/federation/v1/media in spec v1.11
+      federation:
+        className: traefik-external
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-matrix@kubernetescrd"
+        hosts:
+          - host: *host
+            paths:
+              - path: /_matrix/federation
+                service:
+                  identifier: app
+                  port: http
+              - path: /_matrix/key
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: continuwuity-personal-federation-tls
             hosts: [*host]
       # delegation for the apex server_name; the blog serves / on this host
       wellknown:
