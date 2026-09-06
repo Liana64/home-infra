@@ -97,9 +97,9 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: traefik-middleware-chain-synapse
+  name: traefik-middleware-chain-matrix
 spec:
   chain:
     middlewares:
-      - name: networking-traefik-middleware-secure-headers-synapse@kubernetescrd
+      - name: networking-traefik-middleware-secure-headers-matrix@kubernetescrd
       - name: networking-traefik-middleware-compress@kubernetescrd

@@ -162,7 +162,7 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
-  name: traefik-middleware-secure-headers-synapse
+  name: traefik-middleware-secure-headers-matrix
 spec:
   headers:
     accessControlAllowMethods:
@@ -172,16 +172,15 @@ spec:
       - OPTIONS
       - DELETE
     accessControlMaxAge: 3600
-    accessControlAllowOriginListRegex:
-      - '^https://([a-z0-9-]+\.)*${PERSONAL_DOMAIN}$'
-      - '^element://'
-      - '^vector://'
-      - '^http://localhost(:[0-9]+)?$'
+    # the client-server API is bearer-authed, so the spec mandates any origin
+    accessControlAllowOriginList:
+      - "*"
     accessControlAllowHeaders:
       - "Accept"
       - "Authorization"
       - "Content-Type"
       - "Origin"
+      - "X-Requested-With"
     hostsProxyHeaders:
       - "X-Forwarded-Host"
       - "X-Forwarded-For"
@@ -194,7 +193,7 @@ spec:
     stsPreload: true
     forceSTSHeader: true
     contentTypeNosniff: true
-    accessControlAllowCredentials: true
+    accessControlAllowCredentials: false
     addVaryHeader: true
     referrerPolicy: "same-origin"
     contentSecurityPolicy: "upgrade-insecure-requests;"

@@ -7,8 +7,6 @@ resources:
   - ./external-secrets.yaml
   - ./kopia.yaml
   - ./spegel.yaml
-  - ./ess-matrix.yaml
-  - ./matrix-synapse.yaml
   - ./reloader.yaml
   - ./kyverno.yaml
   - ./crowdsec.yaml
