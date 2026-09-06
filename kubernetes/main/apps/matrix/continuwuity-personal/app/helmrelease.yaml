@@ -79,6 +79,7 @@ spec:
     defaultPodOptions:
       # RocksDB needs to flush and close cleanly
       terminationGracePeriodSeconds: 120
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -140,7 +141,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-matrix@kubernetescrd"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-matrix@kubernetescrd"
         hosts:
           - host: &apexHost "${PERSONAL_DOMAIN}"
             paths:
