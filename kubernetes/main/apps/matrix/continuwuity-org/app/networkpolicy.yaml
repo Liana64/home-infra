@@ -10,8 +10,6 @@ spec:
     matchLabels:
       app.kubernetes.io/name: continuwuity-org
   ingress:
-    # unported: same-node socketLB replies miss CT reverse-xlate and arrive on an
-    # ephemeral port, so a port-scoped rule drops sibling federation responses
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: networking
@@ -29,8 +27,6 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
-    # federation reaches arbitrary homeservers; 8448 is the undelegated default.
-    # remote content steers these fetches and "world" spans RFC1918: carve the LAN out
     - toCIDRSet:
         - cidr: 0.0.0.0/0
           except:
@@ -48,13 +44,15 @@ spec:
               protocol: TCP
             - port: "80"
               protocol: TCP
-    # the sibling homeserver resolves to the traefik-external LB, so federation
-    # between the two is translated to the traefik pod port, not "world"
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: networking
             app.kubernetes.io/name: traefik
             app.kubernetes.io/instance: traefik-external-networking
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-networking
       toPorts:
         - ports:
             - port: "8443"
