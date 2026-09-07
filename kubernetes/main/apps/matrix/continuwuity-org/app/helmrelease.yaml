@@ -40,6 +40,7 @@ spec:
               CONTINUWUITY_ALLOW_REGISTRATION: "true"
               CONTINUWUITY_WELL_KNOWN__SERVER: "matrix.${ORG_DOMAIN}:443"
               CONTINUWUITY_WELL_KNOWN__CLIENT: "https://matrix.${ORG_DOMAIN}"
+              CONTINUWUITY_WELL_KNOWN__SUPPORT_EMAIL: "liana@${ORG_DOMAIN}"
               CONTINUWUITY_LOG: info
             envFrom:
               - secretRef:
@@ -135,7 +136,7 @@ spec:
       data:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 20Gi
+        size: 100Gi
         retain: true
         globalMounts:
           - path: /data

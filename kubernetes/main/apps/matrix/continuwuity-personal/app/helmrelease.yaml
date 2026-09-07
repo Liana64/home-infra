@@ -36,10 +36,10 @@ spec:
               CONTINUWUITY_ALLOW_FEDERATION: "true"
               CONTINUWUITY_TRUSTED_SERVERS: '["matrix.org"]'
               CONTINUWUITY_ALLOW_CHECK_FOR_UPDATES: "false"
-              # token-gated; the first account to register becomes server admin
-              CONTINUWUITY_ALLOW_REGISTRATION: "true"
+              CONTINUWUITY_ALLOW_REGISTRATION: "false"
               CONTINUWUITY_WELL_KNOWN__SERVER: "matrix.${PERSONAL_DOMAIN}:443"
               CONTINUWUITY_WELL_KNOWN__CLIENT: "https://matrix.${PERSONAL_DOMAIN}"
+              CONTINUWUITY_WELL_KNOWN__SUPPORT_EMAIL: "liana@${PERSONAL_DOMAIN}"
               CONTINUWUITY_LOG: info
             envFrom:
               - secretRef:
@@ -157,7 +157,7 @@ spec:
       data:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 20Gi
+        size: 100Gi
         retain: true
         globalMounts:
           - path: /data
