@@ -1,0 +1,167 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app pinepods
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      pinepods:
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/onedr0p/postgres-init
+              tag: 16
+            env:
+              INIT_POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
+              INIT_POSTGRES_DBNAME: pinepods
+              INIT_POSTGRES_SUPER_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudnative-pg-secret
+                    key: password
+            envFrom:
+              - secretRef:
+                  name: pinepods-secret
+        containers:
+          app:
+            # renovate: datasource=docker depName=madeofpendletonwool/pinepods
+            image:
+              repository: madeofpendletonwool/pinepods
+              tag: 0.9.0@sha256:782a1cb78600959d8a0a5cdfd95f9191637a978686e273d0e97ad281ea1dc78f
+            env:
+              TZ: "${TIMEZONE}"
+              HOSTNAME: "https://podcasts.${ORG_DOMAIN}"
+              SEARCH_API_URL: "https://search.pinepods.online/api/search"
+              PEOPLE_API_URL: "https://people.pinepods.online"
+              DB_TYPE: postgresql
+              DB_HOST: postgres-1-rw.database.svc.cluster.local
+              DB_PORT: "5432"
+              DB_NAME: pinepods
+              DB_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: pinepods-secret
+                    key: INIT_POSTGRES_USER
+              DB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: pinepods-secret
+                    key: INIT_POSTGRES_PASS
+              VALKEY_HOST: localhost
+              VALKEY_PORT: "6379"
+              DEBUG_MODE: "false"
+              PUID: "1000"
+              PGID: "1000"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/pinepods_check
+                    port: &port 8040
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            securityContext:
+              # TODO: PUID/PGID image inits as root; harden after a live check
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: false
+            resources:
+              requests:
+                cpu: 25m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+          valkey:
+            # renovate: datasource=docker depName=valkey/valkey
+            image:
+              repository: valkey/valkey
+              tag: 8-alpine@sha256:07d7f63457b6ab7e3db871aac5c2a8072416dbf7f65d8a771e8f0db7ef1ddc60
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 5m
+              limits:
+                memory: 128Mi
+
+    defaultPodOptions:
+      securityContext:
+        seccompProfile: { type: RuntimeDefault }
+
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+
+    ingress:
+      app:
+        className: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Media
+          gethomepage.dev/name: Pinepods
+          gethomepage.dev/description: Podcasts
+          gethomepage.dev/icon: pinepods
+        hosts:
+          - host: &host "podcasts.${ORG_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: pinepods-tls
+            hosts: [*host]
+
+    persistence:
+      # episodes are re-fetchable and durable state lives in CNPG — no volsync
+      data:
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 10Gi
+        retain: true
+        advancedMounts:
+          pinepods:
+            app:
+              - path: /opt/pinepods/downloads
+                subPath: downloads
+              - path: /opt/pinepods/backups
+                subPath: backups
+      valkey-data:
+        type: emptyDir
+        advancedMounts:
+          pinepods:
+            valkey:
+              - path: /data
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          pinepods:
+            app:
+              - path: /tmp
