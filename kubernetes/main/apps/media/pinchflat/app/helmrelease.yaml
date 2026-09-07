@@ -50,9 +50,9 @@ spec:
             resources:
               requests:
                 cpu: 20m
-                memory: 256Mi
+                memory: 512Mi
               limits:
-                memory: 1Gi
+                memory: 3584Mi
 
     defaultPodOptions:
       affinity:
