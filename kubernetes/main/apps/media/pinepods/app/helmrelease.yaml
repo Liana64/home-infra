@@ -19,7 +19,7 @@ spec:
         initContainers:
           init-db:
             image:
-              repository: ghcr.io/onedr0p/postgres-init
+              repository: ghcr.io/liana64/postgres-init
               tag: 16
             env:
               INIT_POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
@@ -84,6 +84,7 @@ spec:
               # TODO: PUID/PGID image inits as root; harden after a live check
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: false
+              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 25m
@@ -102,10 +103,20 @@ spec:
             resources:
               requests:
                 cpu: 5m
+                memory: 32Mi
               limits:
                 memory: 128Mi
 
     defaultPodOptions:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - "m1"
       securityContext:
         seccompProfile: { type: RuntimeDefault }
 
