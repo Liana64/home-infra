@@ -1,0 +1,162 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: restic-backups-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Storage
+data:
+  restic-backups.json: |
+    {
+      "annotations": {"list": []},
+      "editable": false,
+      "graphTooltip": 0,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Last backup age",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0},
+          "id": 1,
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "green", "value": null},
+                {"color": "orange", "value": 93600},
+                {"color": "red", "value": 172800}
+              ]}
+            },
+            "overrides": []
+          },
+          "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+          "targets": [
+            {"expr": "time() - restic_latest_snapshot_time_seconds", "refId": "A", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Last run",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0},
+          "id": 2,
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "mappings": [
+                {"type": "value", "options": {
+                  "0": {"text": "OK", "color": "green"},
+                  "1": {"text": "FAILED", "color": "red"}
+                }}
+              ],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            },
+            "overrides": []
+          },
+          "options": {"colorMode": "value", "graphMode": "none", "reduceOptions": {"calcs": ["lastNotNull"]}},
+          "targets": [
+            {"expr": "node_systemd_unit_state{name=\"restic-backups-tank.service\",state=\"failed\"}", "refId": "A", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Repo size",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 5, "w": 6, "x": 12, "y": 0},
+          "id": 3,
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            },
+            "overrides": []
+          },
+          "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"]}},
+          "targets": [
+            {"expr": "restic_repo_size_bytes", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Repo snapshots",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 5, "w": 6, "x": 18, "y": 0},
+          "id": 4,
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            },
+            "overrides": []
+          },
+          "options": {"colorMode": "value", "graphMode": "area", "reduceOptions": {"calcs": ["lastNotNull"]}},
+          "targets": [
+            {"expr": "restic_snapshot_count", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Repo size over time",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 12, "x": 0, "y": 5},
+          "id": 5,
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "color": {"mode": "fixed", "fixedColor": "blue"},
+              "custom": {
+                "lineWidth": 2,
+                "fillOpacity": 10,
+                "pointSize": 8,
+                "showPoints": "never",
+                "spanNulls": true
+              }
+            },
+            "overrides": []
+          },
+          "options": {"legend": {"showLegend": false}, "tooltip": {"mode": "single"}},
+          "targets": [
+            {"expr": "restic_repo_size_bytes", "refId": "A", "legendFormat": "repo size", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Snapshots over time",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 12, "x": 12, "y": 5},
+          "id": 6,
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "fixed", "fixedColor": "purple"},
+              "custom": {
+                "lineWidth": 2,
+                "fillOpacity": 10,
+                "lineInterpolation": "stepAfter",
+                "pointSize": 8,
+                "showPoints": "never",
+                "spanNulls": true
+              }
+            },
+            "overrides": []
+          },
+          "options": {"legend": {"showLegend": false}, "tooltip": {"mode": "single"}},
+          "targets": [
+            {"expr": "restic_snapshot_count", "refId": "A", "legendFormat": "snapshots", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        }
+      ],
+      "refresh": "5m",
+      "schemaVersion": 39,
+      "tags": ["backup", "restic", "m1"],
+      "templating": {"list": []},
+      "time": {"from": "now-30d", "to": "now"},
+      "timezone": "browser",
+      "title": "Restic backups",
+      "uid": "restic-backups",
+      "version": 1
+    }

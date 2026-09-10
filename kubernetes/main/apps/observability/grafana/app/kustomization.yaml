@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ./dashboard.yaml
   - ./dashboard-snapshots.yaml
+  - ./dashboard-restic.yaml
   - ./networkpolicy.yaml
   - ./secret.sops.yaml
   - ./helmrelease.yaml
