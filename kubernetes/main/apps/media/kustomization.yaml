@@ -8,7 +8,7 @@ resources:
   - ./qbittorrent/ks.yaml
   - ./jellyfin/ks.yaml
   - ./pinchflat/ks.yaml
-  - ./pinepods/ks.yaml
+  # - ./pinepods/ks.yaml
   - ./seerr/ks.yaml
   - ./bazarr/ks.yaml
   - ./flaresolverr/ks.yaml
