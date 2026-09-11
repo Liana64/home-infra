@@ -120,7 +120,7 @@ spec:
         path: /tank/media
         globalMounts:
           - path: /downloads
-            subPath: youtube
+            subPath: YouTube
       tmp:
         type: emptyDir
         globalMounts:
