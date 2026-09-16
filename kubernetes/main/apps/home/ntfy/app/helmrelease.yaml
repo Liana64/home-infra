@@ -28,7 +28,10 @@ spec:
               NTFY_BEHIND_PROXY: "true"
               NTFY_AUTH_FILE: /var/lib/ntfy/user.db
               NTFY_AUTH_DEFAULT_ACCESS: deny-all
-              NTFY_CACHE_FILE: /var/cache/ntfy/cache.db
+              NTFY_AUTH_ACCESS: everyone:up*:wo
+              NTFY_CACHE_FILE: /var/lib/ntfy/cache.db
+              NTFY_ATTACHMENT_CACHE_DIR: /var/cache/ntfy
+              NTFY_ATTACHMENT_TOTAL_SIZE_LIMIT: 1G
               NTFY_ENABLE_LOGIN: "true"
               NTFY_ENABLE_SIGNUP: "false"
               NTFY_ENABLE_RESERVATIONS: "true"
@@ -81,8 +84,6 @@ spec:
           gethomepage.dev/name: Ntfy
           gethomepage.dev/description: Notification server
           gethomepage.dev/icon: ntfy
-          #gethomepage.dev/widget.url: "https://rss.${LAB_DOMAIN}"
-          #gethomepage.dev/widget.key: "{{HOMEPAGE_VAR_MINIFLUX_TOKEN}}"
         hosts:
           - host: &host "ntfy.${PERSONAL_DOMAIN}"
             paths:
@@ -103,5 +104,6 @@ spec:
           - path: /var/lib/ntfy
       cache:
         type: emptyDir
+        sizeLimit: 1Gi
         globalMounts:
           - path: /var/cache/ntfy
