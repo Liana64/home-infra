@@ -12,6 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: traefik
+    - name: anubis
   path: ./kubernetes/main/apps/default/echo-server/app
   prune: true
   sourceRef:
