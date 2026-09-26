@@ -95,7 +95,7 @@ spec:
             # renovate: datasource=docker depName=valkey/valkey
             image:
               repository: valkey/valkey
-              tag: 8-alpine@sha256:07d7f63457b6ab7e3db871aac5c2a8072416dbf7f65d8a771e8f0db7ef1ddc60
+              tag: 9-alpine@sha256:3b83b0b6a598bb390c8186a408a69949772f439548a81c5ea0ab7ccf102c248d
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
