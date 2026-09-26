@@ -35,7 +35,7 @@ spec:
       metrics:
         enabled:
           - dns:query
-          - drop
+          - drop:labelsContext=source_namespace,destination_namespace
           - tcp
           - flow
           - port-distribution

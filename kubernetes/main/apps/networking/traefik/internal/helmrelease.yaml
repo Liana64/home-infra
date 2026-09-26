@@ -84,10 +84,13 @@ spec:
         expose:
           default: true
     metrics:
-      serviceMonitor:
-        enabled: true
-        namespaceSelector:
-          any: true
+      prometheus:
+        entryPoint: metrics
+        addRoutersLabels: true
+        service:
+          enabled: true
+        serviceMonitor:
+          enabled: true
     providers:
       kubernetesCRD:
         enabled: true

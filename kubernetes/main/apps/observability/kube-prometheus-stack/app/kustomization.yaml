@@ -4,6 +4,8 @@ kind: Kustomization
 resources:
   - ./networkpolicy.yaml
   - ./secret.sops.yaml
+  - ./alertmanager-secret.sops.yaml
   - ./helmrelease.yaml
   - ./prometheusrule.yaml
+  - ./prometheusrule-security.yaml
   - ./scrapeconfig.yaml

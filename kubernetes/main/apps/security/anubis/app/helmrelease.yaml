@@ -90,11 +90,24 @@ spec:
         ports:
           http:
             port: &port 8080
+          metrics:
+            port: &metrics 9090
       org:
         controller: org
         ports:
           http:
             port: *port
+          metrics:
+            port: *metrics
+    serviceMonitor:
+      app:
+        serviceName: anubis
+        endpoints: &endpoints
+          - port: metrics
+            interval: 30s
+      org:
+        serviceName: anubis-org
+        endpoints: *endpoints
     ingress:
       app:
         className: traefik-external

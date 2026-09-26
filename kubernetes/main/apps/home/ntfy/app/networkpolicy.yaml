@@ -15,8 +15,9 @@ spec:
             io.kubernetes.pod.namespace: networking
             app.kubernetes.io/name: traefik
             app.kubernetes.io/instance: traefik-networking
-        # - matchLabels:
-        #     app.kubernetes.io/name: n8n
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: alertmanager
       toPorts:
         - ports:
             - port: "8080"

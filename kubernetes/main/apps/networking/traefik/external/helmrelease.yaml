@@ -137,7 +137,10 @@ spec:
     metrics:
       prometheus:
         entryPoint: metrics
+        addRoutersLabels: true
         service:
+          enabled: true
+        serviceMonitor:
           enabled: true
     providers:
       kubernetesCRD:
