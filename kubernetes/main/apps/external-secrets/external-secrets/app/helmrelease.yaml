@@ -13,6 +13,8 @@ spec:
     installCRDS: true
     bitwarden-sdk-server:
       enabled: true
+      deploymentAnnotations:
+        secret.reloader.stakater.com/reload: bitwarden-tls-certs
     leaderElect: true
     serviceMonitor:
       enabled: true
