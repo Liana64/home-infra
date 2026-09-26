@@ -34,7 +34,7 @@ spec:
               CONTINUWUITY_ROCKSDB_PARALLELISM_THREADS: "2"
               CONTINUWUITY_MAX_REQUEST_SIZE: "20000000"
               CONTINUWUITY_ALLOW_FEDERATION: "true"
-              CONTINUWUITY_TRUSTED_SERVERS: '["matrix.org"]'
+              CONTINUWUITY_TRUSTED_SERVERS: '["matrix.org","dovi.dev"]'
               CONTINUWUITY_ALLOW_CHECK_FOR_UPDATES: "false"
               # token-gated; the first account to register becomes server admin
               CONTINUWUITY_ALLOW_REGISTRATION: "true"

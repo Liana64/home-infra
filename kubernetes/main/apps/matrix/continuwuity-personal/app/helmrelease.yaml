@@ -34,7 +34,7 @@ spec:
               CONTINUWUITY_ROCKSDB_PARALLELISM_THREADS: "2"
               CONTINUWUITY_MAX_REQUEST_SIZE: "20000000"
               CONTINUWUITY_ALLOW_FEDERATION: "true"
-              CONTINUWUITY_TRUSTED_SERVERS: '["matrix.org"]'
+              CONTINUWUITY_TRUSTED_SERVERS: '["matrix.org","dovi.dev"]'
               CONTINUWUITY_ALLOW_CHECK_FOR_UPDATES: "false"
               CONTINUWUITY_ALLOW_REGISTRATION: "false"
               CONTINUWUITY_WELL_KNOWN__SERVER: "matrix.${PERSONAL_DOMAIN}:443"
