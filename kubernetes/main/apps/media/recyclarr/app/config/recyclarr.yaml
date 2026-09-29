@@ -10,29 +10,23 @@ sonarr:
     quality_definition:
       type: series
       qualities:
-        - name: WEBDL-1080p
-          max: 80
-          preferred: 79
-        - name: WEBRip-1080p
-          max: 80
-          preferred: 79
+        - { name: WEBDL-1080p, min: 10, preferred: 25, max: 32 }
+        - { name: WEBRip-1080p, min: 10, preferred: 25, max: 32 }
+        - { name: Bluray-1080p, min: 10, preferred: 25, max: 32 }
+        - { name: HDTV-1080p, min: 10, preferred: 25, max: 32 }
+        - { name: WEBDL-720p, preferred: 25, max: 32 }
+        - { name: WEBRip-720p, preferred: 25, max: 32 }
+        - { name: Bluray-720p, preferred: 25, max: 32 }
+        - { name: HDTV-720p, preferred: 25, max: 32 }
 
     quality_profiles:
-      - trash_id: 72dae194fc92bf828f32cde7744e51a1 # WEB-1080p
+      - trash_id: 9d142234e45d6143785ac55f5a9e8dc9 # WEB-1080p (Alternative)
         reset_unmatched_scores:
           enabled: true
 
     custom_format_groups:
-      add:
-        - trash_id: d776a1ea912a117d66d83b880ff2055d # [HDR Formats] DV (w/o HDR fallback)
-          assign_scores_to:
-            - trash_id: 72dae194fc92bf828f32cde7744e51a1 # WEB-1080p
-        - trash_id: 59c3af66780d08332fdc64e68297098f # [Unwanted] Unwanted Formats
-          select:
-            - 82d40da2bc6923f41e14394075dd4b03 # No-RlsGroup
-            - e1a997ddb54e3ecbfe06341ad323c458 # Obfuscated
-            - 06d66ab109d4d2eddb2794d21526d140 # Retags
-            - 1b3994c551cbb92a2c781af061f4ab44 # Scene
+      skip:
+        - 158188097a58d7687dee647e04af0da3 # [Optional] Golden Rule HD
 
 radarr:
   radarr_main:
@@ -42,29 +36,14 @@ radarr:
     delete_old_custom_formats: true
 
     quality_definition:
-      type: sqp-streaming
+      type: movie
       qualities:
-        - name: WEBDL-1080p
-          max: 80
-          preferred: 79
-        - name: WEBRip-1080p
-          max: 80
-          preferred: 79
-        - name: Bluray-1080p
-          max: 80
-          preferred: 79
+        - { name: WEBDL-1080p, preferred: 68, max: 85 }
+        - { name: WEBRip-1080p, preferred: 68, max: 85 }
+        - { name: Bluray-1080p, min: 25, preferred: 68, max: 85 }
+        - { name: Bluray-720p, preferred: 68, max: 85 }
 
     quality_profiles:
-      - trash_id: 90a3370d2d30cbaf08d9c23b856a12c8 # [SQP] SQP-1 WEB (1080p)
-        name: SQP-1 WEB (1080p)
+      - trash_id: d1d67249d3890e49bc12e275d989a7e9 # HD Bluray + WEB
         reset_unmatched_scores:
           enabled: true
-
-    custom_format_groups:
-      add:
-        - trash_id: 15b1cf0b6f1a1493856a4355907affee # [Unwanted] Unwanted Formats SQP
-          select:
-            - ae9b7c9ebde1f3bd336a8cbd1ec4c5e5 # No-RlsGroup
-            - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
-            - 5c44f52a8714fdd79bb4d98e2673be1f # Retags
-            - f537cf427b64c38c8e36298f657e4828 # Scene
