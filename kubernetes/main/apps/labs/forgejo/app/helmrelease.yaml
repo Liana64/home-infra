@@ -8,12 +8,24 @@ spec:
   chartRef:
     kind: OCIRepository
     name: forgejo
-    namespace: flux-system
   values:
     image:
       rootless: true
       # renovate: datasource=docker depName=code.forgejo.org/forgejo/forgejo
       tag: 16.0.5-rootless
+    serviceAccount:
+      create: true
+    podSecurityContext:
+      fsGroup: 1000
+      runAsUser: 1000
+      runAsGroup: 1000
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: [ALL]
     redis-cluster:
       enabled: false
     valkey-cluster:
@@ -87,6 +99,12 @@ spec:
           ENABLED: true
         actions:
           ENABLED: false
+        api:
+          ENABLE_SWAGGER: false
+        migrations:
+          ALLOW_LOCALNETWORKS: false
+        webhook:
+          ALLOWED_HOST_LIST: external
         other:
           SHOW_FOOTER_VERSION: false
       metrics:
@@ -167,6 +185,16 @@ spec:
                       - name: init-db
                         image: ghcr.io/liana64/postgres-init:16
                         env:
+                          - name: INIT_POSTGRES_USER
+                            valueFrom:
+                              secretKeyRef:
+                                name: forgejo-secret
+                                key: INIT_POSTGRES_USER
+                          - name: INIT_POSTGRES_PASS
+                            valueFrom:
+                              secretKeyRef:
+                                name: forgejo-secret
+                                key: INIT_POSTGRES_PASS
                           - name: INIT_POSTGRES_DBNAME
                             value: forgejo
                           - name: INIT_POSTGRES_HOST
@@ -176,6 +204,7 @@ spec:
                               secretKeyRef:
                                 name: cloudnative-pg-secret
                                 key: password
-                        envFrom:
-                          - secretRef:
-                              name: forgejo-secret
+                        securityContext:
+                          allowPrivilegeEscalation: false
+                          capabilities:
+                            drop: [ALL]
