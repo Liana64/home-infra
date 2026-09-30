@@ -22,7 +22,7 @@ spec:
             # renovate: datasource=docker depName=forgejo.ellis.link/continuwuation/continuwuity
             image:
               repository: forgejo.ellis.link/continuwuation/continuwuity
-              tag: v26.8.1@sha256:fdf3cd0ffec66dbbce3c7e58999739355dd0c630b068bb02929a19719448d585
+              tag: v26.9.1@sha256:c9c62bc5c0a641f3f713945c701b069c7bc30d2612b54d4a5de80a5be19d5420
             env:
               TZ: "${TIMEZONE}"
               TOKIO_WORKER_THREADS: "2"
