@@ -7,7 +7,7 @@ vars:
   TALHELPER_CLUSTER_DIR: "{{.BOOTSTRAP_TALOS_DIR}}/clusterconfig"
   TALHELPER_SECRET_FILE: "{{.BOOTSTRAP_TALOS_DIR}}/talsecret.sops.yaml"
   TALHELPER_CONFIG_FILE: "{{.BOOTSTRAP_TALOS_DIR}}/talconfig.yaml"
-  HELMFILE_FILE: "{{.KUBERNETES_DIR}}/{{.CLUSTER}}/bootstrap/helmfile.yaml"
+  HELMFILE_FILE: "{{.KUBERNETES_DIR}}/{{.CLUSTER}}/bootstrap/helmfile.yaml.gotmpl"
   TALOSCONFIG_FILE: "{{.TALHELPER_CLUSTER_DIR}}/talosconfig"
 
 env:
