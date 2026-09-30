@@ -7,9 +7,11 @@
   ],
   timezone: "America/Chicago",
   automerge: false,
-  prConcurrentLimit: 32,
+  prConcurrentLimit: 0,
   prHourlyLimit: 0,
-  dependencyDashboardTitle: "Renovate Dashboard 🤖",
+  labels: ["default"],
+  commitMessagePrefix: "[{{replace '^(?:kubernetes/main/(?:apps/)?|[.])([^/]+).*$' '$1' packageFileDir}}]",
+  dependencyDashboardTitle: "Renovate Dashboard",
   prBodyDefinitions: {
     Release: "{{#if sourceUrl}}[releases]({{{sourceUrl}}}/releases){{/if}}",
   },
@@ -24,8 +26,34 @@
   ],
   packageRules: [
     {
-      matchUpdateTypes: ["digest"],
-      prPriority: -1,
+      matchFileNames: [
+        ".github/**",
+        "kubernetes/main/bootstrap/**",
+        "kubernetes/main/flux/**",
+        "kubernetes/main/apps/{cert-manager,database,external-secrets,kube-system,observability,openebs,renovate,security,system,system-controllers,volsync-system}/**",
+      ],
+      labels: ["system"],
+    },
+    {
+      matchFileNames: ["kubernetes/main/apps/{home,media,networking}/**"],
+      labels: ["{{replace '^kubernetes/main/apps/([^/]+).*$' '$1' packageFileDir}}"],
+    },
+    {
+      matchUpdateTypes: ["major"],
+      addLabels: ["breaking"],
+    },
+    {
+      matchUpdateTypes: ["minor"],
+      matchCurrentVersion: "/^v?0\\./",
+      addLabels: ["breaking"],
+    },
+    {
+      matchPackageNames: ["fluxcd/flux2", "ghcr.io/fluxcd/flux-manifests"],
+      groupName: "flux",
+    },
+    {
+      matchPackageNames: ["dragonflydb/dragonfly-operator", "ghcr.io/dragonflydb/operator"],
+      groupName: "dragonfly-operator",
     },
     {
       matchPackageNames: [
@@ -78,17 +106,6 @@
       managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
       matchStrings: [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n\\s+- \\S+/(?<currentValue>v?\\d+\\.\\d+\\.\\d+)/",
-      ],
-      datasourceTemplate: "{{{datasource}}}",
-      depNameTemplate: "{{{depName}}}",
-      versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
-    },
-    {
-      customType: "regex",
-      description: "Talos and Kubernetes versions in talconfig.yaml",
-      managerFilePatterns: ["/(^|/)talos/talconfig\\.ya?ml$/"],
-      matchStrings: [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n(?:talosVersion|kubernetesVersion): (?<currentValue>\\S+)",
       ],
       datasourceTemplate: "{{{datasource}}}",
       depNameTemplate: "{{{depName}}}",
