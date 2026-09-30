@@ -4,14 +4,3 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ./app-template.yaml
-  - ./external-secrets.yaml
-  - ./kopia.yaml
-  - ./spegel.yaml
-  - ./reloader.yaml
-  - ./kyverno.yaml
-  - ./crowdsec.yaml
-  - ./external-dns.yaml
-  - ./forgejo.yaml
-  - ./cnpg.yaml
-  - ./plugin-barman-cloud.yaml
-  - ./volsync.yaml

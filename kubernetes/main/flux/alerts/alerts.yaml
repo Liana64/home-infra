@@ -14,6 +14,12 @@ spec:
   eventSources:
     - { kind: GitRepository, name: "*" }
     - { kind: OCIRepository, name: "*" }
+    - { kind: OCIRepository, name: "*", namespace: database }
+    - { kind: OCIRepository, name: "*", namespace: external-secrets }
+    - { kind: OCIRepository, name: "*", namespace: labs }
+    - { kind: OCIRepository, name: "*", namespace: networking }
+    - { kind: OCIRepository, name: "*", namespace: system }
+    - { kind: OCIRepository, name: "*", namespace: volsync-system }
     - { kind: HelmRepository, name: "*" }
     - { kind: HelmChart, name: "*" }
     - { kind: Kustomization, name: "*" }
@@ -38,16 +44,13 @@ spec:
     - { kind: HelmRelease, name: "*", namespace: external-secrets }
     - { kind: HelmRelease, name: "*", namespace: games }
     - { kind: HelmRelease, name: "*", namespace: home }
-    - { kind: HelmRelease, name: "*", namespace: home-automation }
     - { kind: HelmRelease, name: "*", namespace: kube-system }
-    - { kind: HelmRelease, name: "*", namespace: kyverno }
     - { kind: HelmRelease, name: "*", namespace: labs }
     - { kind: HelmRelease, name: "*", namespace: matrix }
     - { kind: HelmRelease, name: "*", namespace: media }
     - { kind: HelmRelease, name: "*", namespace: networking }
     - { kind: HelmRelease, name: "*", namespace: observability }
     - { kind: HelmRelease, name: "*", namespace: openebs }
-    - { kind: HelmRelease, name: "*", namespace: radio }
     - { kind: HelmRelease, name: "*", namespace: renovate }
     - { kind: HelmRelease, name: "*", namespace: security }
     - { kind: HelmRelease, name: "*", namespace: system }

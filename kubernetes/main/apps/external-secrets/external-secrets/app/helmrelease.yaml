@@ -8,7 +8,6 @@ spec:
   chartRef:
     kind: OCIRepository
     name: external-secrets
-    namespace: flux-system
   values:
     installCRDS: true
     bitwarden-sdk-server:
