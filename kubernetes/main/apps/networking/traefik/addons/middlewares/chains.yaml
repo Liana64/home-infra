@@ -6,8 +6,8 @@ metadata:
 spec:
   chain:
     middlewares:
-      - name: networking-traefik-middleware-secure-headers@kubernetescrd
-      - name: networking-traefik-middleware-compress@kubernetescrd
+      - name: traefik-middleware-secure-headers
+      - name: traefik-middleware-compress
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -16,9 +16,9 @@ metadata:
 spec:
   chain:
     middlewares:
-      - name: networking-traefik-middleware-secure-headers@kubernetescrd
-      - name: networking-traefik-middleware-compress@kubernetescrd
-      - name: networking-traefik-middleware-anubis@kubernetescrd
+      - name: traefik-middleware-secure-headers
+      - name: traefik-middleware-compress
+      - name: traefik-middleware-anubis
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -27,9 +27,9 @@ metadata:
 spec:
   chain:
     middlewares:
-      - name: networking-traefik-middleware-secure-headers@kubernetescrd
-      - name: networking-traefik-middleware-compress@kubernetescrd
-      - name: networking-traefik-middleware-anubis-org@kubernetescrd
+      - name: traefik-middleware-secure-headers
+      - name: traefik-middleware-compress
+      - name: traefik-middleware-anubis-org
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -38,7 +38,7 @@ metadata:
 spec:
   chain:
     middlewares:
-      - name: networking-traefik-middleware-secure-headers@kubernetescrd
+      - name: traefik-middleware-secure-headers
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -47,8 +47,8 @@ metadata:
 spec:
   chain:
     middlewares:
-      - name: networking-traefik-middleware-secure-headers@kubernetescrd
-      - name: networking-traefik-middleware-compress@kubernetescrd
+      - name: traefik-middleware-secure-headers
+      - name: traefik-middleware-compress
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -57,9 +57,9 @@ metadata:
 spec:
   chain:
     middlewares:
-      - name: networking-traefik-middleware-secure-headers-hugo@kubernetescrd
-      - name: networking-traefik-middleware-compress@kubernetescrd
-      - name: networking-traefik-middleware-anubis@kubernetescrd
+      - name: traefik-middleware-secure-headers-hugo
+      - name: traefik-middleware-compress
+      - name: traefik-middleware-anubis
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -68,9 +68,9 @@ metadata:
 spec:
   chain:
     middlewares:
-      - name: networking-traefik-middleware-secure-headers-hugo@kubernetescrd
-      - name: networking-traefik-middleware-compress@kubernetescrd
-      - name: networking-traefik-middleware-anubis-org@kubernetescrd
+      - name: traefik-middleware-secure-headers-hugo
+      - name: traefik-middleware-compress
+      - name: traefik-middleware-anubis-org
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -79,8 +79,8 @@ metadata:
 spec:
   chain:
     middlewares:
-      - name: networking-traefik-middleware-secure-headers-shlink@kubernetescrd
-      - name: networking-traefik-middleware-compress@kubernetescrd
+      - name: traefik-middleware-secure-headers-shlink
+      - name: traefik-middleware-compress
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -89,5 +89,5 @@ metadata:
 spec:
   chain:
     middlewares:
-      - name: networking-traefik-middleware-secure-headers-matrix@kubernetescrd
-      - name: networking-traefik-middleware-compress@kubernetescrd
+      - name: traefik-middleware-secure-headers-matrix
+      - name: traefik-middleware-compress
