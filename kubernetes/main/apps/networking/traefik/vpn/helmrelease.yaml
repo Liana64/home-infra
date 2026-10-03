@@ -3,7 +3,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: &app traefik
+  name: &app traefik-vpn
 spec:
   interval: 30m
   chart:
@@ -30,7 +30,7 @@ spec:
       replicas: 1
     service:
       annotations:
-        io.cilium/lb-ipam-ips: ${LB_TRAEFIK}
+        lbipam.cilium.io/ips: "${LB_TRAEFIK_VPN}"
     env:
       - name: TZ
         value: "${TIMEZONE}"
@@ -39,12 +39,12 @@ spec:
       sendAnonymousUsage: false
     ingressClass:
       enabled: true
-      isDefaultClass: true
+      isDefaultClass: false
+      name: traefik-vpn
     ingressRoute:
       dashboard:
         enabled: false
     additionalArguments:
-      - "--serversTransport.insecureSkipVerify=true"
       - "--entrypoints.web.transport.respondingTimeouts.readTimeout=0"
       - "--entrypoints.websecure.transport.respondingTimeouts.readTimeout=0"
     ports:
@@ -62,27 +62,11 @@ spec:
         transport:
           respondingTimeouts:
             readTimeout: 0
-        forwardedHeaders:
-          trustedIPs:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-        proxyProtocol:
-          trustedIPs:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
         http3:
           enabled: true
       metrics:
         expose:
           default: false
-      ssh:
-        port: 2222
-        exposedPort: 22
-        protocol: TCP
-        expose:
-          default: true
     metrics:
       prometheus:
         entryPoint: metrics
@@ -95,17 +79,14 @@ spec:
       kubernetesCRD:
         enabled: true
         ingressClass: *app
-        allowCrossNamespace: true
-        allowExternalNameServices: true
       kubernetesIngress:
         enabled: true
         ingressClass: *app
-        allowExternalNameServices: true
         publishedService:
           enabled: true
     resources:
       requests:
         cpu: 100m
-        memory: 512Mi
+        memory: 256Mi
       limits:
-        memory: 768Mi
+        memory: 512Mi
