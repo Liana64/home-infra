@@ -40,6 +40,7 @@ spec:
         defaultContainerOptions: &containerOptions
           securityContext:
             allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
             capabilities: { drop: ["ALL"] }
         initContainers:
           init-db:
@@ -186,6 +187,10 @@ spec:
           machine-learning:
             main:
               - path: /cache/matplotlib
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
       tmpfs:
         type: emptyDir
         advancedMounts:

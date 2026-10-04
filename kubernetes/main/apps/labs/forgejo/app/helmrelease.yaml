@@ -24,6 +24,7 @@ spec:
         type: RuntimeDefault
     containerSecurityContext:
       allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
       capabilities:
         drop: [ALL]
     redis-cluster:

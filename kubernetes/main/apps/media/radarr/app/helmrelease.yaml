@@ -64,7 +64,7 @@ spec:
                 memory: 1024Mi
             securityContext:
               allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
+              readOnlyRootFilesystem: true
               capabilities:
                 drop:
                   - ALL
@@ -126,3 +126,7 @@ spec:
           radarr:
             app:
               - path: /media
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
