@@ -7,6 +7,7 @@ components:
 resources:
   - ./networkpolicy.yaml
   - ./pvc.yaml
+  - ./middleware.yaml
   - ./helmrelease.yaml
 patches:
   - target:

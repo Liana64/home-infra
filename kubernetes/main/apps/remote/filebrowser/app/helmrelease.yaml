@@ -87,6 +87,28 @@ spec:
         tls:
           - secretName: filebrowser-tls
             hosts: [*host]
+      raw:
+        className: traefik-vpn
+        annotations:
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd,remote-filebrowser-raw-csp@kubernetescrd"
+        hosts:
+          - host: *host
+            paths:
+              - path: /api/raw
+                pathType: Prefix
+                service: &svc
+                  identifier: app
+                  port: http
+              - path: /api/public/dl
+                pathType: Prefix
+                service: *svc
+              - path: /api/preview
+                pathType: Prefix
+                service: *svc
+        tls:
+          - secretName: filebrowser-tls
+            hosts: [*host]
     persistence:
       config:
         existingClaim: filebrowser

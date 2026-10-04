@@ -1,0 +1,15 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: filebrowser-raw-csp
+spec:
+  headers:
+    contentSecurityPolicy: >-
+      default-src 'none';
+      img-src 'self' data:;
+      media-src 'self';
+      style-src 'unsafe-inline';
+      frame-ancestors 'self';
+      base-uri 'none';
+      form-action 'none'
