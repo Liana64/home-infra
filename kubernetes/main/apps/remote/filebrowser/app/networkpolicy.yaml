@@ -4,7 +4,7 @@ apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
 metadata:
   name: filebrowser
-  namespace: home
+  namespace: remote
 spec:
   endpointSelector:
     matchLabels:

@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: filebrowser
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: cluster-nvme
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: filebrowser-uploads
+spec:
+  capacity:
+    storage: 1Ti
+  accessModes: ["ReadWriteMany"]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  claimRef:
+    namespace: remote
+    name: filebrowser-uploads
+  nfs:
+    server: ${M1_HOST}
+    path: /tank/cluster/uploads
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: filebrowser-uploads
+spec:
+  accessModes: ["ReadWriteMany"]
+  resources:
+    requests:
+      storage: 1Ti
+  storageClassName: ""
+  volumeName: filebrowser-uploads

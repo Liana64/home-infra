@@ -1,0 +1,28 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+components:
+  - ../../../../components/volsync
+resources:
+  - ./networkpolicy.yaml
+  - ./pvc.yaml
+  - ./helmrelease.yaml
+patches:
+  - target:
+      group: volsync.backube
+      kind: ReplicationDestination
+    patch: |
+      - op: add
+        path: /spec/kopia/destinationPVC
+        value: filebrowser
+  - target:
+      group: volsync.backube
+      kind: ReplicationSource|ReplicationDestination
+    patch: |
+      - op: add
+        path: /spec/kopia/moverSecurityContext/runAsNonRoot
+        value: true
+      - op: add
+        path: /spec/kopia/moverSecurityContext/seccompProfile
+        value: { type: RuntimeDefault }

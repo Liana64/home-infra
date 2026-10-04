@@ -13,6 +13,7 @@ spec:
   values:
     controllers:
       filebrowser:
+        replicas: 0
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
@@ -50,6 +51,8 @@ spec:
               limits:
                 memory: 512Mi
     defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -87,16 +90,11 @@ spec:
             hosts: [*host]
     persistence:
       config:
-        storageClass: cluster-nvme
-        accessMode: ReadWriteOnce
-        size: 1Gi
-        retain: true
+        existingClaim: filebrowser
         globalMounts:
           - path: /config
       family:
-        type: nfs
-        server: ${M1_HOST}
-        path: /tank/cluster/uploads
+        existingClaim: filebrowser-uploads
         globalMounts:
           - path: /srv/family
       tmp:

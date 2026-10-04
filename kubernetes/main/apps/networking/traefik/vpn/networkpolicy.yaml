@@ -30,7 +30,13 @@ spec:
             - port: "9100"
               protocol: TCP
   egress:
-    - toEntities:
-        - cluster
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: remote
+            app.kubernetes.io/name: filebrowser
+      toPorts:
+        - ports:
+            - port: "7000"
+              protocol: TCP
     - toEntities:
         - kube-apiserver

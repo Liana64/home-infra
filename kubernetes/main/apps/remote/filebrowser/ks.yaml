@@ -6,7 +6,7 @@ metadata:
   name: &app filebrowser
   namespace: flux-system
 spec:
-  targetNamespace: home
+  targetNamespace: remote
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -14,7 +14,7 @@ spec:
     - name: traefik-vpn
     - name: volsync
     - name: kopia
-  path: ./kubernetes/main/apps/home/filebrowser/app
+  path: ./kubernetes/main/apps/remote/filebrowser/app
   prune: true
   sourceRef:
     kind: GitRepository
