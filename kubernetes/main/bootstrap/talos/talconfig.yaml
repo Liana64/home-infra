@@ -149,4 +149,3 @@ patches:
 controlPlane:
   patches:
     - "@./patches/control/cluster.yaml"
-    - "@./patches/control/api-access.yaml"
