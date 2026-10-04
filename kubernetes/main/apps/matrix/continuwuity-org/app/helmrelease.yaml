@@ -136,7 +136,7 @@ spec:
       data:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 100Gi
+        size: 20Gi
         retain: true
         globalMounts:
           - path: /data
