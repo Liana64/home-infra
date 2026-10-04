@@ -21,6 +21,7 @@ spec:
             runAsUser: 1000
             runAsGroup: 1000
             runAsNonRoot: true
+            seccompProfile: { type: RuntimeDefault }
             fsGroupChangePolicy: "OnRootMismatch"
             # 2000 = m1 media share gid (tank/cluster/media 2775 root 2000:2000)
             supplementalGroups:
@@ -119,9 +120,7 @@ spec:
         globalMounts:
           - path: /config
       media:
-        type: nfs
-        server: ${M1_HOST}
-        path: /tank/cluster/media
+        existingClaim: media
         advancedMounts:
           sonarr:
             app:

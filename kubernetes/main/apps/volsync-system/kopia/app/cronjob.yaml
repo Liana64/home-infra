@@ -19,6 +19,7 @@ spec:
             runAsUser: 1000
             runAsGroup: 1000
             fsGroup: 1000
+            seccompProfile: { type: RuntimeDefault }
           containers:
             - name: kopia
               image: ghcr.io/home-operations/kopia:0.22.3@sha256:17ab64542280197a5368247deaefadc3e3bbe15714ab666c2455a06824e86efd

@@ -54,3 +54,7 @@ spec:
       enabled: true
     leaderElection:
       enabled: true
+    podSecurityContext:
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault

@@ -24,6 +24,7 @@ spec:
           #  feature.node.kubernetes.io/pci-10de.present: "true"
           securityContext:
             runAsNonRoot: true
+            seccompProfile: { type: RuntimeDefault }
             runAsUser: 1000
             runAsGroup: 1000
             #fsGroup: 2000
@@ -150,9 +151,7 @@ spec:
         globalMounts:
           - path: /config
       media:
-        type: nfs
-        server: ${M1_HOST}
-        path: /tank/cluster/media
+        existingClaim: media
         advancedMounts:
           jellyfin:
             app:

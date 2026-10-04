@@ -41,6 +41,18 @@ spec:
                   secretKeyRef:
                     name: cloudnative-pg-secret
                     key: password
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 82
+            runAsGroup: 82
+            fsGroup: 82
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile: { type: RuntimeDefault }
         containers:
           app:
             image:
@@ -83,6 +95,33 @@ spec:
               limits:
                 # For HTML snapshot spike
                 memory: 4Gi
+            securityContext: *securityContext
+    configMaps:
+      supervisord:
+        data:
+          supervisord-tasks.conf: |
+            [supervisord]
+            logfile=/dev/null
+            logfile_maxbytes=0
+            pidfile=/tmp/supervisord.pid
+            loglevel=info
+
+            [program:jobs]
+            environment=HOME=/tmp/home
+            command=python manage.py run_huey -f
+            stdout_logfile=/proc/1/fd/1
+            stdout_logfile_maxbytes=0
+            redirect_stderr=true
+
+            [unix_http_server]
+            file=/tmp/supervisor.sock
+            chmod=0700
+
+            [rpcinterface:supervisor]
+            supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
+            [supervisorctl]
+            serverurl=unix:///tmp/supervisor.sock
     service:
       app:
         controller: linkding
@@ -124,4 +163,15 @@ spec:
         size: 2Gi
         retain: true
         globalMounts:
-          - path: /data
+          - path: /etc/linkding/data
+      supervisord:
+        type: configMap
+        identifier: supervisord
+        globalMounts:
+          - path: /etc/linkding/supervisord-tasks.conf
+            subPath: supervisord-tasks.conf
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

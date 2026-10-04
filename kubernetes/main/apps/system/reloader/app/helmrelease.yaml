@@ -14,6 +14,12 @@ spec:
     reloader:
       reloadStrategy: annotations
       readOnlyRootFileSystem: true
+      deployment:
+        containerSecurityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
       podMonitor:
         enabled: true
         namespace: "{{ .Release.Namespace }}"

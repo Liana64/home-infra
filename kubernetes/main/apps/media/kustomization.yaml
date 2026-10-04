@@ -5,6 +5,7 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./networkpolicy.yaml
+  - ./pvc.yaml
   - ./qbittorrent/ks.yaml
   - ./jellyfin/ks.yaml
   - ./pinchflat/ks.yaml

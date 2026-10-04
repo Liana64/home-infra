@@ -84,3 +84,17 @@ spec:
       target:
         kind: Deployment
         name: helm-controller
+    - patch: |
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: not-used
+        spec:
+          template:
+            spec:
+              securityContext:
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+      target:
+        kind: Deployment

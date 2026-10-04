@@ -29,6 +29,11 @@ spec:
     extraInitContainers:
       - name: 01-init-db
         image: ghcr.io/liana64/postgres-init:16
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
         env:
           - name: INIT_POSTGRES_DBNAME
             value: &dbName grafana
@@ -50,6 +55,9 @@ spec:
                 name: cloudnative-pg-secret
                 key: password
     replicas: 1
+    securityContext:
+      seccompProfile:
+        type: RuntimeDefault
     env:
       GF_AUTH_GENERIC_OAUTH_API_URL: "https://auth.${PERSONAL_DOMAIN}/api/oidc/userinfo"
       GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://auth.${PERSONAL_DOMAIN}/api/oidc/authorization"

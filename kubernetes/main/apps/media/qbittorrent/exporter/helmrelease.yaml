@@ -65,6 +65,7 @@ spec:
                       - "n1"
       securityContext:
         runAsNonRoot: true
+        seccompProfile: { type: RuntimeDefault }
         runAsUser: 568
         runAsGroup: 568
     service:

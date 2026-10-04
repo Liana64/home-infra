@@ -17,6 +17,9 @@ spec:
       runAsUser: "${VOLSYNC_UID:=1000}"
       runAsGroup: "${VOLSYNC_GID:=1000}"
       fsGroup: "${VOLSYNC_GID:=1000}"
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
     parallelism: 2
     repository: "${APP}-volsync-secret"
     retain:

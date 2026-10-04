@@ -23,6 +23,10 @@ spec:
   values:
     master:
       replicaCount: 1
+      podSecurityContext: &psc
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
     worker:
       tolerations:
         - operator: Exists
@@ -33,3 +37,4 @@ spec:
               - vendor
     gc:
       enable: true
+      podSecurityContext: *psc

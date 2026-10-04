@@ -36,6 +36,7 @@ spec:
                   periodSeconds: 30
                   failureThreshold: 3
             securityContext:
+              allowPrivilegeEscalation: false
               capabilities: { drop: ["ALL"] }
             resources:
               requests:

@@ -17,6 +17,7 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         runAsNonRoot: true
+        seccompProfile: { type: RuntimeDefault }
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
       affinity:
@@ -35,6 +36,10 @@ spec:
           reloader.stakater.com/auto: "true"
           secret.reloader.stakater.com/reload: immich-secret
           configmap.reloader.stakater.com/reload: immich-configmap
+        defaultContainerOptions: &containerOptions
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: { drop: ["ALL"] }
         initContainers:
           init-db:
             image:
@@ -83,6 +88,7 @@ spec:
           reloader.stakater.com/auto: "true"
           secret.reloader.stakater.com/reload: immich-secret
           configmap.reloader.stakater.com/reload: immich-configmap
+        defaultContainerOptions: *containerOptions
         containers:
           main:
             image:
@@ -157,9 +163,7 @@ spec:
 
     persistence:
       data:
-        type: nfs
-        server: ${M1_HOST}
-        path: /tank/cluster/photos
+        existingClaim: immich-photos
         advancedMounts:
           immich:
             main:

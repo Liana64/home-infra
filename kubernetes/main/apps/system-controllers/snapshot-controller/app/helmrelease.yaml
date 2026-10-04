@@ -29,5 +29,11 @@ spec:
     controller:
       serviceMonitor:
         create: true
+      podSecurityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      securityContext:
+        allowPrivilegeEscalation: false
     webhook:
       enabled: false

@@ -17,13 +17,3 @@ patches:
       - op: add
         path: /spec/kopia/destinationPVC
         value: filebrowser
-  - target:
-      group: volsync.backube
-      kind: ReplicationSource|ReplicationDestination
-    patch: |
-      - op: add
-        path: /spec/kopia/moverSecurityContext/runAsNonRoot
-        value: true
-      - op: add
-        path: /spec/kopia/moverSecurityContext/seccompProfile
-        value: { type: RuntimeDefault }

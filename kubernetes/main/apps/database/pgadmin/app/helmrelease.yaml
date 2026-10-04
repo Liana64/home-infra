@@ -26,7 +26,7 @@ spec:
             env:
               PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
               PGADMIN_DISABLE_POSTFIX: "true"
-              PGADMIN_LISTEN_PORT: &port 80
+              PGADMIN_LISTEN_PORT: &port 8080
               PGADMIN_DEFAULT_EMAIL:
                 valueFrom:
                   secretKeyRef:
@@ -56,8 +56,13 @@ spec:
                 memory: 100Mi
               limits:
                 memory: 500Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
         pod:
           securityContext:
+            runAsNonRoot: true
+            seccompProfile: { type: RuntimeDefault }
             runAsUser: 5050
             runAsGroup: 5050
             fsGroup: 5050

@@ -25,6 +25,16 @@ spec:
                   identifier: config
               - secretRef:
                   name: cloudflare-ddns-secret
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+        pod:
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile: { type: RuntimeDefault }
     configMaps:
       config:
         enabled: true

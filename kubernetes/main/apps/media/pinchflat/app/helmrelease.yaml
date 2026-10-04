@@ -115,9 +115,7 @@ spec:
         globalMounts:
           - path: /config
       media:
-        type: nfs
-        server: ${M1_HOST}
-        path: /tank/cluster/media
+        existingClaim: media
         globalMounts:
           - path: /downloads
             subPath: YouTube

@@ -55,6 +55,7 @@ spec:
                   - NET_ADMIN
         pod:
           securityContext:
+            seccompProfile: { type: RuntimeDefault }
             supplementalGroups:
               - 2000
           terminationGracePeriodSeconds: 120
@@ -202,9 +203,7 @@ spec:
             port-forward:
               - path: /config
       media:
-        type: nfs
-        server: ${M1_HOST}
-        path: /tank/cluster/media
+        existingClaim: media
         advancedMounts:
           qbittorrent:
             app:

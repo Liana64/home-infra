@@ -16,7 +16,7 @@ spec:
             app.kubernetes.io/instance: traefik-networking
       toPorts:
         - ports:
-            - port: "80"
+            - port: "8080"
               protocol: TCP
     # same-node ClusterIP replies miss CT reverse-xlate (socketLB
     # hostNamespaceOnly + endpointRoutes); pgadmin dials -rw svc

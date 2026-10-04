@@ -19,6 +19,9 @@ spec:
           reloader.stakater.com/auto: "true"
         initContainers:
           init-db:
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: { drop: ["ALL"] }
             image:
               repository: ghcr.io/liana64/postgres-init
               tag: 16
@@ -105,6 +108,7 @@ spec:
             runAsUser: 1000
             runAsGroup: 1000
             runAsNonRoot: true
+            seccompProfile: { type: RuntimeDefault }
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
     service:

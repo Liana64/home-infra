@@ -8,5 +8,6 @@ resources:
   - ./dashboard.yaml
   - ./helmrelease.yaml
   - ./networkpolicy.yaml
+  - ./pvc.yaml
   - ./prometheusrule.yaml
   - ./secret.sops.yaml
