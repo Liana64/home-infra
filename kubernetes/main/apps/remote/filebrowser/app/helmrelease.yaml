@@ -13,7 +13,6 @@ spec:
   values:
     controllers:
       filebrowser:
-        replicas: 0
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
