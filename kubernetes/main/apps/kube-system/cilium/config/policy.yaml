@@ -14,7 +14,7 @@ spec:
         values: ["syncthing-sync"]
       - key: app.kubernetes.io/instance
         operator: NotIn
-        values: ["traefik-external-networking"]
+        values: ["traefik-external-networking", "traefik-vpn-networking"]
 ---
 # announce from n2 only
 apiVersion: cilium.io/v2alpha1
@@ -44,6 +44,19 @@ spec:
       - key: kubernetes.io/hostname
         operator: In
         values: ["n1", "n2"]
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: l2-policy-traefik-vpn
+spec:
+  loadBalancerIPs: true
+  serviceSelector:
+    matchLabels:
+      app.kubernetes.io/instance: traefik-vpn-networking
+  nodeSelector:
+    matchLabels:
+      kubernetes.io/hostname: n1
 ---
 apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool

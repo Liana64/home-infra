@@ -28,6 +28,8 @@ spec:
     deployment:
       enabled: true
       replicas: 1
+    nodeSelector:
+      kubernetes.io/hostname: n1
     service:
       annotations:
         lbipam.cilium.io/ips: "${LB_TRAEFIK_VPN}"
@@ -37,6 +39,10 @@ spec:
     global:
       checkNewVersion: false
       sendAnonymousUsage: false
+    log:
+      level: INFO
+    accessLog:
+      enabled: true
     ingressClass:
       enabled: true
       isDefaultClass: false
