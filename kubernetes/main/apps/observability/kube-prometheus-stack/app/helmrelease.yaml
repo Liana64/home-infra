@@ -187,6 +187,17 @@ spec:
       enabled: true
     prometheus-node-exporter:
       fullnameOverride: node-exporter
+      namespaceOverride: system
+      securityContext:
+        fsGroup: 65534
+        runAsGroup: 65534
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile: { type: RuntimeDefault }
+      containerSecurityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: { drop: ["ALL"] }
       resources:
         requests:
           cpu: 10m
