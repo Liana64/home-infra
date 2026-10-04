@@ -96,7 +96,7 @@ spec:
       family:
         type: nfs
         server: ${M1_HOST}
-        path: /tank/home/family
+        path: /tank/cluster/uploads
         globalMounts:
           - path: /srv/family
       tmp:

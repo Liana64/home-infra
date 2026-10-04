@@ -159,7 +159,7 @@ spec:
       data:
         type: nfs
         server: ${M1_HOST}
-        path: /tank/home/photos
+        path: /tank/cluster/photos
         advancedMounts:
           immich:
             main:

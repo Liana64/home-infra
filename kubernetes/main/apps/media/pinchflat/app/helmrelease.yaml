@@ -71,7 +71,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: "OnRootMismatch"
-        # 2000 = m1 media share gid (tank/media 2775 root 2000:2000)
+        # 2000 = m1 media share gid (tank/cluster/media 2775 root 2000:2000)
         supplementalGroups:
           - 2000
         seccompProfile: { type: RuntimeDefault }
@@ -117,7 +117,7 @@ spec:
       media:
         type: nfs
         server: ${M1_HOST}
-        path: /tank/media
+        path: /tank/cluster/media
         globalMounts:
           - path: /downloads
             subPath: YouTube

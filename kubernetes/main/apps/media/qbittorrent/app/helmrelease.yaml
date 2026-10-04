@@ -204,7 +204,7 @@ spec:
       media:
         type: nfs
         server: ${M1_HOST}
-        path: /tank/media
+        path: /tank/cluster/media
         advancedMounts:
           qbittorrent:
             app:

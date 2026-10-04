@@ -70,7 +70,7 @@ data:
           },
           "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
           "targets": [
-            {"expr": "max(time() - zfs_snapshot_latest_time_seconds{dataset!~\"tank/backups(/.*)?|tank/home/shared/landfill\"})", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+            {"expr": "max(time() - zfs_snapshot_latest_time_seconds{dataset!~\"tank/backups(/.*)?|tank/users/stash/shared/landfill\"})", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
           ]
         },
         {
