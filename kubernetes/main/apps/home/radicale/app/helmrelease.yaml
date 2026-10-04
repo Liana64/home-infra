@@ -28,7 +28,7 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /.web
+                    path: /.web/
                     port: &port 5232
                   initialDelaySeconds: 10
                   periodSeconds: 10
@@ -38,7 +38,7 @@ spec:
             resources:
               requests:
                 cpu: 10m
-                memory: 64Mi
+                memory: 128Mi
               limits:
                 memory: 256Mi
             securityContext:
@@ -53,6 +53,7 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
     service:
       app:
         controller: *app
