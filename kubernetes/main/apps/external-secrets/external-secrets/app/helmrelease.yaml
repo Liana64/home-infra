@@ -14,6 +14,18 @@ spec:
       enabled: true
       deploymentAnnotations:
         secret.reloader.stakater.com/reload: bitwarden-tls-certs
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
     leaderElect: true
     serviceMonitor:
       enabled: true
@@ -21,3 +33,19 @@ spec:
       enabled: true
     webhook:
       replicaCount: 1
+      podSecurityContext:
+        enabled: true
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+    podSecurityContext:
+      enabled: true
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    certController:
+      podSecurityContext:
+        enabled: true
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
