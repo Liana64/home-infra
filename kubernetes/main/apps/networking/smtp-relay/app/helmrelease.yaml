@@ -11,6 +11,8 @@ spec:
     name: app-template
     namespace: flux-system
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
     controllers:
       smtp-relay:
         replicas: 1

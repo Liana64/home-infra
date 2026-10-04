@@ -9,14 +9,6 @@ spec:
     matchLabels:
       app.kubernetes.io/name: netshoot
   ingress:
-    # iperf from LAN/VPN and from cluster pods
-    - fromCIDR:
-        - "${HOME_CIDR}"
-        - "${VPN_CIDR}"
-      toPorts:
-        - ports:
-            - port: "5201"
-              protocol: ANY
     - fromEntities:
         - cluster
       toPorts:

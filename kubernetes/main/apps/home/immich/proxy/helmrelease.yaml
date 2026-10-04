@@ -50,6 +50,7 @@ spec:
               limits:
                 memory: 256Mi
     defaultPodOptions:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

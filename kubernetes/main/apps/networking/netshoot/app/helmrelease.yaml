@@ -46,10 +46,6 @@ spec:
     service:
       app:
         controller: app
-        type: LoadBalancer
-        annotations:
-          lbipam.cilium.io/ips: "${LB_IPERF3}"
-        externalTrafficPolicy: Local
         ports:
           iperf-tcp:
             port: *port
@@ -58,6 +54,7 @@ spec:
             port: 5201
             protocol: UDP
     defaultPodOptions:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 568

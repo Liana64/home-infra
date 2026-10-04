@@ -54,6 +54,7 @@ spec:
                 drop:
                   - ALL
     defaultPodOptions:
+      automountServiceAccountToken: false
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

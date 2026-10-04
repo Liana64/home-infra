@@ -55,6 +55,7 @@ spec:
                 memory: 3584Mi
 
     defaultPodOptions:
+      automountServiceAccountToken: false
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

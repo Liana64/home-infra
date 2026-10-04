@@ -10,6 +10,8 @@ spec:
     name: app-template
     namespace: flux-system
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
     controllers:
       lldap:
         replicas: 1

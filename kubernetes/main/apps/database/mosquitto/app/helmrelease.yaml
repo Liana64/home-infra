@@ -11,6 +11,8 @@ spec:
     namespace: flux-system
   interval: 30m
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
     configMaps:
       config:
         data:

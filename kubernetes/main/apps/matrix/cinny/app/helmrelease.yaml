@@ -51,6 +51,7 @@ spec:
                 memory: 128Mi
 
     defaultPodOptions:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         # nginx user baked into the image

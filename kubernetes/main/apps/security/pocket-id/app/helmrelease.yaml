@@ -11,6 +11,8 @@ spec:
     name: app-template
     namespace: flux-system
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
     controllers:
       pocket-id:
         replicas: 1

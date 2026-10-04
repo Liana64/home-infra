@@ -12,6 +12,7 @@ spec:
     namespace: flux-system
   values:
     defaultPodOptions:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

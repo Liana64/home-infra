@@ -12,6 +12,8 @@ spec:
     name: app-template
     namespace: flux-system
   values:
+    defaultPodOptions:
+      automountServiceAccountToken: false
     controllers:
       flaresolverr:
         replicas: 1
