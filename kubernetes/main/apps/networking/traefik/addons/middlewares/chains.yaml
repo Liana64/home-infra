@@ -91,3 +91,13 @@ spec:
     middlewares:
       - name: traefik-middleware-secure-headers-matrix
       - name: traefik-middleware-compress
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-middleware-chain-cryptpad
+spec:
+  chain:
+    middlewares:
+      - name: traefik-middleware-secure-headers-cryptpad
+      - name: traefik-middleware-compress

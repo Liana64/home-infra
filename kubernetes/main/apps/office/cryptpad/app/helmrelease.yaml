@@ -1,0 +1,125 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app cryptpad
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      cryptpad:
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          nodeSelector:
+            kubernetes.io/hostname: n1
+        containers:
+          app:
+            # renovate: datasource=docker depName=ghcr.io/liana64/cryptpad
+            image:
+              repository: ghcr.io/liana64/cryptpad
+              tag: 2026.5.1
+            env:
+              TZ: "${TIMEZONE}"
+              CRYPTPAD_CONFIG: /config/config.js
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/config
+                    port: &port 3000
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/config
+                    port: *port
+                  periodSeconds: 5
+                  failureThreshold: 30
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 4001
+        runAsGroup: 4001
+        fsGroup: 4001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+          websocket:
+            port: 3003
+    ingress:
+      app:
+        className: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-cryptpad@kubernetescrd"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Home
+          gethomepage.dev/name: CryptPad
+          gethomepage.dev/description: Collaborative office suite
+          gethomepage.dev/icon: cryptpad
+        hosts:
+          - host: &host "pad.${ORG_DOMAIN}"
+            paths: &paths
+              - path: /cryptpad_websocket
+                service:
+                  identifier: app
+                  port: websocket
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+          - host: &sandbox "pad-sandbox.${ORG_DOMAIN}"
+            paths: *paths
+        tls:
+          - secretName: cryptpad-tls
+            hosts: [*host, *sandbox]
+    persistence:
+      data:
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 5Gi
+        retain: true
+        globalMounts:
+          - path: /data
+          - path: /cryptpad/customize
+            subPath: customize
+      config:
+        type: configMap
+        name: cryptpad-config
+        globalMounts:
+          - path: /config
+            readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
