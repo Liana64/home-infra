@@ -36,6 +36,8 @@ spec:
         volumeSnapshots:
           enabled: false
     localpv-provisioner:
+      podSecurityContext:
+        seccompProfile: { type: RuntimeDefault }
       localpv:
         image:
           registry: quay.io/
@@ -49,5 +51,19 @@ spec:
         #basePath: /var/local/openebs
     loki:
       enabled: false
+    alloy:
+      enabled: false
     minio:
       enabled: false
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment
+              name: openebs-localpv-provisioner
+            patch: |
+              - op: add
+                path: /spec/template/spec/containers/0/securityContext
+                value:
+                  allowPrivilegeEscalation: false
+                  capabilities: { drop: ["ALL"] }
