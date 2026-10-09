@@ -1,0 +1,291 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app meet
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      backend:
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          init-db:
+            image:
+              repository: ghcr.io/liana64/postgres-init
+              tag: 16@sha256:937fa2ded8a5e326c828ff147c615af66c84863565be81ff17a5642408a5dcbe
+            env:
+              INIT_POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
+              INIT_POSTGRES_DBNAME: meet
+              INIT_POSTGRES_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: meet-secret
+                    key: DB_USER
+              INIT_POSTGRES_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: meet-secret
+                    key: DB_PASSWORD
+              INIT_POSTGRES_SUPER_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: cloudnative-pg-secret
+                    key: password
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+          migrate:
+            # renovate: datasource=docker depName=lasuite/meet-backend
+            image: &backendImage
+              repository: lasuite/meet-backend
+              tag: v1.34.0@sha256:899bce24d8d10602d2501f05fc9554aee35df1e33a083de8c7ef42b166e78429
+            command: ["python", "manage.py", "migrate", "--no-input"]
+            env: &backendEnv
+              TZ: "${TIMEZONE}"
+              PYTHONPATH: /app
+              DJANGO_CONFIGURATION: Production
+              DJANGO_SETTINGS_MODULE: meet.settings
+              DJANGO_ALLOWED_HOSTS: &host "meet.${ORG_DOMAIN}"
+              DJANGO_CSRF_TRUSTED_ORIGINS: &url "https://meet.${ORG_DOMAIN}"
+              MEET_BASE_URL: *url
+              DB_HOST: postgres-1-rw.database.svc.cluster.local
+              DB_PORT: "5432"
+              DB_NAME: meet
+              DRAGONFLY_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: dragonfly-secret
+                    key: password
+              REDIS_URL: redis://:$(DRAGONFLY_PASSWORD)@dragonfly.database.svc.cluster.local:6379/3
+              OIDC_OP_AUTHORIZATION_ENDPOINT: https://id.${ORG_DOMAIN}/authorize
+              OIDC_OP_TOKEN_ENDPOINT: https://id.${ORG_DOMAIN}/api/oidc/token
+              OIDC_OP_USER_ENDPOINT: https://id.${ORG_DOMAIN}/api/oidc/userinfo
+              OIDC_OP_JWKS_ENDPOINT: https://id.${ORG_DOMAIN}/.well-known/jwks.json
+              OIDC_OP_LOGOUT_ENDPOINT: https://id.${ORG_DOMAIN}/api/oidc/end-session
+              OIDC_RP_CLIENT_ID: meet
+              OIDC_RP_SIGN_ALGO: RS256
+              OIDC_RP_SCOPES: openid email profile
+              OIDC_USE_PKCE: "True"
+              OIDC_USERINFO_FULLNAME_FIELDS: given_name,family_name
+              OIDC_USERINFO_SHORTNAME_FIELD: given_name
+              OIDC_REDIRECT_ALLOWED_HOSTS: *url
+              LOGIN_REDIRECT_URL: *url
+              LOGIN_REDIRECT_URL_FAILURE: *url
+              LOGOUT_REDIRECT_URL: *url
+              LIVEKIT_API_KEY: meet
+              LIVEKIT_API_URL: https://livekit.${ORG_DOMAIN}
+              ALLOW_UNREGISTERED_ROOMS: "False"
+              RESOURCE_DEFAULT_ACCESS_LEVEL: trusted
+            envFrom: &backendEnvFrom
+              - secretRef:
+                  name: meet-secret
+            securityContext: *securityContext
+        containers:
+          app:
+            image: *backendImage
+            env: *backendEnv
+            envFrom: *backendEnvFrom
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /__lbheartbeat__
+                    port: &backendPort 8000
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /__heartbeat__
+                    port: *backendPort
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /__lbheartbeat__
+                    port: *backendPort
+                  periodSeconds: 5
+                  failureThreshold: 24
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1Gi
+      frontend:
+        strategy: RollingUpdate
+        containers:
+          app:
+            # renovate: datasource=docker depName=lasuite/meet-frontend
+            image:
+              repository: lasuite/meet-frontend
+              tag: v1.34.0@sha256:aa7d0ea5c9d2bf9e40c5f6e93cb30399662dfd1b4a549c3bb997b85f72ad02b4
+            probes:
+              liveness: &frontendProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &frontendPort 8080
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *frontendProbes
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
+      livekit:
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          terminationGracePeriodSeconds: 60
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            seccompProfile: { type: RuntimeDefault }
+        containers:
+          app:
+            # renovate: datasource=docker depName=livekit/livekit-server
+            image:
+              repository: livekit/livekit-server
+              tag: v1.13.9@sha256:d0c04791bf63ca8dcea123571827d56ba9504bd57c8d5de60ee03b5408cc3154
+            env:
+              NODE_IP: "${LB_LIVEKIT}"
+              LIVEKIT_KEYS:
+                valueFrom:
+                  secretKeyRef:
+                    name: meet-secret
+                    key: LIVEKIT_KEYS
+              LIVEKIT_CONFIG: |
+                port: 7880
+                log_level: info
+                rtc:
+                  tcp_port: 7881
+                  udp_port: 7882
+                  use_external_ip: false
+                  enable_loopback_candidate: false
+                webhook:
+                  api_key: meet
+                  urls:
+                    - https://meet.${ORG_DOMAIN}/api/v1.0/rooms/webhooks-livekit/
+            probes:
+              liveness: &livekitProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &livekitPort 7880
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *livekitProbes
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 50m
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      backend:
+        controller: backend
+        ports:
+          http:
+            port: *backendPort
+      frontend:
+        controller: frontend
+        ports:
+          http:
+            port: *frontendPort
+      livekit:
+        controller: livekit
+        ports:
+          http:
+            port: *livekitPort
+      livekit-rtc:
+        controller: livekit
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: "${LB_LIVEKIT}"
+        ports:
+          rtc-tcp:
+            port: 7881
+            protocol: TCP
+          rtc-udp:
+            port: 7882
+            protocol: UDP
+    ingress:
+      app:
+        className: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-meet@kubernetescrd"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Home
+          gethomepage.dev/name: Meet
+          gethomepage.dev/description: Video conferencing
+          gethomepage.dev/icon: jitsi-meet
+        hosts:
+          - host: *host
+            paths:
+              - path: /api
+                service:
+                  identifier: backend
+                  port: http
+              - path: /
+                service:
+                  identifier: frontend
+                  port: http
+          - host: &livekitHost "livekit.${ORG_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: livekit
+                  port: http
+        tls:
+          - secretName: meet-tls
+            hosts: [*host, *livekitHost]
+    persistence:
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          backend:
+            migrate:
+              - path: /tmp
+            app:
+              - path: /tmp
+          frontend:
+            app:
+              - path: /tmp

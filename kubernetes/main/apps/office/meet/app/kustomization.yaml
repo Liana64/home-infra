@@ -3,7 +3,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./namespace.yaml
   - ./networkpolicy.yaml
-  - ./cryptpad/ks.yaml
-  - ./meet/ks.yaml
+  - ./secret.sops.yaml
+  - ./helmrelease.yaml
+  - ../../../database/cloudnative-pg/app/secret.sops.yaml
+  - ../../../database/dragonfly/app/secret.sops.yaml

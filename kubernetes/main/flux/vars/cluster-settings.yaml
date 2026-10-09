@@ -31,6 +31,7 @@ data:
   LB_GIT_SERVER: "172.16.5.20"
   LB_IPERF3: "172.16.5.21"
   LB_TRAEFIK_VPN: "172.16.5.22"
+  LB_LIVEKIT: "172.16.5.23"
 
   # MCP servers (.40+)
   LB_QDRANT_MCP: "172.16.5.40"

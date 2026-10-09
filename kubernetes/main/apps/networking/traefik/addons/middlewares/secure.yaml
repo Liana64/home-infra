@@ -233,3 +233,39 @@ spec:
     customResponseHeaders:
       X-Robots-Tag: "noindex,nofollow,noarchive,nosnippet,notranslate,noimageindex"
       X-Permitted-Cross-Domain-Policies: "none"
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-middleware-secure-headers-meet
+spec:
+  headers:
+    hostsProxyHeaders:
+      - "X-Forwarded-Host"
+      - "X-Forwarded-For"
+      - "X-Forwarded-Proto"
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    stsPreload: true
+    forceSTSHeader: true
+    contentTypeNosniff: true
+    referrerPolicy: "same-origin"
+    contentSecurityPolicy: "upgrade-insecure-requests; frame-ancestors 'self';"
+    customResponseHeaders:
+      Permissions-Policy: >-
+        accelerometer=(),
+        camera=(self),
+        display-capture=(self),
+        geolocation=(),
+        gyroscope=(),
+        magnetometer=(),
+        microphone=(self),
+        payment=(),
+        usb=()
+      Cross-Origin-Opener-Policy: same-origin
+      Cross-Origin-Resource-Policy: same-origin
+      X-Frame-Options: "SAMEORIGIN"
+      X-Robots-Tag: "noindex,nofollow,noarchive,nosnippet,notranslate,noimageindex"
+      X-Permitted-Cross-Domain-Policies: "none"
+      X-Powered-By: ""
+      server: ""
