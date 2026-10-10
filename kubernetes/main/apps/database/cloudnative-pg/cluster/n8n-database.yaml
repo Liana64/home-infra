@@ -4,6 +4,7 @@ kind: ExternalSecret
 metadata:
   name: postgres-role-n8n
 spec:
+  refreshPolicy: OnChange
   secretStoreRef:
     kind: ClusterSecretStore
     name: bitwarden-secrets-manager
