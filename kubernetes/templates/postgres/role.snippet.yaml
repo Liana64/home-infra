@@ -1,0 +1,5 @@
+- name: __ROLE__
+  ensure: present
+  login: true
+  passwordSecret:
+    name: postgres-role-__APP__

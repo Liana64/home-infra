@@ -1,0 +1,3 @@
+- matchLabels:
+    io.kubernetes.pod.namespace: __NS__
+    app.kubernetes.io/name: __APP__

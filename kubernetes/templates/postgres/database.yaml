@@ -1,0 +1,35 @@
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: postgres-role-__APP__
+spec:
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: bitwarden-secrets-manager
+  target:
+    name: postgres-role-__APP__
+    template:
+      engineVersion: v2
+      type: kubernetes.io/basic-auth
+      metadata:
+        labels:
+          cnpg.io/reload: "true"
+      data:
+        username: __ROLE__
+        password: "{{ .password }}"
+  data:
+    - secretKey: password
+      remoteRef:
+        key: "__BW_ID__"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: __APP__
+spec:
+  name: __DB__
+  owner: __ROLE__
+  cluster:
+    name: postgres-1
+  ensure: present

@@ -1,0 +1,26 @@
+components:
+  - ../../../../components/volsync
+patches:
+  - target:
+      group: volsync.backube
+      version: v1alpha1
+      kind: ReplicationSource
+    patch: |
+      - op: replace
+        path: /spec/sourcePVC
+        value: __APP__-data
+  - patch: |
+      $patch: delete
+      apiVersion: volsync.backube/v1alpha1
+      kind: ReplicationDestination
+      metadata:
+        name: ${APP}-dst
+---
+# In ks.yaml: add to dependsOn and set the PVC capacity.
+#   dependsOn:
+#     - name: volsync
+#     - name: kopia
+#   postBuild:
+#     substitute:
+#       APP: *app
+#       VOLSYNC_CAPACITY: 2Gi   # match persistence.data.size

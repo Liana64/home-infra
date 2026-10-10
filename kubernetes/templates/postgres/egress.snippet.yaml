@@ -1,0 +1,8 @@
+- toEndpoints:
+    - matchLabels:
+        io.kubernetes.pod.namespace: database
+        cnpg.io/cluster: postgres-1
+  toPorts:
+    - ports:
+        - port: "5432"
+          protocol: TCP
