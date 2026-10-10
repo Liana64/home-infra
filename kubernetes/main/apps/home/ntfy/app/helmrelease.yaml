@@ -111,3 +111,9 @@ spec:
         sizeLimit: 1Gi
         globalMounts:
           - path: /var/cache/ntfy
+      templates:
+        type: configMap
+        name: ntfy-templates
+        globalMounts:
+          - path: /etc/ntfy/templates
+            readOnly: true

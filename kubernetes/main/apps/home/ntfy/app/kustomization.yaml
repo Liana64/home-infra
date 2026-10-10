@@ -8,6 +8,12 @@ resources:
   - ./networkpolicy.yaml
   - ./secret.sops.yaml
   - ./helmrelease.yaml
+configMapGenerator:
+  - name: ntfy-templates
+    files:
+      - ./resources/alerts.yml
+generatorOptions:
+  disableNameSuffixHash: true
 patches:
   - patch: |
       $patch: delete

@@ -159,7 +159,7 @@ spec:
           - name: ntfy
             webhook_configs:
               - &ntfy
-                url: http://ntfy.home.svc.cluster.local/alerts?template=alertmanager&priority=3
+                url: http://ntfy.home.svc.cluster.local/alerts?template=alerts&priority=3
                 send_resolved: true
                 http_config:
                   authorization:
@@ -167,7 +167,7 @@ spec:
           - name: ntfy-critical
             webhook_configs:
               - <<: *ntfy
-                url: http://ntfy.home.svc.cluster.local/alerts?template=alertmanager&priority=5
+                url: http://ntfy.home.svc.cluster.local/alerts?template=alerts&priority=5
       alertmanagerSpec:
         secrets:
           - alertmanager-ntfy-secret

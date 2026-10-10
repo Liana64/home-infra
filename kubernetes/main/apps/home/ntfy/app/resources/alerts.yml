@@ -1,0 +1,9 @@
+title: |
+  {{- if eq .status "firing" }}[FIRING]{{ else }}[RESOLVED]{{ end }} {{ .groupLabels.alertname }}{{ with .groupLabels.namespace }} / {{ . }}{{ end }} ({{ len .alerts }})
+message: |
+  {{- range $i, $a := .alerts }}{{ if lt $i 20 }}
+  - {{ or $a.annotations.description $a.annotations.summary $a.labels.alertname }}
+  {{- end }}{{ end }}
+  {{- if gt (len .alerts) 20 }}
+  ...
+  {{- end }}
