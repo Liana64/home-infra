@@ -9,8 +9,47 @@ spec:
     matchLabels:
       cnpg.io/cluster: postgres-1
   ingress:
-    - fromEntities:
-        - cluster
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+            app.kubernetes.io/name: pgadmin
+        - matchLabels:
+            io.kubernetes.pod.namespace: home
+            app.kubernetes.io/name: immich
+        - matchLabels:
+            io.kubernetes.pod.namespace: home
+            app.kubernetes.io/name: linkding
+        - matchLabels:
+            io.kubernetes.pod.namespace: home
+            app.kubernetes.io/name: memos
+        - matchLabels:
+            io.kubernetes.pod.namespace: home
+            app.kubernetes.io/name: miniflux
+        - matchLabels:
+            io.kubernetes.pod.namespace: home
+            app.kubernetes.io/name: n8n
+        - matchLabels:
+            io.kubernetes.pod.namespace: labs
+            app.kubernetes.io/name: atuin
+        - matchLabels:
+            io.kubernetes.pod.namespace: labs
+            app.kubernetes.io/name: forgejo
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: pinepods
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: grafana
+        - matchLabels:
+            io.kubernetes.pod.namespace: office
+            app.kubernetes.io/name: meet
+            app.kubernetes.io/controller: backend
+        - matchLabels:
+            io.kubernetes.pod.namespace: security
+            app.kubernetes.io/name: lldap
+        - matchLabels:
+            io.kubernetes.pod.namespace: security
+            app.kubernetes.io/name: pocket-id
       toPorts:
         - ports:
             - port: "5432"

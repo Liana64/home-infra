@@ -5,7 +5,8 @@ metadata:
   name: postgres-1
 spec:
   instances: 2
-  imageName: ghcr.io/cloudnative-pg/postgresql:17.0-30
+  # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/postgresql
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.11-standard-trixie@sha256:d456fe7392b0b2147b4cea0dc124d51aee7ad3ec522c57f3177799e01f29a2d1
   primaryUpdateStrategy: unsupervised
   storage:
     size: 128Gi
@@ -15,7 +16,7 @@ spec:
   enableSuperuserAccess: true
   postgresql:
     parameters:
-      max_connections: "512"
+      max_connections: "100"
       shared_buffers: 256MB
   nodeMaintenanceWindow:
     inProgress: false
@@ -24,8 +25,6 @@ spec:
     requests:
       cpu: 250m
       memory: 512Mi
-    limits:
-      memory: 2Gi
   monitoring:
     enablePodMonitor: true
   plugins:

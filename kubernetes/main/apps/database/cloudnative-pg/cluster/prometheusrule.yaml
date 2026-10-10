@@ -56,6 +56,26 @@ spec:
           for: 1m
           labels:
             severity: warning
+        - alert: BackupStale
+          annotations:
+            description: Last successful base backup for {{ $labels.job }} is {{ $value | humanizeDuration }} old.
+            summary: No base backup completed in the last 30 hours.
+          expr: |-
+            time() - max by (job) (barman_cloud_cloudnative_pg_io_last_available_backup_timestamp) > 30 * 3600
+            or absent(barman_cloud_cloudnative_pg_io_last_available_backup_timestamp)
+          for: 15m
+          labels:
+            severity: critical
+        - alert: BackupFailed
+          annotations:
+            description: Most recent base backup attempt for {{ $labels.job }} failed.
+            summary: Base backup failed after the last successful one.
+          expr: |-
+            max by (job) (barman_cloud_cloudnative_pg_io_last_failed_backup_timestamp)
+              > max by (job) (barman_cloud_cloudnative_pg_io_last_available_backup_timestamp)
+          for: 5m
+          labels:
+            severity: critical
         - alert: DatabaseDeadlockConflicts
           annotations:
             description: There are over 10 deadlock conflicts in {{ $labels.pod }}

@@ -70,6 +70,11 @@
       matchCurrentValue: "/^v?\\d/",
       enabled: false,
     },
+    {
+      matchPackageNames: ["ghcr.io/cloudnative-pg/postgresql"],
+      matchUpdateTypes: ["digest"],
+      enabled: true,
+    },
   ],
   flux: {
     managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
@@ -94,7 +99,7 @@
       description: "Container images pinned inline as image: repo:tag@digest",
       managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
       matchStrings: [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n\\s+image: \\S+?:(?<currentValue>[^@\"'\\s:]+)(@(?<currentDigest>sha256:[a-f0-9]+))?",
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n\\s+image(?:Name)?: \\S+?:(?<currentValue>[^@\"'\\s:]+)(@(?<currentDigest>sha256:[a-f0-9]+))?",
       ],
       datasourceTemplate: "{{{datasource}}}",
       depNameTemplate: "{{{depName}}}",
