@@ -2,13 +2,13 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: postgres-role-immich
+  name: postgres-role-grafana
 spec:
   secretStoreRef:
     kind: ClusterSecretStore
     name: bitwarden-secrets-manager
   target:
-    name: postgres-role-immich
+    name: postgres-role-grafana
     template:
       engineVersion: v2
       type: kubernetes.io/basic-auth
@@ -16,29 +16,20 @@ spec:
         labels:
           cnpg.io/reload: "true"
       data:
-        username: immich
+        username: grafana
         password: "{{ .password }}"
   data:
     - secretKey: password
       remoteRef:
-        key: "693a1b1a-c731-41b6-8a06-b4df00f6aaa1"
+        key: "f83be31b-e809-4a1c-961b-b4df00f8edce"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: immich
+  name: grafana
 spec:
-  name: immich
-  owner: immich
+  name: grafana
+  owner: grafana
   cluster:
     name: postgres-1
   ensure: present
-  extensions:
-    - name: vector
-      ensure: present
-    - name: cube
-      ensure: present
-    - name: earthdistance
-      ensure: present
-    - name: unaccent
-      ensure: present

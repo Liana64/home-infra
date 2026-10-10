@@ -17,29 +17,6 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          init-db:
-            image:
-              repository: ghcr.io/onedr0p/postgres-init
-              tag: 16
-            env:
-              INIT_POSTGRES_HOST: &dbHost postgres-1-rw.database.svc.cluster.local
-              INIT_POSTGRES_DBNAME: &dbName n8n
-              INIT_POSTGRES_USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: &secret n8n-secret
-                    key: DB_POSTGRESDB_USER
-              INIT_POSTGRES_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: *secret
-                    key: DB_POSTGRESDB_PASSWORD
-              INIT_POSTGRES_SUPER_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: cloudnative-pg-secret
-                    key: password
         containers:
           app:
             # renovate: datasource=docker depName=ghcr.io/n8n-io/n8n
@@ -50,9 +27,9 @@ spec:
               TZ: ${TIMEZONE}
               GENERIC_TIMEZONE: ${TIMEZONE}
               DB_TYPE: postgresdb
-              DB_POSTGRESDB_HOST: *dbHost
+              DB_POSTGRESDB_HOST: postgres-1-rw.database.svc.cluster.local
               DB_POSTGRESDB_PORT: "5432"
-              DB_POSTGRESDB_DATABASE: *dbName
+              DB_POSTGRESDB_DATABASE: n8n
               EXECUTIONS_DATA_PRUNE: "true"
               EXECUTIONS_DATA_MAX_AGE: "168"
               EXECUTIONS_DATA_PRUNE_MAX_COUNT: "50000"
@@ -68,7 +45,7 @@ spec:
               N8N_RUNNERS_ENABLED: "true"
             envFrom:
               - secretRef:
-                  name: *secret
+                  name: n8n-secret
             probes:
               liveness: &probes
                 enabled: true

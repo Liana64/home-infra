@@ -17,32 +17,6 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         initContainers:
-          init-db:
-            image:
-              repository: ghcr.io/liana64/postgres-init
-              tag: 16@sha256:937fa2ded8a5e326c828ff147c615af66c84863565be81ff17a5642408a5dcbe
-            env:
-              INIT_POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
-              INIT_POSTGRES_DBNAME: meet
-              INIT_POSTGRES_USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: meet-secret
-                    key: DB_USER
-              INIT_POSTGRES_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: meet-secret
-                    key: DB_PASSWORD
-              INIT_POSTGRES_SUPER_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: cloudnative-pg-secret
-                    key: password
-            securityContext: &securityContext
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
           migrate:
             # renovate: datasource=docker depName=lasuite/meet-backend
             image: &backendImage
@@ -88,7 +62,12 @@ spec:
             envFrom: &backendEnvFrom
               - secretRef:
                   name: meet-secret
-            securityContext: *securityContext
+              - secretRef:
+                  name: meet-db-secret
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
         containers:
           app:
             image: *backendImage

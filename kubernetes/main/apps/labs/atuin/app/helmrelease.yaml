@@ -17,25 +17,6 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          init-db:
-            securityContext:
-              allowPrivilegeEscalation: false
-              capabilities: { drop: ["ALL"] }
-            image:
-              repository: ghcr.io/liana64/postgres-init
-              tag: 16
-            env:
-              INIT_POSTGRES_DBNAME: atuin
-              INIT_POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
-              INIT_POSTGRES_SUPER_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: cloudnative-pg-secret
-                    key: password
-            envFrom: &envFrom
-              - secretRef:
-                  name: atuin-secret
         containers:
           app:
             # renovate: datasource=docker depName=ghcr.io/atuinsh/atuin
@@ -50,7 +31,9 @@ spec:
               ATUIN_METRICS__HOST: 0.0.0.0
               ATUIN_METRICS__PORT: &metricsPort 8080
               ATUIN_TLS__ENABLE: "false"
-            envFrom: *envFrom
+            envFrom:
+              - secretRef:
+                  name: atuin-db-secret
             args: [start]
             probes:
               liveness: &probes

@@ -65,7 +65,7 @@ spec:
           HOST: ${POSTGRES_HOST}:5432
           NAME: forgejo
           USER: forgejo
-          SSL_MODE: disable
+          SSL_MODE: require
         repository:
           ROOT: /data/git/repositories
           DEFAULT_BRANCH: main
@@ -148,7 +148,7 @@ spec:
   valuesFrom:
     - targetPath: gitea.config.database.PASSWD
       kind: Secret
-      name: forgejo-secret
+      name: forgejo-db-secret
       valuesKey: FORGEJO__database__PASSWD
     - targetPath: gitea.config.security.SECRET_KEY
       kind: Secret
@@ -179,33 +179,3 @@ spec:
                 name: forgejo
                 annotations:
                   reloader.stakater.com/auto: "true"
-              spec:
-                template:
-                  spec:
-                    initContainers:
-                      - name: init-db
-                        image: ghcr.io/liana64/postgres-init:16
-                        env:
-                          - name: INIT_POSTGRES_USER
-                            valueFrom:
-                              secretKeyRef:
-                                name: forgejo-secret
-                                key: INIT_POSTGRES_USER
-                          - name: INIT_POSTGRES_PASS
-                            valueFrom:
-                              secretKeyRef:
-                                name: forgejo-secret
-                                key: INIT_POSTGRES_PASS
-                          - name: INIT_POSTGRES_DBNAME
-                            value: forgejo
-                          - name: INIT_POSTGRES_HOST
-                            value: ${POSTGRES_HOST}
-                          - name: INIT_POSTGRES_SUPER_PASS
-                            valueFrom:
-                              secretKeyRef:
-                                name: cloudnative-pg-secret
-                                key: password
-                        securityContext:
-                          allowPrivilegeEscalation: false
-                          capabilities:
-                            drop: [ALL]

@@ -14,6 +14,68 @@ spec:
   superuserSecret:
     name: cloudnative-pg-secret
   enableSuperuserAccess: true
+  managed:
+    roles:
+      - name: immich
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-immich
+      - name: linkding
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-linkding
+      - name: memos
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-memos
+      - name: miniflux
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-miniflux
+      - name: n8n
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-n8n
+      - name: atuin
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-atuin
+      - name: forgejo
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-forgejo
+      - name: pinepods
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-pinepods
+      - name: grafana
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-grafana
+      - name: meet
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-meet
+      - name: lldap_user
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-lldap
+      - name: pocket
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-pocket-id
   postgresql:
     parameters:
       max_connections: "100"

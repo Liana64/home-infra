@@ -8,7 +8,6 @@ resources:
   - ./networkpolicy.yaml
   - ./externalsecret.yaml
   - ./helmrelease.yaml
-  - ../../../database/cloudnative-pg/app/secret.sops.yaml
 patches:
   - patch: |
       $patch: delete

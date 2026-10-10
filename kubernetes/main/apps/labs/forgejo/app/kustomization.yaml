@@ -10,7 +10,7 @@ resources:
   - ./helmrelease.yaml
   - ./networkpolicy.yaml
   - ./ingressroutetcp.yaml
-  - ../../../database/cloudnative-pg/app/secret.sops.yaml
+  - ./externalsecret.yaml
 patches:
   - target:
       group: volsync.backube

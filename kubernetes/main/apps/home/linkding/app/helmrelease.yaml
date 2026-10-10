@@ -19,34 +19,6 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          init-db:
-            image:
-              repository: ghcr.io/onedr0p/postgres-init
-              tag: 16
-            # https://github.com/onedr0p/containers/blob/main/apps/postgres-init/entrypoint.sh
-            env:
-              INIT_POSTGRES_HOST: &dbHost postgres-1-rw.database.svc.cluster.local
-              INIT_POSTGRES_DBNAME: &dbName linkding
-              INIT_POSTGRES_USER:
-                valueFrom:
-                  secretKeyRef:
-                    name: &secret linkding-secret
-                    key: LD_DB_USER
-              INIT_POSTGRES_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: *secret
-                    key: LD_DB_PASSWORD
-              INIT_POSTGRES_SUPER_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: cloudnative-pg-secret
-                    key: password
-            securityContext: &securityContext
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
         pod:
           securityContext:
             runAsNonRoot: true
@@ -62,8 +34,8 @@ spec:
               tag: 1.47.0-alpine@sha256:04e67acd04f1f1b3edd1bdd36fcf0dd5efaf8cdd99444e14be92c608575fa87a
             env:
               LD_DB_ENGINE: postgres
-              LD_DB_DATABASE: *dbName
-              LD_DB_HOST: *dbHost
+              LD_DB_DATABASE: linkding
+              LD_DB_HOST: postgres-1-rw.database.svc.cluster.local
               LD_DB_PORT: 5432
               LD_ENABLE_OIDC: "True"
               OIDC_OP_AUTHORIZATION_ENDPOINT: "https://id.${ORG_DOMAIN}/authorize"
@@ -74,7 +46,9 @@ spec:
               OIDC_RP_SCOPES: "openid email profile"
             envFrom:
               - secretRef:
-                  name: *secret
+                  name: linkding-secret
+              - secretRef:
+                  name: linkding-db-secret
               - secretRef:
                   name: linkding-oidc-secret
             probes:
@@ -97,7 +71,10 @@ spec:
               limits:
                 # For HTML snapshot spike
                 memory: 4Gi
-            securityContext: *securityContext
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
     configMaps:
       supervisord:
         data:

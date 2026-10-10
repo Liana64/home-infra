@@ -16,22 +16,6 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          init-db:
-            image:
-              repository: ghcr.io/liana64/postgres-init
-              tag: 16
-            env:
-              INIT_POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
-              INIT_POSTGRES_DBNAME: memos
-              INIT_POSTGRES_SUPER_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: cloudnative-pg-secret
-                    key: password
-            envFrom: &envFrom
-              - secretRef:
-                  name: memos-secret
         containers:
           app:
             # renovate: datasource=docker depName=ghcr.io/usememos/memos
@@ -42,7 +26,9 @@ spec:
               MEMOS_MODE: prod
               MEMOS_PORT: &port 5230
               MEMOS_DRIVER: postgres
-            envFrom: *envFrom
+            envFrom:
+              - secretRef:
+                  name: memos-db-secret
             probes:
               liveness: &probes
                 enabled: true

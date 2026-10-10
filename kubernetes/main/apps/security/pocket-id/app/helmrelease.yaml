@@ -19,34 +19,6 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          init-db:
-            securityContext:
-              allowPrivilegeEscalation: false
-              capabilities: { drop: ["ALL"] }
-            image:
-              repository: ghcr.io/liana64/postgres-init
-              tag: 16
-            env:
-              - name: INIT_POSTGRES_HOST
-                value: "postgres-1-rw.database.svc.cluster.local"
-              - name: INIT_POSTGRES_DBNAME
-                value: pocket-id
-              - name: INIT_POSTGRES_SUPER_PASS
-                valueFrom:
-                  secretKeyRef:
-                    name: cloudnative-pg-secret
-                    key: password
-              - name: INIT_POSTGRES_USER
-                valueFrom:
-                  secretKeyRef:
-                    name: &secret pocket-id-secret
-                    key: POCKET_ID_POSTGRES_USER
-              - name: INIT_POSTGRES_PASS
-                valueFrom:
-                  secretKeyRef:
-                    name: *secret
-                    key: POCKET_ID_POSTGRES_PASSWORD
         containers:
           app:
             image:
@@ -80,7 +52,7 @@ spec:
               LDAP_ADMIN_GROUP_NAME: lldap_admin
             envFrom:
               - secretRef:
-                  name: *secret
+                  name: pocket-id-secret
             probes:
               liveness: &probes
                 enabled: true

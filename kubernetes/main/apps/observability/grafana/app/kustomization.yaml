@@ -8,4 +8,4 @@ resources:
   - ./networkpolicy.yaml
   - ./secret.sops.yaml
   - ./helmrelease.yaml
-  - ../../../database/cloudnative-pg/app/secret.sops.yaml
+  - ./externalsecret.yaml

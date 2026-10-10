@@ -12,9 +12,9 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: traefik
-    - name: cloudnative-pg
     - name: volsync
     - name: kopia
+    - name: cloudnative-pg-cluster
   path: ./kubernetes/main/apps/home/linkding/app
   prune: true
   sourceRef:

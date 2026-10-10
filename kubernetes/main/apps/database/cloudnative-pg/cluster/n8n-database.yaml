@@ -2,13 +2,13 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: postgres-role-immich
+  name: postgres-role-n8n
 spec:
   secretStoreRef:
     kind: ClusterSecretStore
     name: bitwarden-secrets-manager
   target:
-    name: postgres-role-immich
+    name: postgres-role-n8n
     template:
       engineVersion: v2
       type: kubernetes.io/basic-auth
@@ -16,29 +16,20 @@ spec:
         labels:
           cnpg.io/reload: "true"
       data:
-        username: immich
+        username: n8n
         password: "{{ .password }}"
   data:
     - secretKey: password
       remoteRef:
-        key: "693a1b1a-c731-41b6-8a06-b4df00f6aaa1"
+        key: "b42bb6ed-f5b0-4060-bc69-b4620120f318"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: immich
+  name: n8n
 spec:
-  name: immich
-  owner: immich
+  name: n8n
+  owner: n8n
   cluster:
     name: postgres-1
   ensure: present
-  extensions:
-    - name: vector
-      ensure: present
-    - name: cube
-      ensure: present
-    - name: earthdistance
-      ensure: present
-    - name: unaccent
-      ensure: present

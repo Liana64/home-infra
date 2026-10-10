@@ -16,25 +16,6 @@ spec:
         strategy: RollingUpdate
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          init-db:
-            securityContext:
-              allowPrivilegeEscalation: false
-              capabilities: { drop: ["ALL"] }
-            image:
-              repository: ghcr.io/onedr0p/postgres-init
-              tag: 16
-            env:
-              INIT_POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
-              INIT_POSTGRES_DBNAME: miniflux
-              INIT_POSTGRES_SUPER_PASS:
-                valueFrom:
-                  secretKeyRef:
-                    name: cloudnative-pg-secret
-                    key: password
-            envFrom: &envFrom
-              - secretRef:
-                  name: miniflux-secret
         containers:
           app:
             # renovate: datasource=docker depName=ghcr.io/miniflux/miniflux
@@ -57,7 +38,11 @@ spec:
               POLLING_FREQUENCY: "15"
               PORT: &port 80
               RUN_MIGRATIONS: "1"
-            envFrom: *envFrom
+            envFrom:
+              - secretRef:
+                  name: miniflux-secret
+              - secretRef:
+                  name: miniflux-db-secret
             probes:
               liveness: &probes
                 enabled: true
