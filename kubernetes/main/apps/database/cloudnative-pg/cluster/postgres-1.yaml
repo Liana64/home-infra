@@ -94,5 +94,6 @@ spec:
       isWALArchiver: true
       parameters:
         barmanObjectName: postgres-1-backup
+        serverName: postgres-1-v18
 #  extensions:
 #    - name: vector
