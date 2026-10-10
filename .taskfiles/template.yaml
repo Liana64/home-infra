@@ -50,10 +50,10 @@ tasks:
         yq -i '.resources = (.resources + ["./" + strenv(APP) + "-database.yaml"] | unique)' {{.PG_DIR}}/kustomization.yaml
         F=$tmp/role.yaml yq -i '.spec.managed.roles = ((.spec.managed.roles // []) + load(strenv(F)) | unique_by(.name))' {{.PG_DIR}}/postgres-1.yaml
         F=$tmp/ingress.yaml yq -i '(.spec.ingress[] | select(.fromEndpoints and .toPorts[0].ports[0].port == "5432") | .fromEndpoints) |= (. + load(strenv(F)) | unique)' {{.PG_DIR}}/networkpolicy.yaml
-        [ -f {{.APP_DIR}}/app/externalsecret.yaml ] || render externalsecret.yaml > {{.APP_DIR}}/app/externalsecret.yaml
+        render externalsecret.yaml >> {{.APP_DIR}}/app/externalsecret.yaml
         yq -i '.resources = (.resources + ["./externalsecret.yaml"] | unique)' {{.APP_DIR}}/app/kustomization.yaml
         F=$tmp/egress.yaml yq -i '(select(.spec.endpointSelector.matchLabels."app.kubernetes.io/name" == strenv(APP)) | .spec.egress) |= (. + load(strenv(F)) | unique)' {{.APP_DIR}}/app/networkpolicy.yaml
-        yq -i '.spec.dependsOn = ((.spec.dependsOn // []) + [{"name": "cloudnative-pg-cluster"}] | unique_by(.name))' {{.APP_DIR}}/ks.yaml
+        yq -i '(select(document_index == 0) | .spec.dependsOn) |= ((. // []) + [{"name": "cloudnative-pg-cluster"}] | unique_by(.name))' {{.APP_DIR}}/ks.yaml
     status:
       - test -f {{.PG_DIR}}/{{.APP}}-database.yaml
     preconditions:

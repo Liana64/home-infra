@@ -41,7 +41,7 @@ tasks:
     vars:
       file:
         sh: |
-          find "{{.KUBERNETES_DIR}}" -type f -name "*.sops.*" -exec grep -L "ENC\[AES256_GCM" {} \;
+          find "{{.KUBERNETES_DIR}}" -path "{{.KUBERNETES_DIR}}/templates" -prune -o -type f -name "*.sops.*" -exec grep -L "ENC\[AES256_GCM" {} \;
 
   .encrypt-file:
     internal: true
