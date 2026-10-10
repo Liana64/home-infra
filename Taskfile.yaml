@@ -34,9 +34,9 @@ includes:
   ansible:
     taskfile: .taskfiles/ansible.yaml
     aliases: [a]
-  volsync:
-    taskfile: .taskfiles/volsync.yaml
-    aliases: [v]
+  backup:
+    taskfile: .taskfiles/backup.yaml
+    aliases: [b]
   # n8n:
   #   taskfile: .taskfiles/n8n.yaml
   #   aliases: [n]

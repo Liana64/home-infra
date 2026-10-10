@@ -1,0 +1,54 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+vars:
+  KOPIA_EXEC: "kubectl exec -n volsync-system deploy/kopia -c app --"
+
+tasks:
+  postgres:
+    desc: Take an on-demand postgres-1 backup eg "task backup:postgres"
+    vars:
+      NAME: postgres-1-{{now | date "20060102-150405"}}
+    cmds:
+      - |
+        kubectl apply -f - <<EOF
+        apiVersion: postgresql.cnpg.io/v1
+        kind: Backup
+        metadata:
+          name: {{.NAME}}
+          namespace: database
+        spec:
+          cluster:
+            name: postgres-1
+          method: plugin
+          pluginConfiguration:
+            name: barman-cloud.cloudnative-pg.io
+        EOF
+      - kubectl -n database wait backup/{{.NAME}} --for=jsonpath='{.status.phase}'=completed --timeout=30m
+
+  volsync:
+    desc: Take an on-demand volsync snapshot of an app eg "task backup:volsync APP=linkding NS=home"
+    requires:
+      vars: [APP, NS]
+    vars:
+      ID: "{{now | unixEpoch}}"
+    cmds:
+      - kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"trigger":{"manual":"{{.ID}}"}}}'
+      - kubectl -n {{.NS}} wait replicationsource/{{.APP}} --for=jsonpath='{.status.lastManualSync}'={{.ID}} --timeout=30m
+
+  list:
+    desc: List postgres backups and volsync sources
+    cmds:
+      - kubectl -n database get backups --sort-by=.metadata.creationTimestamp
+      - kubectl get replicationsources -A
+
+  snapshots:
+    desc: List kopia snapshots across all sources
+    cmd: "{{.KOPIA_EXEC}} kopia snapshot list --all {{.CLI_ARGS}}"
+
+  stats:
+    desc: Show kopia repository content + storage stats
+    cmds:
+      - "{{.KOPIA_EXEC}} kopia repository status"
+      - "{{.KOPIA_EXEC}} kopia content stats"
