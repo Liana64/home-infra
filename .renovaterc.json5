@@ -20,6 +20,7 @@
     ".archive/**",
     "**/.terraform/**",
     "kubernetes/archived/**",
+    "kubernetes/templates/**",
     "kubernetes/main/bootstrap/talos/clusterconfig/**",
     "kubernetes/main/apps/ai/openclaw/**",
     "kubernetes/main/apps/games/minecraft/**",
