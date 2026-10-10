@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: external-secrets
+spec:
+  groups:
+    - name: external-secrets.rules
+      rules:
+        - alert: ExternalSecretsComponentAbsent
+          expr: |-
+            absent(up{job="external-secrets-metrics"})
+          annotations:
+            summary: >-
+              External Secrets has disappeared from Prometheus target discovery
+          for: 5m
+          labels:
+            severity: critical
+
+        - alert: ClusterSecretStoreNotReady
+          expr: |-
+            clustersecretstore_status_condition{condition="Ready",status="False"} == 1
+          annotations:
+            summary: >-
+              ClusterSecretStore {{ $labels.name }} is not ready
+          for: 15m
+          labels:
+            severity: critical
+
+        - alert: ExternalSecretNotReady
+          expr: |-
+            externalsecret_status_condition{condition="Ready",status="False"} == 1
+          annotations:
+            summary: >-
+              {{ $labels.namespace }}/{{ $labels.name }} failed to sync
+          for: 1h
+          labels:
+            severity: warning

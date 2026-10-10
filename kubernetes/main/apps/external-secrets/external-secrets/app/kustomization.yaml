@@ -6,3 +6,4 @@ resources:
   - ./ocirepository.yaml
   - ./cert.yaml
   - ./helmrelease.yaml
+  - ./prometheusrule.yaml
