@@ -87,7 +87,8 @@ nodes:
       node-role.kubernetes.io/etcd-only: "true:NoSchedule"
     controlPlane: true
     ipAddress: 172.16.4.13
-    installDiskSelector: *bootdisk
+    installDiskSelector:
+      size: "> 32GB"
     networkInterfaces:
       - interface: eth0
         dhcp: true
