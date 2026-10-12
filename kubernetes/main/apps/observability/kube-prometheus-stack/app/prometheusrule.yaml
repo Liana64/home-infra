@@ -43,6 +43,27 @@ spec:
           for: 6h
           labels:
             severity: warning
+        - alert: ZfsPoolFilling
+          annotations:
+            summary: ZFS pool {{ $labels.name }} on {{ $labels.host }} has {{ $value | humanizePercentage }} free — past the 80% full slowdown point
+          expr: zfs_dataset_available_bytes{name=~"[^/]+"} / (zfs_dataset_used_bytes{name=~"[^/]+"} + zfs_dataset_available_bytes{name=~"[^/]+"}) < 0.2
+          for: 1h
+          labels:
+            severity: warning
+        - alert: ZfsPoolFull
+          annotations:
+            summary: ZFS pool {{ $labels.name }} on {{ $labels.host }} has {{ $value | humanizePercentage }} free
+          expr: zfs_dataset_available_bytes{name=~"[^/]+"} / (zfs_dataset_used_bytes{name=~"[^/]+"} + zfs_dataset_available_bytes{name=~"[^/]+"}) < 0.1
+          for: 15m
+          labels:
+            severity: critical
+        - alert: ZfsQuotaFilling
+          annotations:
+            summary: ZFS dataset {{ $labels.name }} on {{ $labels.host }} is at {{ $value | humanizePercentage }} of its quota
+          expr: ((zfs_dataset_used_bytes / (zfs_dataset_quota_bytes > 0)) or (zfs_dataset_referenced_bytes / (zfs_dataset_referenced_quota_bytes > 0))) > 0.9
+          for: 1h
+          labels:
+            severity: warning
     - name: dockerhub
       rules:
         - alert: BootstrapRateLimitRisk

@@ -1,0 +1,233 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: m1-storage-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Storage
+data:
+  m1-storage.json: |
+    {
+      "annotations": {"list": []},
+      "editable": false,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Free",
+          "description": "Share of each pool still writable. ZFS slows down past 80% full.",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "decimals": 1,
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "red", "value": null},
+                {"color": "orange", "value": 0.1},
+                {"color": "green", "value": 0.2}
+              ]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area", "textMode": "value_and_name"},
+          "targets": [
+            {"expr": "zfs_dataset_available_bytes{host=\"m1\",name=~\"tank|rpool\"} / (zfs_dataset_used_bytes{host=\"m1\",name=~\"tank|rpool\"} + zfs_dataset_available_bytes{host=\"m1\",name=~\"tank|rpool\"})", "legendFormat": "{{name}}", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "barchart",
+          "title": "Data pool (tank)",
+          "description": "Each purpose including its snapshots. other is data outside the purpose datasets.",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 5, "w": 24, "x": 0, "y": 4},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "color": {"mode": "palette-classic"},
+              "custom": {"fillOpacity": 90, "lineWidth": 0, "gradientMode": "none", "axisPlacement": "hidden"}
+            },
+            "overrides": [
+              {"matcher": {"id": "byName", "options": "users"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#3987e5"}}]},
+              {"matcher": {"id": "byName", "options": "media"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#d95926"}}]},
+              {"matcher": {"id": "byName", "options": "photos"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#199e70"}}]},
+              {"matcher": {"id": "byName", "options": "uploads"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#c98500"}}]},
+              {"matcher": {"id": "byName", "options": "s3"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#d55181"}}]},
+              {"matcher": {"id": "byName", "options": "nix-cache"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#008300"}}]},
+              {"matcher": {"id": "byName", "options": "backups"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#9085e9"}}]},
+              {"matcher": {"id": "byName", "options": "other"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#8a8984"}}]},
+              {"matcher": {"id": "byName", "options": "free"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#4a4a46"}}]}
+            ]
+          },
+          "options": {
+            "orientation": "horizontal",
+            "stacking": "percent",
+            "showValue": "auto",
+            "barWidth": 0.9,
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "none"}
+          },
+          "targets": [
+            {"expr": "sum by (pool, purpose) (label_replace(zfs_dataset_used_bytes{host=\"m1\",pool=\"tank\",name=~\"$purposes\"}, \"purpose\", \"$1\", \"name\", \"$purpose_re\")) or label_replace(sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",name=\"tank\"}) - sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",pool=\"tank\",name=~\"$purposes\"}), \"purpose\", \"other\", \"\", \"\") or label_replace(sum by (pool) (zfs_dataset_available_bytes{host=\"m1\",name=\"tank\"}), \"purpose\", \"free\", \"\", \"\")", "format": "table", "instant": true, "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ],
+          "transformations": [
+            {"id": "groupingToMatrix", "options": {"columnField": "purpose", "rowField": "pool", "valueField": "Value"}},
+            {"id": "organize", "options": {"indexByName": {"pool\\purpose": 0, "users": 1, "media": 2, "photos": 3, "uploads": 4, "s3": 5, "nix-cache": 6, "backups": 7, "other": 8, "free": 9}}}
+          ]
+        },
+        {
+          "type": "barchart",
+          "title": "System pool (rpool)",
+          "description": "vms holds the Talos disks. reserved is held back so the pool never fills completely.",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 24, "x": 0, "y": 9},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "color": {"mode": "palette-classic"},
+              "custom": {"fillOpacity": 90, "lineWidth": 0, "gradientMode": "none", "axisPlacement": "hidden"}
+            },
+            "overrides": [
+              {"matcher": {"id": "byName", "options": "root"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#3987e5"}}]},
+              {"matcher": {"id": "byName", "options": "nix"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#d95926"}}]},
+              {"matcher": {"id": "byName", "options": "var"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#199e70"}}]},
+              {"matcher": {"id": "byName", "options": "home"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#c98500"}}]},
+              {"matcher": {"id": "byName", "options": "seaweedfs"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#d55181"}}]},
+              {"matcher": {"id": "byName", "options": "reserved"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#008300"}}]},
+              {"matcher": {"id": "byName", "options": "vms"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#9085e9"}}]},
+              {"matcher": {"id": "byName", "options": "other"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#8a8984"}}]},
+              {"matcher": {"id": "byName", "options": "free"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#4a4a46"}}]}
+            ]
+          },
+          "options": {
+            "orientation": "horizontal",
+            "stacking": "percent",
+            "showValue": "auto",
+            "barWidth": 0.9,
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "none"}
+          },
+          "targets": [
+            {"expr": "sum by (pool, purpose) (label_replace(zfs_dataset_used_bytes{host=\"m1\",pool=\"rpool\",name=~\"$purposes\"}, \"purpose\", \"$1\", \"name\", \"$purpose_re\")) or label_replace(sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",name=\"rpool\"}) - sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",pool=\"rpool\",name=~\"$purposes\"}), \"purpose\", \"other\", \"\", \"\") or label_replace(sum by (pool) (zfs_dataset_available_bytes{host=\"m1\",name=\"rpool\"}), \"purpose\", \"free\", \"\", \"\")", "format": "table", "instant": true, "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ],
+          "transformations": [
+            {"id": "groupingToMatrix", "options": {"columnField": "purpose", "rowField": "pool", "valueField": "Value"}},
+            {"id": "organize", "options": {"indexByName": {"pool\\purpose": 0, "root": 1, "nix": 2, "var": 3, "home": 4, "seaweedfs": 5, "reserved": 6, "vms": 7, "other": 8, "free": 9}}}
+          ]
+        },
+        {
+          "type": "barchart",
+          "title": "Quotas",
+          "description": "Each bar is one purpose's quota: live data, snapshots, and what is still free. Free shrinks below the quota if the pool itself runs out. s3 and nix-cache quotas exclude snapshots, so their bars run past the quota.",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 13},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "custom": {"fillOpacity": 90, "lineWidth": 0, "gradientMode": "none", "axisPlacement": "hidden"}
+            },
+            "overrides": [
+              {"matcher": {"id": "byName", "options": "purpose"}, "properties": [{"id": "custom.axisPlacement", "value": "auto"}]},
+              {"matcher": {"id": "byName", "options": "live"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#c3c2b7"}}]},
+              {"matcher": {"id": "byName", "options": "snapshots"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#8a8984"}}]},
+              {"matcher": {"id": "byName", "options": "free"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#4a4a46"}}]}
+            ]
+          },
+          "options": {
+            "orientation": "horizontal",
+            "stacking": "percent",
+            "showValue": "auto",
+            "xField": "purpose",
+            "barWidth": 0.8,
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "none"}
+          },
+          "targets": [
+            {"expr": "sum by (purpose) (label_replace(zfs_dataset_used_bytes{host=\"m1\",name=~\"$purposes\"} and ((zfs_dataset_quota_bytes > 0) or (zfs_dataset_referenced_quota_bytes > 0)), \"purpose\", \"$1\", \"name\", \"$purpose_re\"))", "format": "table", "instant": true, "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "sum by (purpose) (label_replace(zfs_dataset_used_by_snapshot_bytes{host=\"m1\"}, \"purpose\", \"$1\", \"name\", \"$purpose_re\"))", "format": "table", "instant": true, "refId": "B", "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "sum by (purpose) (label_replace(zfs_dataset_available_bytes{host=\"m1\",name=~\"$purposes\"}, \"purpose\", \"$1\", \"name\", \"$purpose_re\"))", "format": "table", "instant": true, "refId": "C", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ],
+          "transformations": [
+            {"id": "joinByField", "options": {"byField": "purpose", "mode": "inner"}},
+            {"id": "filterFieldsByName", "options": {"include": {"names": ["purpose", "Value #A", "Value #B", "Value #C"]}}},
+            {"id": "calculateField", "options": {"mode": "binary", "binary": {"left": "Value #A", "operator": "-", "right": "Value #B"}, "alias": "live"}},
+            {"id": "organize", "options": {
+              "excludeByName": {"Value #A": true},
+              "indexByName": {"purpose": 0, "live": 1, "Value #B": 2, "Value #C": 3},
+              "renameByName": {"Value #B": "snapshots", "Value #C": "free"}
+            }},
+            {"id": "sortBy", "options": {"sort": [{"field": "purpose"}]}}
+          ]
+        },
+        {
+          "type": "row",
+          "title": "Growth",
+          "collapsed": true,
+          "gridPos": {"h": 1, "w": 24, "x": 0, "y": 21},
+          "panels": [
+            {
+              "type": "timeseries",
+              "title": "tank over time",
+              "datasource": {"type": "prometheus", "uid": "prometheus"},
+              "gridPos": {"h": 8, "w": 24, "x": 0, "y": 22},
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "bytes",
+                  "custom": {
+                    "drawStyle": "line",
+                    "lineWidth": 1,
+                    "fillOpacity": 80,
+                    "showPoints": "never",
+                    "stacking": {"mode": "normal", "group": "A"}
+                  }
+                },
+                "overrides": [
+                  {"matcher": {"id": "byName", "options": "users"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#3987e5"}}]},
+                  {"matcher": {"id": "byName", "options": "media"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#d95926"}}]},
+                  {"matcher": {"id": "byName", "options": "photos"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#199e70"}}]},
+                  {"matcher": {"id": "byName", "options": "uploads"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#c98500"}}]},
+                  {"matcher": {"id": "byName", "options": "s3"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#d55181"}}]},
+                  {"matcher": {"id": "byName", "options": "nix-cache"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#008300"}}]},
+                  {"matcher": {"id": "byName", "options": "backups"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#9085e9"}}]},
+                  {"matcher": {"id": "byName", "options": "other"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#8a8984"}}]}
+                ]
+              },
+              "options": {
+                "legend": {"displayMode": "table", "placement": "right", "calcs": ["delta"], "showLegend": true},
+                "tooltip": {"mode": "multi", "sort": "desc"}
+              },
+              "targets": [
+                {"expr": "sum by (purpose) (label_replace(zfs_dataset_used_bytes{host=\"m1\",pool=\"tank\",name=~\"$purposes\"}, \"purpose\", \"$1\", \"name\", \"$purpose_re\")) or label_replace(sum(zfs_dataset_used_bytes{host=\"m1\",name=\"tank\"}) - sum(zfs_dataset_used_bytes{host=\"m1\",pool=\"tank\",name=~\"$purposes\"}), \"purpose\", \"other\", \"\", \"\")", "legendFormat": "{{purpose}}", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+              ]
+            }
+          ]
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["zfs", "m1"],
+      "templating": {
+        "list": [
+          {
+            "name": "purposes",
+            "type": "constant",
+            "hide": 2,
+            "query": "tank/(users|backups|cluster/[^/]+)|rpool/[^/]+"
+          },
+          {
+            "name": "purpose_re",
+            "type": "constant",
+            "hide": 2,
+            "query": "[^/]+/(?:cluster/)?([^/]+).*"
+          }
+        ]
+      },
+      "time": {"from": "now-30d", "to": "now"},
+      "timezone": "browser",
+      "title": "m1 Storage",
+      "uid": "m1-storage",
+      "version": 1
+    }
