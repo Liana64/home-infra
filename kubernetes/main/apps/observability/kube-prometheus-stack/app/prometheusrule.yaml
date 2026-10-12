@@ -71,6 +71,29 @@ spec:
           for: 15m
           labels:
             severity: critical
+    - name: seaweedfs
+      rules:
+        - alert: SeaweedFsDown
+          annotations:
+            summary: SeaweedFS on {{ $labels.host }} is not answering metrics scrapes — S3 is likely down
+          expr: up{instance=~".+:9327"} == 0
+          for: 5m
+          labels:
+            severity: critical
+        - alert: SeaweedFsS3Errors
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of S3 requests to SeaweedFS are failing server-side"
+          expr: sum(rate(SeaweedFS_s3_request_total{code=~"5.."}[5m])) / sum(rate(SeaweedFS_s3_request_total[5m])) > 0.05
+          for: 15m
+          labels:
+            severity: warning
+        - alert: SeaweedFsBucketReadOnly
+          annotations:
+            summary: S3 bucket {{ $labels.bucket }} went read-only after hitting its quota — writes to it fail
+          expr: SeaweedFS_s3_bucket_read_only == 1
+          for: 5m
+          labels:
+            severity: critical
     - name: dockerhub
       rules:
         - alert: BootstrapRateLimitRisk

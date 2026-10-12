@@ -37,6 +37,8 @@ spec:
               protocol: TCP
             - port: "9633"
               protocol: TCP
+            - port: "9327"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy

@@ -1,0 +1,284 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: m1-seaweedfs-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Storage
+data:
+  m1-seaweedfs.json: |
+    {
+      "annotations": {"list": []},
+      "editable": false,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Status",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "mappings": [
+                {"type": "value", "options": {
+                  "0": {"text": "DOWN", "color": "red"},
+                  "1": {"text": "UP", "color": "green"}
+                }}
+              ],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "up{host=\"m1\",instance=~\".+:9327\"}", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Stored",
+          "description": "Size of all buckets; the s3 quota on tank is on the m1 Storage dashboard",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+          "fieldConfig": {
+            "defaults": {"unit": "bytes", "color": {"mode": "fixed", "fixedColor": "text"}},
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area"},
+          "targets": [
+            {"expr": "sum(SeaweedFS_s3_bucket_size_bytes)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Objects",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+          "fieldConfig": {
+            "defaults": {"unit": "short", "color": {"mode": "fixed", "fixedColor": "text"}},
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area"},
+          "targets": [
+            {"expr": "sum(SeaweedFS_s3_bucket_object_count)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "S3 errors",
+          "description": "Share of S3 requests failing server-side (5xx), green under 1%",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "decimals": 1,
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "green", "value": null},
+                {"color": "orange", "value": 0.01},
+                {"color": "red", "value": 0.05}
+              ]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area"},
+          "targets": [
+            {"expr": "(sum(rate(SeaweedFS_s3_request_total{code=~\"5..\"}[$__rate_interval])) or vector(0)) / (sum(rate(SeaweedFS_s3_request_total[$__rate_interval])) > 0) or vector(0)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Buckets",
+          "description": "share = part of all stored data",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 7, "w": 24, "x": 0, "y": 4},
+          "fieldConfig": {
+            "defaults": {"unit": "bytes", "custom": {"align": "left"}},
+            "overrides": [
+              {"matcher": {"id": "byName", "options": "share"}, "properties": [
+                {"id": "unit", "value": "percentunit"},
+                {"id": "min", "value": 0},
+                {"id": "max", "value": 1},
+                {"id": "custom.cellOptions", "value": {"type": "gauge", "mode": "basic", "valueDisplayMode": "text"}},
+                {"id": "color", "value": {"mode": "fixed", "fixedColor": "#c3c2b7"}}
+              ]},
+              {"matcher": {"id": "byName", "options": "objects"}, "properties": [{"id": "unit", "value": "short"}]}
+            ]
+          },
+          "options": {"showHeader": true, "cellHeight": "sm", "sortBy": [{"displayName": "size", "desc": true}]},
+          "targets": [
+            {"expr": "sum by (bucket) (SeaweedFS_s3_bucket_size_bytes)", "refId": "A", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "sum by (bucket) (SeaweedFS_s3_bucket_object_count)", "refId": "B", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "sum by (bucket) (increase(SeaweedFS_s3_bucket_traffic_received_bytes_total[24h]))", "refId": "C", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "sum by (bucket) (increase(SeaweedFS_s3_bucket_traffic_sent_bytes_total[24h]))", "refId": "D", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "sum by (bucket) (SeaweedFS_s3_bucket_size_bytes) / scalar(sum(SeaweedFS_s3_bucket_size_bytes))", "refId": "E", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ],
+          "transformations": [
+            {"id": "joinByField", "options": {"byField": "bucket", "mode": "outer"}},
+            {"id": "filterFieldsByName", "options": {"include": {"names": ["bucket", "Value #A", "Value #B", "Value #C", "Value #D", "Value #E"]}}},
+            {"id": "organize", "options": {
+              "indexByName": {"bucket": 0, "Value #A": 1, "Value #E": 2, "Value #B": 3, "Value #C": 4, "Value #D": 5},
+              "renameByName": {"Value #A": "size", "Value #E": "share", "Value #B": "objects", "Value #C": "written 24h", "Value #D": "read 24h"}
+            }}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Requests",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 11},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "min": 0,
+              "custom": {"drawStyle": "line", "lineWidth": 1, "fillOpacity": 30, "stacking": {"mode": "normal", "group": "A"}, "showPoints": "never"}
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "targets": [
+            {"expr": "sum by (type) (rate(SeaweedFS_s3_request_total[$__rate_interval]))", "refId": "A", "legendFormat": "{{type}}", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Throughput",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 11},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "Bps",
+              "min": 0,
+              "custom": {"drawStyle": "line", "lineWidth": 2, "fillOpacity": 10, "showPoints": "never"}
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "targets": [
+            {"expr": "sum(rate(SeaweedFS_s3_bucket_traffic_received_bytes_total[$__rate_interval]))", "refId": "A", "legendFormat": "written", "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "sum(rate(SeaweedFS_s3_bucket_traffic_sent_bytes_total[$__rate_interval]))", "refId": "B", "legendFormat": "read", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "row",
+          "title": "Internals",
+          "collapsed": true,
+          "gridPos": {"h": 1, "w": 24, "x": 0, "y": 19},
+          "panels": [
+            {
+              "type": "timeseries",
+              "title": "S3 latency p95",
+              "datasource": {"type": "prometheus", "uid": "prometheus"},
+              "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "s",
+                  "min": 0,
+                  "custom": {"drawStyle": "line", "lineWidth": 2, "fillOpacity": 0, "showPoints": "never"}
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+                "tooltip": {"mode": "multi", "sort": "desc"}
+              },
+              "targets": [
+                {"expr": "histogram_quantile(0.95, sum by (le, type) (rate(SeaweedFS_s3_request_seconds_bucket[$__rate_interval])))", "refId": "A", "legendFormat": "{{type}}", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+              ]
+            },
+            {
+              "type": "timeseries",
+              "title": "S3 errors by code",
+              "description": "By status code; 404s from existence checks are normal",
+              "datasource": {"type": "prometheus", "uid": "prometheus"},
+              "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "reqps",
+                  "min": 0,
+                  "custom": {"drawStyle": "line", "lineWidth": 2, "fillOpacity": 0, "showPoints": "never"}
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+                "tooltip": {"mode": "multi", "sort": "desc"}
+              },
+              "targets": [
+                {"expr": "sum by (code) (rate(SeaweedFS_s3_request_total{code=~\"[45]..\"}[$__rate_interval]))", "refId": "A", "legendFormat": "{{code}}", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+              ]
+            },
+            {
+              "type": "timeseries",
+              "title": "Volume data",
+              "description": "live = stored data; deleted = space vacuum has yet to reclaim",
+              "datasource": {"type": "prometheus", "uid": "prometheus"},
+              "gridPos": {"h": 8, "w": 12, "x": 0, "y": 28},
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "bytes",
+                  "min": 0,
+                  "custom": {"drawStyle": "line", "lineWidth": 1, "fillOpacity": 30, "stacking": {"mode": "normal", "group": "A"}, "showPoints": "never"}
+                },
+                "overrides": [
+                  {"matcher": {"id": "byName", "options": "live"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#c3c2b7"}}]},
+                  {"matcher": {"id": "byName", "options": "deleted"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#8a8984"}}]}
+                ]
+              },
+              "options": {
+                "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+                "tooltip": {"mode": "multi", "sort": "none"}
+              },
+              "targets": [
+                {"expr": "sum(SeaweedFS_volumeServer_total_disk_size{type=\"normal\"}) - sum(SeaweedFS_volumeServer_total_disk_size{type=\"deleted_bytes\"})", "refId": "A", "legendFormat": "live", "datasource": {"type": "prometheus", "uid": "prometheus"}},
+                {"expr": "sum(SeaweedFS_volumeServer_total_disk_size{type=\"deleted_bytes\"})", "refId": "B", "legendFormat": "deleted", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+              ]
+            },
+            {
+              "type": "timeseries",
+              "title": "Volumes",
+              "description": "read-only above 0 = volumes refusing writes, usually low disk space as the s3 quota fills",
+              "datasource": {"type": "prometheus", "uid": "prometheus"},
+              "gridPos": {"h": 8, "w": 12, "x": 12, "y": 28},
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "min": 0,
+                  "decimals": 0,
+                  "custom": {"drawStyle": "line", "lineInterpolation": "stepAfter", "lineWidth": 2, "fillOpacity": 0, "showPoints": "never"}
+                },
+                "overrides": []
+              },
+              "options": {
+                "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+                "tooltip": {"mode": "multi", "sort": "desc"}
+              },
+              "targets": [
+                {"expr": "sum(SeaweedFS_volumeServer_volumes{type=\"volume\"})", "refId": "A", "legendFormat": "volumes", "datasource": {"type": "prometheus", "uid": "prometheus"}},
+                {"expr": "sum(SeaweedFS_volumeServer_read_only_volumes{type=\"IsReadOnly\"})", "refId": "B", "legendFormat": "read-only", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+              ]
+            }
+          ]
+        }
+      ],
+      "refresh": "1m",
+      "schemaVersion": 39,
+      "tags": ["seaweedfs", "s3", "m1"],
+      "templating": {"list": []},
+      "time": {"from": "now-24h", "to": "now"},
+      "timezone": "browser",
+      "title": "m1 SeaweedFS",
+      "uid": "m1-seaweedfs",
+      "version": 1
+    }

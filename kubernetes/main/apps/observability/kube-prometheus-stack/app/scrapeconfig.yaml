@@ -11,5 +11,6 @@ spec:
         - "${M1_HOST}:9100"
         - "${M1_HOST}:9134"
         - "${M1_HOST}:9633"
+        - "${M1_HOST}:9327"
       labels:
         host: m1
