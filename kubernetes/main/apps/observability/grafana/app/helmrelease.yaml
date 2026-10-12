@@ -272,12 +272,6 @@ spec:
           revision: 3
           datasource:
             - { name: DS_PROMETHEUS, value: Prometheus }
-        zfs-pools:
-          # renovate: depName="ZFS-pdf-exporter"
-          gnetId: 12586
-          revision: 1
-          datasource:
-            - { name: DS_PROMETHEUS, value: Prometheus }
     sidecar:
       dashboards:
         enabled: true

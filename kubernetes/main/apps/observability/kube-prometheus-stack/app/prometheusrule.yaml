@@ -45,25 +45,32 @@ spec:
             severity: warning
         - alert: ZfsPoolFilling
           annotations:
-            summary: ZFS pool {{ $labels.name }} on {{ $labels.host }} has {{ $value | humanizePercentage }} free — past the 80% full slowdown point
-          expr: zfs_dataset_available_bytes{name=~"[^/]+"} / (zfs_dataset_used_bytes{name=~"[^/]+"} + zfs_dataset_available_bytes{name=~"[^/]+"}) < 0.2
+            summary: ZFS pool {{ $labels.pool }} on {{ $labels.host }} is down to {{ $value | humanizePercentage }} free on disk — ZFS slows down past 80% full
+          expr: zfs_pool_free_bytes / zfs_pool_size_bytes < 0.2 >= 0.1
           for: 1h
           labels:
             severity: warning
         - alert: ZfsPoolFull
           annotations:
-            summary: ZFS pool {{ $labels.name }} on {{ $labels.host }} has {{ $value | humanizePercentage }} free
-          expr: zfs_dataset_available_bytes{name=~"[^/]+"} / (zfs_dataset_used_bytes{name=~"[^/]+"} + zfs_dataset_available_bytes{name=~"[^/]+"}) < 0.1
+            summary: ZFS pool {{ $labels.pool }} on {{ $labels.host }} is down to {{ $value | humanizePercentage }} free on disk — writes fail when it fills
+          expr: zfs_pool_free_bytes / zfs_pool_size_bytes < 0.1
           for: 15m
           labels:
             severity: critical
         - alert: ZfsQuotaFilling
           annotations:
-            summary: ZFS dataset {{ $labels.name }} on {{ $labels.host }} is at {{ $value | humanizePercentage }} of its quota
-          expr: ((zfs_dataset_used_bytes / (zfs_dataset_quota_bytes > 0)) or (zfs_dataset_referenced_bytes / (zfs_dataset_referenced_quota_bytes > 0))) > 0.9
+            summary: ZFS dataset {{ $labels.name }} on {{ $labels.host }} is at {{ $value | humanizePercentage }} of its quota — raise it in storage.nix or prune
+          expr: ((zfs_dataset_used_bytes / (zfs_dataset_quota_bytes > 0)) or (zfs_dataset_referenced_bytes / (zfs_dataset_referenced_quota_bytes > 0))) > 0.9 <= 0.98
           for: 1h
           labels:
             severity: warning
+        - alert: ZfsQuotaFull
+          annotations:
+            summary: ZFS dataset {{ $labels.name }} on {{ $labels.host }} is at {{ $value | humanizePercentage }} of its quota — writes to it fail when it fills
+          expr: ((zfs_dataset_used_bytes / (zfs_dataset_quota_bytes > 0)) or (zfs_dataset_referenced_bytes / (zfs_dataset_referenced_quota_bytes > 0))) > 0.98
+          for: 15m
+          labels:
+            severity: critical
     - name: dockerhub
       rules:
         - alert: BootstrapRateLimitRisk
