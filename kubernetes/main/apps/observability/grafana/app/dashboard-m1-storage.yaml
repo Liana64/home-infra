@@ -16,43 +16,31 @@ data:
       "graphTooltip": 1,
       "panels": [
         {
-          "type": "barchart",
+          "type": "bargauge",
           "title": "Pools",
-          "description": "Used and free per pool; rpool sits high by design, its VM disks are reserved up front",
+          "description": "Share of each pool in use; rpool sits high by design, its VM disks are reserved up front",
           "datasource": {"type": "prometheus", "uid": "prometheus"},
           "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
           "fieldConfig": {
             "defaults": {
-              "unit": "bytes",
-              "custom": {"fillOpacity": 90, "lineWidth": 0, "gradientMode": "none", "axisPlacement": "hidden"}
+              "unit": "percentunit",
+              "decimals": 1,
+              "min": 0,
+              "max": 1,
+              "color": {"mode": "fixed", "fixedColor": "#c3c2b7"}
             },
-            "overrides": [
-              {"matcher": {"id": "byName", "options": "pool"}, "properties": [{"id": "custom.axisPlacement", "value": "auto"}]},
-              {"matcher": {"id": "byName", "options": "used"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#c3c2b7"}}]},
-              {"matcher": {"id": "byName", "options": "free"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "rgba(128, 128, 128, 0.25)"}}]}
-            ]
+            "overrides": []
           },
           "options": {
             "orientation": "horizontal",
-            "stacking": "percent",
-            "showValue": "auto",
-            "xField": "pool",
-            "barWidth": 0.8,
-            "legend": {"showLegend": false},
-            "tooltip": {"mode": "multi", "sort": "none"}
+            "displayMode": "basic",
+            "showUnfilled": true,
+            "valueMode": "text",
+            "namePlacement": "left",
+            "reduceOptions": {"calcs": ["lastNotNull"]}
           },
           "targets": [
-            {"expr": "sum by (name) (zfs_dataset_used_bytes{host=\"m1\",name=~\"tank|rpool\"})", "format": "table", "instant": true, "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}},
-            {"expr": "sum by (name) (zfs_dataset_available_bytes{host=\"m1\",name=~\"tank|rpool\"})", "format": "table", "instant": true, "refId": "B", "datasource": {"type": "prometheus", "uid": "prometheus"}}
-          ],
-          "transformations": [
-            {"id": "merge", "options": {}},
-            {"id": "organize", "options": {
-              "excludeByName": {"Time": true},
-              "indexByName": {"name": 0, "Value #A": 1, "Value #B": 2},
-              "renameByName": {"name": "pool", "Value #A": "used", "Value #B": "free"}
-            }},
-            {"id": "sortBy", "options": {"sort": [{"field": "pool", "desc": true}]}}
+            {"expr": "zfs_dataset_used_bytes{host=\"m1\",name=~\"tank|rpool\"} / (zfs_dataset_used_bytes{host=\"m1\",name=~\"tank|rpool\"} + zfs_dataset_available_bytes{host=\"m1\",name=~\"tank|rpool\"})", "legendFormat": "{{name}}", "instant": true, "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
           ]
         },
         {
@@ -60,7 +48,7 @@ data:
           "title": "Data pool (tank)",
           "description": "Used space per purpose, snapshots included; other = data outside the purpose datasets",
           "datasource": {"type": "prometheus", "uid": "prometheus"},
-          "gridPos": {"h": 7, "w": 24, "x": 0, "y": 4},
+          "gridPos": {"h": 7, "w": 24, "x": 0, "y": 12},
           "fieldConfig": {
             "defaults": {
               "unit": "bytes",
@@ -99,7 +87,7 @@ data:
           "title": "System pool (rpool)",
           "description": "Used space per purpose; system = root, nix, var, home; vms = Talos disks, reserved at full size up front; reserved = slack so the pool never fills",
           "datasource": {"type": "prometheus", "uid": "prometheus"},
-          "gridPos": {"h": 5, "w": 24, "x": 0, "y": 11},
+          "gridPos": {"h": 5, "w": 24, "x": 0, "y": 19},
           "fieldConfig": {
             "defaults": {
               "unit": "bytes",
@@ -135,7 +123,7 @@ data:
           "title": "Quotas",
           "description": "Live data, snapshots and room left per quota; room left shrinks early if the pool fills first; the s3 quota ignores snapshots, so its bar is quota + snapshots",
           "datasource": {"type": "prometheus", "uid": "prometheus"},
-          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 4},
           "fieldConfig": {
             "defaults": {
               "unit": "bytes",
