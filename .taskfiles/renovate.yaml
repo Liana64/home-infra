@@ -3,7 +3,7 @@
 version: "3"
 
 vars:
-  KUBECTL_CMD: "kubectl --context {{.CLUSTER_NAME}} -n renovate"
+  KUBECTL_CMD: "kubectl -n renovate"
 
 tasks:
   run:

@@ -3,18 +3,9 @@
 version: "3"
 
 tasks:
-  apply:
-    desc: Apply a tofu project, e.g. `task tofu:apply project=talos`
-    cmd: tofu -chdir={{.ROOT_DIR}}/tofu/projects/{{.project}} apply
-    requires:
-      vars: ["project"]
-    preconditions:
-      - msg: Missing tofu project directory
-        sh: test -d {{.ROOT_DIR}}/tofu/projects/{{.project}}
-
-  plan:
-    desc: Plan a tofu project, e.g. `task tofu:plan project=talos`
-    cmd: tofu -chdir={{.ROOT_DIR}}/tofu/projects/{{.project}} plan
+  run:
+    desc: Run tofu in a project, e.g. `task tofu:run project=talos -- plan`
+    cmd: tofu -chdir={{.ROOT_DIR}}/tofu/projects/{{.project}} {{.CLI_ARGS}}
     requires:
       vars: ["project"]
     preconditions:
@@ -23,7 +14,7 @@ tasks:
 
   fmt:
     desc: Format all tofu files
-    cmd: tofu fmt -recursive {{.ROOT_DIR}}/tofu
+    cmd: tofu fmt -recursive {{if .check}}-check{{end}} {{.ROOT_DIR}}/tofu
 
   nuke-talos:
     desc: Destroy the talos tofu project

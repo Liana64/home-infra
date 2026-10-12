@@ -5,6 +5,7 @@ version: "3"
 tasks:
   setup:
     desc: Setup age key for sops
+    prompt: "This will generate a new age key instead of restoring the existing one... continue?"
     cmds:
       - age-keygen -o age.agekey
       - mkdir -p {{.AGE_DIR}}

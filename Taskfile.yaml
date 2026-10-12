@@ -6,7 +6,7 @@ vars:
   KUBECONFIG_FILE: "{{.ROOT_DIR}}/kubeconfig"
   SCRIPTS_DIR: "{{.ROOT_DIR}}/scripts"
   SOPS_CONFIG_FILE: "{{.ROOT_DIR}}/.sops.yaml"
-  AGE_DIR: "/home/liana/.config/sops/age"
+  AGE_DIR: "{{.HOME}}/.config/sops/age"
   AGE_FILE: "{{.AGE_DIR}}/milberry.key"
   CLUSTER: "main"
   CLUSTER_NAME: "milberry"
@@ -31,15 +31,9 @@ includes:
     aliases: [t]
   tofu:
     taskfile: .taskfiles/tofu.yaml
-  ansible:
-    taskfile: .taskfiles/ansible.yaml
-    aliases: [a]
   backup:
     taskfile: .taskfiles/backup.yaml
     aliases: [b]
-  # n8n:
-  #   taskfile: .taskfiles/n8n.yaml
-  #   aliases: [n]
   template:
     taskfile: .taskfiles/template.yaml
     aliases: [tpl]
@@ -61,8 +55,10 @@ tasks:
       - task: sops:setup
 
   check:
-    desc: Validate the repo (pre-commit, kubeconform, tofu fmt)
+    desc: Validate the repo (pre-commit, kubeconform, sops, tofu fmt)
     cmds:
-      - pre-commit run --all-files
+      - task: precommit:run
       - task: kubernetes:kubeconform
-      - tofu fmt -check -recursive {{.ROOT_DIR}}/tofu
+      - task: sops:check
+      - task: tofu:fmt
+        vars: { check: true }

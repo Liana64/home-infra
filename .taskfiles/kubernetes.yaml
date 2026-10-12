@@ -4,14 +4,13 @@ version: "3"
 
 vars:
   KUBECONFORM_SCRIPT: "{{.SCRIPTS_DIR}}/kubeconform.sh"
-  KUBECTL_CMD: "kubectl --context {{.CLUSTER_NAME}}"
 
 tasks:
   resources:
     desc: Gather common resources in your cluster, useful when asking for support
     cmds:
       - for: { var: resource }
-        cmd: '{{.KUBECTL_CMD}} get {{.ITEM}} {{.CLI_ARGS | default "-A"}}'
+        cmd: 'kubectl get {{.ITEM}} {{.CLI_ARGS | default "-A"}}'
     vars:
       resource: >-
         nodes
@@ -34,8 +33,8 @@ tasks:
   top:
     desc: List top metrics
     cmds:
-      - "{{.KUBECTL_CMD}} top node"
-      - "{{.KUBECTL_CMD}} top pod -A"
+      - "kubectl top node"
+      - "kubectl top pod -A"
 
   browse-pvc:
     desc: Browse PersistentVolumeClaims
@@ -44,7 +43,7 @@ tasks:
         ns: Namespace to browse PersistentVolumeClaims in (default: default)
         claim: PersistentVolumeClaim to browse (required)
     interactive: true
-    cmd: "{{.KUBECTL_CMD}} browse-pvc --namespace {{.ns}} {{.claim}}"
+    cmd: "kubectl browse-pvc --namespace {{.ns}} {{.claim}}"
     vars:
       ns: '{{.ns | default "default"}}'
     requires:
@@ -55,7 +54,7 @@ tasks:
     summary: |
       Args:
         node: Node to drain (required)
-    cmd: "{{.KUBECTL_CMD}} drain {{.node}} --ignore-daemonsets --delete-emptydir-data --force"
+    cmd: "kubectl drain {{.node}} --ignore-daemonsets --delete-emptydir-data --force"
     requires:
       vars: ["node"]
 
@@ -65,7 +64,7 @@ tasks:
       Args:
         ns: Namespace the ExternalSecret exists in (default: default)
         name: ExternalSecret to sync (required)
-    cmd: "{{.KUBECTL_CMD}} -n {{.ns}} annotate externalsecret {{.name}} force-sync=$(date +%s) --overwrite"
+    cmd: "kubectl -n {{.ns}} annotate externalsecret {{.name}} force-sync=$(date +%s) --overwrite"
     vars:
       ns: '{{.ns | default "default"}}'
     requires:
@@ -75,4 +74,4 @@ tasks:
     desc: Delete pods that aren't working as intended
     cmds:
       - for: ["Evicted", "Failed", "Succeeded"]
-        cmd: "{{.KUBECTL_CMD}} delete pods --field-selector status.phase={{.ITEM}} -A --ignore-not-found=true"
+        cmd: "kubectl delete pods --field-selector status.phase={{.ITEM}} -A --ignore-not-found=true"
