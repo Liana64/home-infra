@@ -16,35 +16,51 @@ data:
       "graphTooltip": 1,
       "panels": [
         {
-          "type": "stat",
-          "title": "Free",
-          "description": "Space left to write, green above 20%; rpool sits low by design, its VM disks are reserved up front",
+          "type": "barchart",
+          "title": "Pools",
+          "description": "Used and free per pool; rpool sits high by design, its VM disks are reserved up front",
           "datasource": {"type": "prometheus", "uid": "prometheus"},
           "gridPos": {"h": 4, "w": 24, "x": 0, "y": 0},
           "fieldConfig": {
             "defaults": {
-              "unit": "percentunit",
-              "decimals": 1,
-              "color": {"mode": "thresholds"},
-              "thresholds": {"mode": "absolute", "steps": [
-                {"color": "red", "value": null},
-                {"color": "orange", "value": 0.1},
-                {"color": "green", "value": 0.2}
-              ]}
+              "unit": "bytes",
+              "custom": {"fillOpacity": 90, "lineWidth": 0, "gradientMode": "none", "axisPlacement": "hidden"}
             },
-            "overrides": []
+            "overrides": [
+              {"matcher": {"id": "byName", "options": "pool"}, "properties": [{"id": "custom.axisPlacement", "value": "auto"}]},
+              {"matcher": {"id": "byName", "options": "used"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#c3c2b7"}}]},
+              {"matcher": {"id": "byName", "options": "free"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "rgba(128, 128, 128, 0.25)"}}]}
+            ]
           },
-          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area", "textMode": "value_and_name"},
+          "options": {
+            "orientation": "horizontal",
+            "stacking": "percent",
+            "showValue": "auto",
+            "xField": "pool",
+            "barWidth": 0.8,
+            "legend": {"showLegend": false},
+            "tooltip": {"mode": "multi", "sort": "none"}
+          },
           "targets": [
-            {"expr": "zfs_dataset_available_bytes{host=\"m1\",name=~\"tank|rpool\"} / (zfs_dataset_used_bytes{host=\"m1\",name=~\"tank|rpool\"} + zfs_dataset_available_bytes{host=\"m1\",name=~\"tank|rpool\"})", "legendFormat": "{{name}}", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+            {"expr": "sum by (name) (zfs_dataset_used_bytes{host=\"m1\",name=~\"tank|rpool\"})", "format": "table", "instant": true, "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "sum by (name) (zfs_dataset_available_bytes{host=\"m1\",name=~\"tank|rpool\"})", "format": "table", "instant": true, "refId": "B", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ],
+          "transformations": [
+            {"id": "merge", "options": {}},
+            {"id": "organize", "options": {
+              "excludeByName": {"Time": true},
+              "indexByName": {"name": 0, "Value #A": 1, "Value #B": 2},
+              "renameByName": {"name": "pool", "Value #A": "used", "Value #B": "free"}
+            }},
+            {"id": "sortBy", "options": {"sort": [{"field": "pool", "desc": true}]}}
           ]
         },
         {
           "type": "barchart",
           "title": "Data pool (tank)",
-          "description": "Space per purpose, snapshots included; other = data outside the purpose datasets",
+          "description": "Used space per purpose, snapshots included; other = data outside the purpose datasets",
           "datasource": {"type": "prometheus", "uid": "prometheus"},
-          "gridPos": {"h": 5, "w": 24, "x": 0, "y": 4},
+          "gridPos": {"h": 7, "w": 24, "x": 0, "y": 4},
           "fieldConfig": {
             "defaults": {
               "unit": "bytes",
@@ -59,32 +75,31 @@ data:
               {"matcher": {"id": "byName", "options": "s3"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#d55181"}}]},
               {"matcher": {"id": "byName", "options": "nix-cache"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#008300"}}]},
               {"matcher": {"id": "byName", "options": "backups"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#9085e9"}}]},
-              {"matcher": {"id": "byName", "options": "other"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#8a8984"}}]},
-              {"matcher": {"id": "byName", "options": "free"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "rgba(128, 128, 128, 0.25)"}}]}
+              {"matcher": {"id": "byName", "options": "other"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#8a8984"}}]}
             ]
           },
           "options": {
             "orientation": "horizontal",
             "stacking": "percent",
-            "showValue": "auto",
+            "showValue": "never",
             "barWidth": 0.9,
-            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "legend": {"displayMode": "table", "placement": "right", "calcs": ["lastNotNull"], "showLegend": true},
             "tooltip": {"mode": "multi", "sort": "none"}
           },
           "targets": [
-            {"expr": "sum by (pool, purpose) (label_replace(zfs_dataset_used_bytes{host=\"m1\",pool=\"tank\",name=~\"$purposes\"}, \"purpose\", \"$1\", \"name\", \"$purpose_re\")) or label_replace(sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",name=\"tank\"}) - sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",pool=\"tank\",name=~\"$purposes\"}), \"purpose\", \"other\", \"\", \"\") or label_replace(sum by (pool) (zfs_dataset_available_bytes{host=\"m1\",name=\"tank\"}), \"purpose\", \"free\", \"\", \"\")", "format": "table", "instant": true, "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+            {"expr": "sum by (pool, purpose) (label_replace(zfs_dataset_used_bytes{host=\"m1\",pool=\"tank\",name=~\"$purposes\"}, \"purpose\", \"$1\", \"name\", \"$purpose_re\")) or label_replace(sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",name=\"tank\"}) - sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",pool=\"tank\",name=~\"$purposes\"}), \"purpose\", \"other\", \"\", \"\")", "format": "table", "instant": true, "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
           ],
           "transformations": [
             {"id": "groupingToMatrix", "options": {"columnField": "purpose", "rowField": "pool", "valueField": "Value"}},
-            {"id": "organize", "options": {"indexByName": {"pool\\purpose": 0, "users": 1, "media": 2, "photos": 3, "uploads": 4, "s3": 5, "nix-cache": 6, "backups": 7, "other": 8, "free": 9}}}
+            {"id": "organize", "options": {"indexByName": {"pool\\purpose": 0, "users": 1, "media": 2, "photos": 3, "uploads": 4, "s3": 5, "nix-cache": 6, "backups": 7, "other": 8}}}
           ]
         },
         {
           "type": "barchart",
           "title": "System pool (rpool)",
-          "description": "system = root, nix, var, home; vms = Talos disks, reserved at full size up front; reserved = slack so the pool never fills",
+          "description": "Used space per purpose; system = root, nix, var, home; vms = Talos disks, reserved at full size up front; reserved = slack so the pool never fills",
           "datasource": {"type": "prometheus", "uid": "prometheus"},
-          "gridPos": {"h": 4, "w": 24, "x": 0, "y": 9},
+          "gridPos": {"h": 5, "w": 24, "x": 0, "y": 11},
           "fieldConfig": {
             "defaults": {
               "unit": "bytes",
@@ -96,24 +111,23 @@ data:
               {"matcher": {"id": "byName", "options": "vms"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#9085e9"}}]},
               {"matcher": {"id": "byName", "options": "seaweedfs"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#d55181"}}]},
               {"matcher": {"id": "byName", "options": "reserved"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#8a8984"}}]},
-              {"matcher": {"id": "byName", "options": "other"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#c3c2b7"}}]},
-              {"matcher": {"id": "byName", "options": "free"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "rgba(128, 128, 128, 0.25)"}}]}
+              {"matcher": {"id": "byName", "options": "other"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "#c3c2b7"}}]}
             ]
           },
           "options": {
             "orientation": "horizontal",
             "stacking": "percent",
-            "showValue": "auto",
+            "showValue": "never",
             "barWidth": 0.9,
-            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "legend": {"displayMode": "table", "placement": "right", "calcs": ["lastNotNull"], "showLegend": true},
             "tooltip": {"mode": "multi", "sort": "none"}
           },
           "targets": [
-            {"expr": "sum by (pool, purpose) (label_replace(label_replace(zfs_dataset_used_bytes{host=\"m1\",pool=\"rpool\",name=~\"$purposes\"}, \"purpose\", \"$1\", \"name\", \"$purpose_re\"), \"purpose\", \"system\", \"purpose\", \"root|nix|var|home\")) or label_replace(sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",name=\"rpool\"}) - sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",pool=\"rpool\",name=~\"$purposes\"}), \"purpose\", \"other\", \"\", \"\") or label_replace(sum by (pool) (zfs_dataset_available_bytes{host=\"m1\",name=\"rpool\"}), \"purpose\", \"free\", \"\", \"\")", "format": "table", "instant": true, "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+            {"expr": "sum by (pool, purpose) (label_replace(label_replace(zfs_dataset_used_bytes{host=\"m1\",pool=\"rpool\",name=~\"$purposes\"}, \"purpose\", \"$1\", \"name\", \"$purpose_re\"), \"purpose\", \"system\", \"purpose\", \"root|nix|var|home\")) or label_replace(sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",name=\"rpool\"}) - sum by (pool) (zfs_dataset_used_bytes{host=\"m1\",pool=\"rpool\",name=~\"$purposes\"}), \"purpose\", \"other\", \"\", \"\")", "format": "table", "instant": true, "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
           ],
           "transformations": [
             {"id": "groupingToMatrix", "options": {"columnField": "purpose", "rowField": "pool", "valueField": "Value"}},
-            {"id": "organize", "options": {"indexByName": {"pool\\purpose": 0, "system": 1, "vms": 2, "seaweedfs": 3, "reserved": 4, "other": 5, "free": 6}}}
+            {"id": "organize", "options": {"indexByName": {"pool\\purpose": 0, "system": 1, "vms": 2, "seaweedfs": 3, "reserved": 4, "other": 5}}}
           ]
         },
         {
@@ -121,7 +135,7 @@ data:
           "title": "Quotas",
           "description": "Live data, snapshots and room left per quota; room left shrinks early if the pool fills first; the s3 quota ignores snapshots, so its bar is quota + snapshots",
           "datasource": {"type": "prometheus", "uid": "prometheus"},
-          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 13},
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16},
           "fieldConfig": {
             "defaults": {
               "unit": "bytes",
@@ -164,13 +178,13 @@ data:
           "type": "row",
           "title": "Growth",
           "collapsed": true,
-          "gridPos": {"h": 1, "w": 24, "x": 0, "y": 21},
+          "gridPos": {"h": 1, "w": 24, "x": 0, "y": 24},
           "panels": [
             {
               "type": "timeseries",
               "title": "tank over time",
               "datasource": {"type": "prometheus", "uid": "prometheus"},
-              "gridPos": {"h": 8, "w": 24, "x": 0, "y": 22},
+              "gridPos": {"h": 8, "w": 24, "x": 0, "y": 25},
               "fieldConfig": {
                 "defaults": {
                   "unit": "bytes",
