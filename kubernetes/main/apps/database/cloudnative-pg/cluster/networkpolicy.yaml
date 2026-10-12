@@ -26,9 +26,6 @@ spec:
             io.kubernetes.pod.namespace: home
             app.kubernetes.io/name: miniflux
         - matchLabels:
-            io.kubernetes.pod.namespace: home
-            app.kubernetes.io/name: n8n
-        - matchLabels:
             io.kubernetes.pod.namespace: labs
             app.kubernetes.io/name: atuin
         - matchLabels:

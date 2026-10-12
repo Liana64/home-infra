@@ -13,7 +13,6 @@ resources:
   - ./meet-database.yaml
   - ./memos-database.yaml
   - ./miniflux-database.yaml
-  - ./n8n-database.yaml
   - ./networkpolicy.yaml
   - ./objectstore.yaml
   - ./pinepods-database.yaml
