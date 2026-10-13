@@ -11,14 +11,6 @@ resources:
   # - ./configmap.yaml
   - ./helmrelease.yaml
 patches:
-  - target:
-      group: volsync.backube
-      version: v1alpha1
-      kind: ReplicationSource
-    patch: |
-      - op: replace
-        path: /spec/sourcePVC
-        value: __APP__-data
   - patch: |
       $patch: delete
       apiVersion: volsync.backube/v1alpha1
