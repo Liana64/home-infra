@@ -121,7 +121,7 @@ spec:
         containers:
           app:
             image: *backendImage
-            command: ["celery", "-A", "impress.celery_app", "worker", "-l", "INFO"]
+            command: ["celery", "-A", "impress.celery_app", "worker", "-l", "INFO", "--concurrency", "2"]
             env: *backendEnv
             envFrom: *backendEnvFrom
             securityContext: *securityContext
