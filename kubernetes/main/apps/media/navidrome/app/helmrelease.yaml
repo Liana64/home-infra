@@ -1,0 +1,120 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app navidrome
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      navidrome:
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        defaultContainerOptions:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+        containers:
+          app:
+            # renovate: datasource=docker depName=ghcr.io/navidrome/navidrome
+            image:
+              repository: ghcr.io/navidrome/navidrome
+              tag: 0.64.2@sha256:38dc2727bfcfd5ede290f8ada114fc90368146f265ae4701ddddbcbe2a44ee52
+            env:
+              TZ: "${TIMEZONE}"
+              ND_PORT: "4533"
+              ND_MUSICFOLDER: /music
+              ND_DATAFOLDER: /data
+              ND_CACHEFOLDER: /cache
+              ND_SCANNER_SCHEDULE: "@every 1h"
+              ND_LOGLEVEL: info
+            envFrom:
+              - secretRef:
+                  name: navidrome-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: &port 4533
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+              limits:
+                memory: 1Gi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        # 2000 = m1 media share gid
+        supplementalGroups: [2000]
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: navidrome
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        className: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Media
+          gethomepage.dev/name: Navidrome
+          gethomepage.dev/description: Music server
+          gethomepage.dev/icon: navidrome
+        hosts:
+          - host: &host "navidrome.${ORG_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: navidrome-tls
+            hosts: [*host]
+    persistence:
+      data:
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        retain: true
+        globalMounts:
+          - path: /data
+      music:
+        existingClaim: media
+        globalMounts:
+          - path: /music
+            subPath: Music
+            readOnly: true
+      cache:
+        type: emptyDir
+        globalMounts:
+          - path: /cache
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

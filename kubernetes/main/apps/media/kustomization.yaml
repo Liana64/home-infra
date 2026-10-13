@@ -19,3 +19,5 @@ resources:
   - ./sonarr/ks.yaml
   #- ./filebrowser/ks.yaml
   - ./qui/ks.yaml
+  - ./feishin/ks.yaml
+  - ./navidrome/ks.yaml

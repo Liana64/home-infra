@@ -1,0 +1,101 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app feishin
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      feishin:
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        defaultContainerOptions:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+        containers:
+          app:
+            # renovate: datasource=docker depName=ghcr.io/jeffvli/feishin
+            image:
+              repository: ghcr.io/jeffvli/feishin
+              tag: 1.17.0@sha256:6c75a4d3b99065ac245e2eb2b693fde3e5f2a6fe41c9e255da4fcb8948071965
+            env:
+              TZ: "${TIMEZONE}"
+              SERVER_NAME: Navidrome
+              SERVER_TYPE: navidrome
+              SERVER_URL: "https://navidrome.${ORG_DOMAIN}"
+              SERVER_LOCK: "true"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /settings.js
+                    port: &port 9180
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        # nginx user baked into the image
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: feishin
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        className: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Media
+          gethomepage.dev/name: Feishin
+          gethomepage.dev/description: Music player
+          gethomepage.dev/icon: feishin
+        hosts:
+          - host: &host "feishin.${ORG_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: feishin-tls
+            hosts: [*host]
+    persistence:
+      conf:
+        type: emptyDir
+        globalMounts:
+          - path: /etc/nginx/conf.d
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
