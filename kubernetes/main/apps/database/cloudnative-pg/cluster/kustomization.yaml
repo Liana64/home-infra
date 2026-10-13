@@ -21,3 +21,5 @@ resources:
   - ./prometheusrule.yaml
   - ./scheduledbackup.yaml
   - ./service.yaml
+  - ./docs-database.yaml
+  - ./docs-yhub-database.yaml

@@ -1,0 +1,36 @@
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: postgres-role-docs-yhub
+spec:
+  refreshPolicy: OnChange
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: bitwarden-secrets-manager
+  target:
+    name: postgres-role-docs-yhub
+    template:
+      engineVersion: v2
+      type: kubernetes.io/basic-auth
+      metadata:
+        labels:
+          cnpg.io/reload: "true"
+      data:
+        username: docs_yhub
+        password: "{{ .password }}"
+  data:
+    - secretKey: password
+      remoteRef:
+        key: "1cdc2b25-1e0c-4f7d-8789-b4e101744980"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: docs-yhub
+spec:
+  name: docs_yhub
+  owner: docs_yhub
+  cluster:
+    name: postgres-1
+  ensure: present

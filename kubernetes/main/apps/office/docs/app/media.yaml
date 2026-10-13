@@ -1,0 +1,55 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docs-media
+  annotations:
+    traefik.ingress.kubernetes.io/service.passhostheader: "false"
+spec:
+  type: ExternalName
+  externalName: s3.database.svc.cluster.local
+  ports:
+    - name: s3
+      port: 8333
+      protocol: TCP
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: docs-media-auth
+spec:
+  forwardAuth:
+    address: http://docs-backend.office.svc.cluster.local:8000/api/v1.0/documents/media-auth/
+    authResponseHeaders:
+      - Authorization
+      - X-Amz-Date
+      - X-Amz-Content-SHA256
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: docs-media-path
+spec:
+  replacePathRegex:
+    regex: ^/media/(.*)
+    replacement: /docs/$1
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: docs-media-headers
+spec:
+  headers:
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    stsPreload: true
+    forceSTSHeader: true
+    contentTypeNosniff: true
+    referrerPolicy: "same-origin"
+    contentSecurityPolicy: "default-src 'none'"
+    customRequestHeaders:
+      Cookie: ""
+    customResponseHeaders:
+      Cross-Origin-Resource-Policy: same-origin
+      X-Robots-Tag: "noindex,nofollow,noarchive,nosnippet,notranslate,noimageindex"
+      server: ""

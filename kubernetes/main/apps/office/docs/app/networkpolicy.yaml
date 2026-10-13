@@ -1,0 +1,231 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: docs-backend
+  namespace: office
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: docs
+    matchExpressions:
+      - key: app.kubernetes.io/controller
+        operator: In
+        values: ["backend", "celery"]
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-networking
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+            cnpg.io/cluster: postgres-1
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+            app: dragonfly
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
+        - matchLabels:
+            app.kubernetes.io/name: docs
+            app.kubernetes.io/controller: yhub
+        - matchLabels:
+            app.kubernetes.io/name: docs
+            app.kubernetes.io/controller: y-provider
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+            cnpg.io/cluster: postgres-1
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+            app: dragonfly
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: docs
+            app.kubernetes.io/controller: yhub
+      toPorts:
+        - ports:
+            - port: "3002"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: docs
+            app.kubernetes.io/controller: y-provider
+      toPorts:
+        - ports:
+            - port: "4444"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP
+    - toCIDR:
+        - ${M1_HOST}/32
+      toPorts:
+        - ports:
+            - port: "8333"
+              protocol: TCP
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: docs-frontend
+  namespace: office
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/controller: frontend
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-networking
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: docs-y-provider
+  namespace: office
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/controller: y-provider
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: docs
+          matchExpressions:
+            - key: app.kubernetes.io/controller
+              operator: In
+              values: ["backend", "celery"]
+      toPorts:
+        - ports:
+            - port: "4444"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: docs-yhub
+  namespace: office
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/controller: yhub
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-networking
+        - matchLabels:
+            app.kubernetes.io/name: docs
+          matchExpressions:
+            - key: app.kubernetes.io/controller
+              operator: In
+              values: ["backend", "celery"]
+      toPorts:
+        - ports:
+            - port: "3002"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+            cnpg.io/cluster: postgres-1
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
+        - matchLabels:
+            app.kubernetes.io/name: docs
+            app.kubernetes.io/controller: valkey
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: database
+            cnpg.io/cluster: postgres-1
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: docs
+            app.kubernetes.io/controller: valkey
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: docs-valkey
+  namespace: office
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: docs
+      app.kubernetes.io/controller: valkey
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: docs
+            app.kubernetes.io/controller: yhub
+      toPorts:
+        - ports:
+            - port: "6379"
+              protocol: TCP

@@ -1,0 +1,418 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app docs
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      backend:
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          migrate:
+            # renovate: datasource=docker depName=lasuite/impress-backend
+            image: &backendImage
+              repository: lasuite/impress-backend
+              tag: v6.0.0@sha256:c3d42cf3364df820dbd1116fc1804775c98f6fa09493d72aa5c96ea35c623987
+            command: ["python", "manage.py", "migrate", "--no-input"]
+            env: &backendEnv
+              TZ: "${TIMEZONE}"
+              DJANGO_CONFIGURATION: Production
+              DJANGO_SETTINGS_MODULE: impress.settings
+              DJANGO_ALLOWED_HOSTS: "docs.${ORG_DOMAIN},docs-backend.office.svc.cluster.local"
+              DJANGO_CSRF_TRUSTED_ORIGINS: &url "https://docs.${ORG_DOMAIN}"
+              DB_HOST: postgres-1-rw.database.svc.cluster.local
+              DB_PORT: "5432"
+              DB_NAME: docs
+              DRAGONFLY_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: dragonfly-secret
+                    key: password
+              REDIS_URL: &redis redis://:$(DRAGONFLY_PASSWORD)@dragonfly.database.svc.cluster.local:6379/4
+              DJANGO_CELERY_BROKER_URL:
+                value: *redis
+                dependsOn: DRAGONFLY_PASSWORD
+              AWS_S3_ENDPOINT_URL: http://s3.database.svc.cluster.local:8333
+              AWS_S3_REGION_NAME: us-east-1
+              AWS_STORAGE_BUCKET_NAME: docs
+              MEDIA_BASE_URL: *url
+              MEDIA_AUTH_ORIGINAL_URL_HEADER: HTTP_X_FORWARDED_URI
+              JWT_PRIVATE_KEY_FILE: /data/jwt/private.pem
+              COLLABORATION_WS_URL: "wss://docs.${ORG_DOMAIN}/collaboration/ws/v1/docs"
+              COLLABORATION_API_URL: http://docs-yhub.office.svc.cluster.local:3002/collaboration
+              YHUB_API_BASE_URL: http://docs-yhub.office.svc.cluster.local:3002
+              Y_PROVIDER_API_BASE_URL: http://docs-y-provider.office.svc.cluster.local:4444/api/
+              OIDC_OP_AUTHORIZATION_ENDPOINT: https://id.${ORG_DOMAIN}/authorize
+              OIDC_OP_TOKEN_ENDPOINT: https://id.${ORG_DOMAIN}/api/oidc/token
+              OIDC_OP_USER_ENDPOINT: https://id.${ORG_DOMAIN}/api/oidc/userinfo
+              OIDC_OP_JWKS_ENDPOINT: https://id.${ORG_DOMAIN}/.well-known/jwks.json
+              OIDC_OP_LOGOUT_ENDPOINT: https://id.${ORG_DOMAIN}/api/oidc/end-session
+              OIDC_RP_CLIENT_ID: docs
+              OIDC_RP_SIGN_ALGO: RS256
+              OIDC_RP_SCOPES: openid email profile
+              OIDC_USE_PKCE: "True"
+              OIDC_USERINFO_FULLNAME_FIELDS: given_name,family_name
+              OIDC_USERINFO_SHORTNAME_FIELD: given_name
+              OIDC_REDIRECT_ALLOWED_HOSTS: *url
+              LOGIN_REDIRECT_URL: *url
+              LOGIN_REDIRECT_URL_FAILURE: *url
+              LOGOUT_REDIRECT_URL: *url
+            envFrom: &backendEnvFrom
+              - secretRef:
+                  name: docs-backend-secret
+            securityContext: &securityContext
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+        containers:
+          app:
+            image: *backendImage
+            env: *backendEnv
+            envFrom: *backendEnvFrom
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /__lbheartbeat__
+                    port: &backendPort 8000
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /__heartbeat__
+                    port: *backendPort
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /__lbheartbeat__
+                    port: *backendPort
+                  periodSeconds: 5
+                  failureThreshold: 24
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 1Gi
+      celery:
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            image: *backendImage
+            command: ["celery", "-A", "impress.celery_app", "worker", "-l", "INFO"]
+            env: *backendEnv
+            envFrom: *backendEnvFrom
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 512Mi
+      frontend:
+        strategy: RollingUpdate
+        containers:
+          app:
+            # renovate: datasource=docker depName=lasuite/impress-frontend
+            image:
+              repository: lasuite/impress-frontend
+              tag: v6.0.0@sha256:aca3ea4bf4c34d7b768c5eae15b74893a4ccefeddd5443c6dea45a4caaf877dc
+            probes:
+              liveness: &frontendProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &frontendPort 8080
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *frontendProbes
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 128Mi
+      y-provider:
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          app:
+            # renovate: datasource=docker depName=lasuite/impress-y-provider
+            image:
+              repository: lasuite/impress-y-provider
+              tag: v6.0.0@sha256:2d1126daf3e86795f2d6862109401858ff228884742ce932254123208c8df86a
+            env:
+              HOME: /tmp
+              PORT: &yProviderPort 4444
+              COLLABORATION_BACKEND_BASE_URL: *url
+              COLLABORATION_SERVER_ORIGIN: *url
+              Y_PROVIDER_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: docs-yhub-secret
+                    key: Y_PROVIDER_API_KEY
+            probes:
+              liveness: &yProviderProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: *yProviderPort
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+              readiness: *yProviderProbes
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 512Mi
+      yhub:
+        strategy: RollingUpdate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        pod:
+          terminationGracePeriodSeconds: 60
+        initContainers:
+          init-db:
+            # renovate: datasource=docker depName=lasuite/impress-yhub
+            image: &yhubImage
+              repository: lasuite/impress-yhub
+              tag: v6.0.0@sha256:403cab8482501d7ebf74e1c2050ae156f530821bf7f5bc4004f56f7e596da982
+            command: ["node", "node_modules/@y/hub/bin/init-db.js"]
+            env: &yhubEnv
+              HOME: /tmp
+              PORT: &yhubPort 3002
+              REDIS: redis://docs-valkey.office.svc.cluster.local:6379/0
+              REDIS_PREFIX: yhub
+              COLLABORATION_BACKEND_BASE_URL: *url
+              COLLABORATION_SERVER_ORIGIN: *url
+              YHUB_JWT_PRIVATE_KEY_FILE: /data/jwt/yhub-private.pem
+              SOFT_MIGRATION: "false"
+              YHUB_S3_PERSISTENCE: "false"
+            envFrom: &yhubEnvFrom
+              - secretRef:
+                  name: docs-yhub-secret
+            securityContext: *securityContext
+        containers:
+          app:
+            image: *yhubImage
+            env: *yhubEnv
+            envFrom: *yhubEnvFrom
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /collaboration/ping/v1
+                    port: *yhubPort
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /collaboration/ready/v1
+                    port: *yhubPort
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+                  timeoutSeconds: 3
+                  failureThreshold: 3
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 512Mi
+      valkey:
+        strategy: Recreate
+        containers:
+          app:
+            # renovate: datasource=docker depName=valkey/valkey
+            image:
+              repository: valkey/valkey
+              tag: 9-alpine@sha256:48332870af354a799964c0012ae1194a0bf2bf894eb508f945810596dc2d8d11
+            args:
+              - valkey-server
+              - --dir
+              - /data
+              - --appendonly
+              - "yes"
+              - --appendfsync
+              - everysec
+              - --maxmemory
+              - 192mb
+              - --maxmemory-policy
+              - volatile-lru
+            securityContext: *securityContext
+            resources:
+              requests:
+                cpu: 5m
+              limits:
+                memory: 256Mi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      backend:
+        controller: backend
+        ports:
+          http:
+            port: *backendPort
+      frontend:
+        controller: frontend
+        ports:
+          http:
+            port: *frontendPort
+      y-provider:
+        controller: y-provider
+        ports:
+          http:
+            port: *yProviderPort
+      yhub:
+        controller: yhub
+        ports:
+          http:
+            port: *yhubPort
+      valkey:
+        controller: valkey
+        ports:
+          redis:
+            port: 6379
+    ingress:
+      app:
+        className: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-docs@kubernetescrd"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Home
+          gethomepage.dev/name: Docs
+          gethomepage.dev/description: Collaborative documents
+          gethomepage.dev/icon: mdi-file-document-edit
+        hosts:
+          - host: &host "docs.${ORG_DOMAIN}"
+            paths:
+              - path: /api
+                service:
+                  identifier: backend
+                  port: http
+              - path: /collaboration/ws/
+                service: &yhubService
+                  identifier: yhub
+                  port: http
+              - path: /collaboration/ydoc/
+                service: *yhubService
+              - path: /collaboration/activity/
+                service: *yhubService
+              - path: /collaboration/changeset/
+                service: *yhubService
+              - path: /collaboration/rollback/
+                service: *yhubService
+              - path: /collaboration/jwks/
+                service: *yhubService
+              - path: /
+                service:
+                  identifier: frontend
+                  port: http
+        tls:
+          - secretName: docs-tls
+            hosts: [*host]
+      media:
+        className: traefik
+        annotations:
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "office-docs-media-auth@kubernetescrd,office-docs-media-headers@kubernetescrd,office-docs-media-path@kubernetescrd"
+        hosts:
+          - host: *host
+            paths:
+              - path: /media/
+                service:
+                  name: docs-media
+                  port: 8333
+        tls:
+          - secretName: docs-tls
+            hosts: [*host]
+    persistence:
+      valkey:
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 1Gi
+        advancedMounts:
+          valkey:
+            app:
+              - path: /data
+      jwt-backend:
+        type: secret
+        name: docs-jwt-secret
+        items:
+          - key: private.pem
+            path: private.pem
+        advancedMounts:
+          backend:
+            migrate:
+              - path: /data/jwt
+                readOnly: true
+            app:
+              - path: /data/jwt
+                readOnly: true
+          celery:
+            app:
+              - path: /data/jwt
+                readOnly: true
+      jwt-yhub:
+        type: secret
+        name: docs-jwt-secret
+        items:
+          - key: yhub-private.pem
+            path: yhub-private.pem
+        advancedMounts:
+          yhub:
+            init-db:
+              - path: /data/jwt
+                readOnly: true
+            app:
+              - path: /data/jwt
+                readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp

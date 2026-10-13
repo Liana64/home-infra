@@ -6,6 +6,7 @@ resources:
   - ./namespace.yaml
   - ./networkpolicy.yaml
   - ./dragonfly/ks.yaml
+  - ./s3/ks.yaml
   - ./cloudnative-pg/ks.yaml
   - ./cnpg-barman-plugin/ks.yaml
   - ./pgadmin/ks.yaml

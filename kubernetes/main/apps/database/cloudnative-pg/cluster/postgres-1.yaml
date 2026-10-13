@@ -71,6 +71,16 @@ spec:
         login: true
         passwordSecret:
           name: postgres-role-pocket-id
+      - name: docs
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-docs
+      - name: docs_yhub
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-docs-yhub
   postgresql:
     parameters:
       max_connections: "100"

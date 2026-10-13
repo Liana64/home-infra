@@ -47,6 +47,9 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: security
             app.kubernetes.io/name: pocket-id
+        - matchLabels:
+            io.kubernetes.pod.namespace: office
+            app.kubernetes.io/name: docs
       toPorts:
         - ports:
             - port: "5432"
