@@ -313,7 +313,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-docs@kubernetescrd"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-office@kubernetescrd"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Home
           gethomepage.dev/name: Docs

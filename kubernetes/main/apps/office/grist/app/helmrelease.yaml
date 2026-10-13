@@ -32,11 +32,10 @@ spec:
             env:
               TZ: "${TIMEZONE}"
               HOME: /tmp
-              APP_HOME_URL: &url "https://grist.${ORG_DOMAIN}"
+              APP_HOME_URL: "https://grist.${ORG_DOMAIN}"
               APP_HOME_INTERNAL_URL: http://localhost:8484
               GRIST_FORCE_LOGIN: "true"
               GRIST_SANDBOX_FLAVOR: pyodide
-              GRIST_OIDC_SP_HOST: *url
               GRIST_OIDC_IDP_ISSUER: "https://id.${ORG_DOMAIN}"
               GRIST_OIDC_IDP_CLIENT_ID: grist
             envFrom:
@@ -91,7 +90,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-grist@kubernetescrd"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-office@kubernetescrd"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Home
           gethomepage.dev/name: Grist
