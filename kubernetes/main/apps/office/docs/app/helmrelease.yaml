@@ -280,7 +280,7 @@ spec:
               requests:
                 cpu: 5m
               limits:
-                memory: 256Mi
+                memory: 384Mi
     defaultPodOptions:
       automountServiceAccountToken: false
       securityContext:
