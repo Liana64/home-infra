@@ -2,4 +2,4 @@
   ensure: present
   login: true
   passwordSecret:
-    name: postgres-role-__APP__
+    name: postgres-role-__NAME__

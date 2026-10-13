@@ -2,14 +2,14 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: postgres-role-__APP__
+  name: postgres-role-__NAME__
 spec:
   refreshPolicy: OnChange
   secretStoreRef:
     kind: ClusterSecretStore
     name: bitwarden-secrets-manager
   target:
-    name: postgres-role-__APP__
+    name: postgres-role-__NAME__
     template:
       engineVersion: v2
       type: kubernetes.io/basic-auth
@@ -27,7 +27,7 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: __APP__
+  name: __NAME__
 spec:
   name: __DB__
   owner: __ROLE__
