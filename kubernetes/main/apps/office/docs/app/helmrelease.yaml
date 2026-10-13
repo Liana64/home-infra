@@ -115,12 +115,23 @@ spec:
             command: ["celery", "-A", "impress.celery_app", "worker", "-l", "INFO", "--concurrency", "2"]
             env: *backendEnv
             envFrom: *backendEnvFrom
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["sh", "-c", "celery -A impress.celery_app inspect ping -d celery@$HOSTNAME -t 10"]
+                  initialDelaySeconds: 30
+                  periodSeconds: 60
+                  timeoutSeconds: 20
+                  failureThreshold: 3
             securityContext: *securityContext
             resources:
               requests:
                 cpu: 10m
               limits:
-                memory: 512Mi
+                memory: 768Mi
       frontend:
         strategy: RollingUpdate
         containers:
@@ -266,6 +277,17 @@ spec:
               - 192mb
               - --maxmemory-policy
               - volatile-lru
+            probes:
+              liveness: &valkeyProbes
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["valkey-cli", "ping"]
+                  periodSeconds: 10
+                  timeoutSeconds: 2
+                  failureThreshold: 3
+              readiness: *valkeyProbes
             securityContext: *securityContext
             resources:
               requests:
@@ -367,6 +389,7 @@ spec:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
         size: 1Gi
+        retain: true
         advancedMounts:
           valkey:
             app:
