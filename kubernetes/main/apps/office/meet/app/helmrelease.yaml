@@ -34,12 +34,6 @@ spec:
               DB_HOST: postgres-1-rw.database.svc.cluster.local
               DB_PORT: "5432"
               DB_NAME: meet
-              DRAGONFLY_PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: dragonfly-secret
-                    key: password
-              REDIS_URL: redis://:$(DRAGONFLY_PASSWORD)@dragonfly.database.svc.cluster.local:6379/3
               OIDC_OP_AUTHORIZATION_ENDPOINT: https://id.${ORG_DOMAIN}/authorize
               OIDC_OP_TOKEN_ENDPOINT: https://id.${ORG_DOMAIN}/api/oidc/token
               OIDC_OP_USER_ENDPOINT: https://id.${ORG_DOMAIN}/api/oidc/userinfo
@@ -64,6 +58,8 @@ spec:
                   name: meet-secret
               - secretRef:
                   name: meet-db-secret
+              - secretRef:
+                  name: meet-redis-secret
             securityContext: &securityContext
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true

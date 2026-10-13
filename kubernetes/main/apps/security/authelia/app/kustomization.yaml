@@ -5,7 +5,7 @@ kind: Kustomization
 resources:
   - ./helmrelease.yaml
   - ../../../database/cloudnative-pg/app/secret.sops.yaml
-  - ../../../database/dragonfly/app/secret.sops.yaml
+  - ../../../database/dragonfly/app/externalsecret.yaml
 configMapGenerator:
   - name: authelia-config
     files:

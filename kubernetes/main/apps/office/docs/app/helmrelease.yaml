@@ -32,15 +32,6 @@ spec:
               DB_HOST: postgres-1-rw.database.svc.cluster.local
               DB_PORT: "5432"
               DB_NAME: docs
-              DRAGONFLY_PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: dragonfly-secret
-                    key: password
-              REDIS_URL: &redis redis://:$(DRAGONFLY_PASSWORD)@dragonfly.database.svc.cluster.local:6379/4
-              DJANGO_CELERY_BROKER_URL:
-                value: *redis
-                dependsOn: DRAGONFLY_PASSWORD
               AWS_S3_ENDPOINT_URL: http://s3.database.svc.cluster.local:8333
               AWS_S3_REGION_NAME: us-east-1
               AWS_STORAGE_BUCKET_NAME: docs
