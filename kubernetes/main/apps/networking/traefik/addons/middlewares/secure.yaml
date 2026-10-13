@@ -304,3 +304,39 @@ spec:
       X-Permitted-Cross-Domain-Policies: "none"
       X-Powered-By: ""
       server: ""
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-middleware-secure-headers-grist
+spec:
+  headers:
+    hostsProxyHeaders:
+      - "X-Forwarded-Host"
+      - "X-Forwarded-For"
+      - "X-Forwarded-Proto"
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    stsPreload: true
+    forceSTSHeader: true
+    contentTypeNosniff: true
+    referrerPolicy: "same-origin"
+    contentSecurityPolicy: "upgrade-insecure-requests; frame-ancestors 'self';"
+    customResponseHeaders:
+      Permissions-Policy: >-
+        accelerometer=(),
+        camera=(),
+        geolocation=(),
+        gyroscope=(),
+        magnetometer=(),
+        microphone=(),
+        payment=(),
+        usb=()
+      Cross-Origin-Opener-Policy: same-origin
+      Cross-Origin-Resource-Policy: same-origin
+      X-Frame-Options: "SAMEORIGIN"
+      X-Robots-Tag: "noindex,nofollow,noarchive,nosnippet,notranslate,noimageindex"
+      X-Permitted-Cross-Domain-Policies: "none"
+      X-Powered-By: ""
+      server: ""
+---
