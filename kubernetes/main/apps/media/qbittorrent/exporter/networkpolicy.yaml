@@ -16,6 +16,14 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: media
             app.kubernetes.io/name: qbittorrent
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
   egress:
     - toEndpoints:
         - matchLabels:

@@ -36,6 +36,7 @@ spec:
               ND_SCANNER_SCHEDULE: "@every 1h"
               ND_LOGLEVEL: info
               ND_ENABLEEXTERNALSERVICES: "false"
+              ND_REVERSEPROXYWHITELIST: "10.244.0.0/16"
             envFrom:
               - secretRef:
                   name: navidrome-secret

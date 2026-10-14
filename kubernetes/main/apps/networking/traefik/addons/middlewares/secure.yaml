@@ -280,13 +280,26 @@ spec:
       - "X-Forwarded-Host"
       - "X-Forwarded-For"
       - "X-Forwarded-Proto"
+    customRequestHeaders:
+      Remote-User: ""
+      True-Client-IP: ""
     stsSeconds: 31536000
     stsIncludeSubdomains: true
     stsPreload: true
     forceSTSHeader: true
     contentTypeNosniff: true
     referrerPolicy: "strict-origin-when-cross-origin"
-    contentSecurityPolicy: "upgrade-insecure-requests;"
+    contentSecurityPolicy: >-
+      default-src 'self';
+      script-src 'self' 'unsafe-inline';
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: blob:;
+      media-src 'self' blob:;
+      object-src 'none';
+      form-action 'self';
+      frame-ancestors 'self';
+      base-uri 'self';
+      upgrade-insecure-requests
     customResponseHeaders:
       Permissions-Policy: >-
         accelerometer=(),
@@ -323,7 +336,7 @@ spec:
     referrerPolicy: "same-origin"
     contentSecurityPolicy: >-
       default-src 'self';
-      script-src 'self';
+      script-src 'self' 'sha256-JK9TEZK9y+azbso6uAFHSF5LrttVap0yXdcS0km5Mrc=';
       style-src 'self' 'unsafe-inline';
       img-src 'self' data: blob: https://navidrome.${ORG_DOMAIN};
       media-src 'self' blob: https://navidrome.${ORG_DOMAIN};
