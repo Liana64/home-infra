@@ -33,6 +33,7 @@ spec:
               SERVER_TYPE: navidrome
               SERVER_URL: "https://navidrome.${ORG_DOMAIN}"
               SERVER_LOCK: "true"
+              ANALYTICS_DISABLED: "true"
             probes:
               liveness: &probes
                 enabled: true
@@ -74,7 +75,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-feishin@kubernetescrd"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Media
           gethomepage.dev/name: Feishin
