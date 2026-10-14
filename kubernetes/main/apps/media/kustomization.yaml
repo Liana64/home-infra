@@ -21,3 +21,4 @@ resources:
   - ./qui/ks.yaml
   - ./feishin/ks.yaml
   - ./navidrome/ks.yaml
+  - ./lidarr/ks.yaml

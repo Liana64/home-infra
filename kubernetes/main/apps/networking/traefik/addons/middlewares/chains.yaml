@@ -115,6 +115,26 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
+  name: traefik-middleware-chain-navidrome
+spec:
+  chain:
+    middlewares:
+      - name: traefik-middleware-secure-headers-navidrome
+      - name: traefik-middleware-compress
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-middleware-chain-feishin
+spec:
+  chain:
+    middlewares:
+      - name: traefik-middleware-secure-headers-feishin
+      - name: traefik-middleware-compress
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
   name: traefik-middleware-chain-office
 spec:
   chain:

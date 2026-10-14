@@ -35,6 +35,7 @@ spec:
               ND_CACHEFOLDER: /cache
               ND_SCANNER_SCHEDULE: "@every 1h"
               ND_LOGLEVEL: info
+              ND_ENABLEEXTERNALSERVICES: "false"
             envFrom:
               - secretRef:
                   name: navidrome-secret
@@ -80,7 +81,7 @@ spec:
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-navidrome@kubernetescrd"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Media
           gethomepage.dev/name: Navidrome
