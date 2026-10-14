@@ -34,6 +34,9 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: media
             app.kubernetes.io/name: qbittorrent
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: lidarr
   egress:
     - toEndpoints:
         - matchLabels:
@@ -58,6 +61,14 @@ spec:
       toPorts:
         - ports:
             - port: "7878"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: lidarr
+      toPorts:
+        - ports:
+            - port: "8686"
               protocol: TCP
     - toEndpoints:
         - matchLabels:
