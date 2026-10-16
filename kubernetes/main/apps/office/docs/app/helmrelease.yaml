@@ -207,7 +207,7 @@ spec:
             # renovate: datasource=docker depName=lasuite/impress-yhub
             image: &yhubImage
               repository: lasuite/impress-yhub
-              tag: v6.0.0@sha256:403cab8482501d7ebf74e1c2050ae156f530821bf7f5bc4004f56f7e596da982
+              tag: v6.0.1@sha256:8e35b8794602e061913e87bde43a09b94b591d5d3a2ccc2987f5b0ab89534224
             command: ["node", "node_modules/@y/hub/bin/init-db.js"]
             env: &yhubEnv
               HOME: /tmp
