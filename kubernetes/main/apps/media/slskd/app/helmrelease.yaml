@@ -1,0 +1,179 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app slskd
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      slskd:
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        initContainers:
+          gluetun:
+            image:
+              repository: ghcr.io/qdm12/gluetun
+              tag: v3.41.3
+            env:
+              VPN_SERVICE_PROVIDER: custom
+              VPN_TYPE: wireguard
+              VPN_INTERFACE: wg0
+              WIREGUARD_ENDPOINT_PORT: 51820
+              VPN_PORT_FORWARDING: on
+              VPN_PORT_FORWARDING_PROVIDER: protonvpn
+              FIREWALL_INPUT_PORTS: 5030
+              HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE: '{"auth":"apikey","apikey":"$(GLUETUN_API_KEY)"}'
+            envFrom:
+              - secretRef:
+                  name: slskd-vpn-secret
+            resources:
+              limits:
+                squat.ai/tun: "1"
+            restartPolicy: Always
+            securityContext:
+              runAsUser: 0
+              runAsGroup: 0
+              runAsNonRoot: false
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+                add:
+                  - NET_ADMIN
+        pod:
+          securityContext:
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile: { type: RuntimeDefault }
+            # 2000 = m1 media share gid (tank/cluster/media 2775 root 2000:2000)
+            supplementalGroups:
+              - 2000
+        containers:
+          app:
+            image:
+              repository: ghcr.io/slskd/slskd
+              tag: 0.25.1@sha256:ab9ed50e028b524cefdb7c1dd8ebca368a076e18441ee8ac2326473eb850b4c3
+            env:
+              TZ: "${TIMEZONE}"
+              SLSKD_UMASK: "002"
+              SLSKD_HTTP_PORT: &port 5030
+              SLSKD_NO_HTTPS: "true"
+              SLSKD_NO_VERSION_CHECK: "true"
+              SLSKD_DOWNLOADS_DIR: /media/Downloads/soulseek
+              SLSKD_INCOMPLETE_DIR: /media/Downloads/soulseek-incomplete
+              SLSKD_SHARED_DIR: /media/Music
+              SLSKD_VPN: "true"
+              SLSKD_VPN_PORT_FORWARDING: "true"
+              SLSKD_VPN_GLUETUN_URL: http://localhost:8000
+              SLSKD_VPN_GLUETUN_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: slskd-vpn-secret
+                    key: GLUETUN_API_KEY
+            envFrom:
+              - secretRef:
+                  name: slskd-secret
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: *port
+                  failureThreshold: 30
+                  periodSeconds: 5
+            resources:
+              requests:
+                cpu: 20m
+                memory: 256Mi
+              limits:
+                memory: 1024Mi
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 1000
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - "m1"
+    service:
+      app:
+        controller: slskd
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        className: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Media
+          gethomepage.dev/name: slskd
+          gethomepage.dev/description: Soulseek client
+          gethomepage.dev/icon: slskd
+        hosts:
+          - host: &host "slskd.${LAB_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: slskd-tls
+            hosts: [*host]
+    persistence:
+      app:
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        retain: true
+        advancedMounts:
+          slskd:
+            app:
+              - path: /app
+      media:
+        existingClaim: media
+        advancedMounts:
+          slskd:
+            app:
+              - path: /media
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          slskd:
+            app:
+              - path: /tmp
