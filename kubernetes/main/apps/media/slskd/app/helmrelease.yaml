@@ -28,6 +28,8 @@ spec:
               WIREGUARD_ENDPOINT_PORT: 51820
               VPN_PORT_FORWARDING: on
               VPN_PORT_FORWARDING_PROVIDER: protonvpn
+              PUID: 0
+              PGID: 0
               FIREWALL_INPUT_PORTS: 5030
               HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE: '{"auth":"apikey","apikey":"$(GLUETUN_API_KEY)"}'
             envFrom:
