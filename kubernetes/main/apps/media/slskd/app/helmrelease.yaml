@@ -69,6 +69,8 @@ spec:
               SLSKD_DOWNLOADS_DIR: /media/Downloads/soulseek
               SLSKD_INCOMPLETE_DIR: /media/Downloads/soulseek-incomplete
               SLSKD_SHARED_DIR: /media/Music
+              # KiB/s
+              SLSKD_UPLOAD_SPEED_LIMIT: 22700
               SLSKD_VPN: "true"
               SLSKD_VPN_PORT_FORWARDING: "true"
               SLSKD_VPN_GLUETUN_URL: http://localhost:8000
