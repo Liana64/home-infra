@@ -37,6 +37,74 @@ tasks:
       - kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"trigger":{"manual":"{{.ID}}"}}}'
       - kubectl -n {{.NS}} wait replicationsource/{{.APP}} --for=jsonpath='{.status.lastManualSync}'={{.ID}} --timeout=30m
 
+  restore:
+    desc: Overwrite an app's PVC with a kopia snapshot eg "task backup:restore APP=linkding NS=home [PREVIOUS=1]"
+    prompt: Scale down {{.NS}}/{{.APP}} and overwrite its PVC with a snapshot?
+    requires:
+      vars: [APP, NS]
+    vars:
+      ID: "{{now | unixEpoch}}"
+      PREVIOUS: '{{.PREVIOUS | default "0"}}'
+      PVC:
+        sh: kubectl -n {{.NS}} get replicationsource {{.APP}} -o jsonpath='{.spec.sourcePVC}'
+      MOVER:
+        sh: kubectl -n {{.NS}} get replicationsource {{.APP}} -o jsonpath='{.spec.kopia.moverSecurityContext}'
+      WORKLOADS:
+        sh: |
+          kubectl -n {{.NS}} get deploy,sts -o json | jq -r --arg pvc {{.PVC}} '.items[]
+            | select(any(.spec.template.spec.volumes[]?; .persistentVolumeClaim.claimName == $pvc))
+            | "\(.kind)/\(.metadata.name)=\(.spec.replicas)"'
+      RELEASES:
+        sh: |
+          kubectl -n {{.NS}} get deploy,sts -o json | jq -r --arg pvc {{.PVC}} '[.items[]
+            | select(any(.spec.template.spec.volumes[]?; .persistentVolumeClaim.claimName == $pvc))
+            | .metadata.labels["helm.toolkit.fluxcd.io/name"] // empty] | unique[]'
+      PODS:
+        sh: |
+          kubectl -n {{.NS}} get pods -o json | jq -r --arg pvc {{.PVC}} '.items[]
+            | select(.status.phase == "Running" and any(.spec.volumes[]?; .persistentVolumeClaim.claimName == $pvc))
+            | "pod/\(.metadata.name)"'
+    cmds:
+      - for: { var: RELEASES }
+        cmd: flux -n {{.NS}} suspend helmrelease {{.ITEM}}
+      - kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"paused":true}}'
+      - for: { var: WORKLOADS }
+        cmd: kubectl -n {{.NS}} scale {{splitList "=" .ITEM | first}} --replicas=0
+      - test -z "{{catLines .PODS}}" || kubectl -n {{.NS}} wait {{catLines .PODS}} --for=delete --timeout=5m
+      - |
+        kubectl apply -f - <<EOF
+        apiVersion: volsync.backube/v1alpha1
+        kind: ReplicationDestination
+        metadata:
+          name: {{.APP}}-restore
+          namespace: {{.NS}}
+        spec:
+          trigger:
+            manual: "{{.ID}}"
+          kopia:
+            destinationPVC: {{.PVC}}
+            copyMethod: Direct
+            repository: {{.APP}}-volsync-secret
+            sourceIdentity:
+              sourceName: {{.APP}}
+            previous: {{.PREVIOUS}}
+            enableFileDeletion: true
+            cacheCapacity: 5Gi
+            cacheStorageClassName: openebs-hostpath
+            cleanupCachePVC: true
+            moverPodLabels:
+              app.kubernetes.io/created-by: volsync
+            moverSecurityContext: {{.MOVER}}
+        EOF
+      - kubectl -n {{.NS}} wait replicationdestination/{{.APP}}-restore --for=jsonpath='{.status.lastManualSync}'={{.ID}} --timeout=2h
+      - kubectl -n {{.NS}} wait replicationdestination/{{.APP}}-restore --for=jsonpath='{.status.latestMoverStatus.result}'=Successful --timeout=10s
+      - kubectl -n {{.NS}} delete replicationdestination {{.APP}}-restore
+      - for: { var: WORKLOADS }
+        cmd: kubectl -n {{.NS}} scale {{splitList "=" .ITEM | first}} --replicas={{splitList "=" .ITEM | last}}
+      - kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"paused":false}}'
+      - for: { var: RELEASES }
+        cmd: flux -n {{.NS}} resume helmrelease {{.ITEM}}
+
   list:
     desc: List postgres backups and volsync sources
     cmds:
