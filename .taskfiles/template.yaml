@@ -24,17 +24,19 @@ tasks:
       - { msg: "Unknown namespace {{.NS}}", sh: "test -f {{.APPS_DIR}}/{{.NS}}/kustomization.yaml" }
 
   postgres:
-    desc: Add a managed postgres role and database for an app eg "task template:postgres APP=foo NS=home"
+    desc: Add a managed postgres role and database for an app eg "task template:postgres APP=foo NS=home [NAME=foo-bar ROLE=foo_bar DB=foo_bar] [BW_ID=uuid]"
     requires:
       vars: [APP, NS]
     vars:
-      ROLE: "{{.ROLE | default .APP}}"
-      DB: "{{.DB | default .APP}}"
-      BW_KEY: '{{.APP | upper | replace "-" "_"}}_DB_PASSWORD'
+      NAME: "{{.NAME | default .APP}}"
+      ROLE: "{{.ROLE | default .NAME}}"
+      DB: "{{.DB | default .NAME}}"
+      BW_KEY: '{{.NAME | upper | replace "-" "_"}}_DB_PASSWORD'
       APP_DIR: "{{.APPS_DIR}}/{{.NS}}/{{.APP}}"
       T: "{{.TEMPLATES_DIR}}/postgres"
     env:
       APP: "{{.APP}}"
+      NAME: "{{.NAME}}"
       NS: "{{.NS}}"
       ROLE: "{{.ROLE}}"
       DB: "{{.DB}}"
@@ -42,12 +44,12 @@ tasks:
       - |
         set -eu
         id="{{.BW_ID}}"
-        [ -n "$id" ] || id=$(bws secret create {{.BW_KEY}} "$(openssl rand -hex 32)" "$BWS_PROJECT_ID" -o json | jq -r .id)
-        render() { sed "s/__APP__/$APP/g; s/__NS__/$NS/g; s/__ROLE__/$ROLE/g; s/__DB__/$DB/g; s/__BW_ID__/$id/g" "{{.T}}/$1"; }
+        [ -n "$id" ] || id=$(bws secret create {{.BW_KEY}} "$(od -An -tx1 -N32 /dev/urandom | tr -d ' \n')" "$BWS_PROJECT_ID" -o json | jq -r .id)
+        render() { sed "s/__APP__/$APP/g; s/__NAME__/$NAME/g; s/__NS__/$NS/g; s/__ROLE__/$ROLE/g; s/__DB__/$DB/g; s/__BW_ID__/$id/g" "{{.T}}/$1"; }
         tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
         for s in role ingress egress; do render $s.snippet.yaml > "$tmp/$s.yaml"; done
-        render database.yaml > {{.PG_DIR}}/$APP-database.yaml
-        yq -i '.resources = (.resources + ["./" + strenv(APP) + "-database.yaml"] | unique)' {{.PG_DIR}}/kustomization.yaml
+        render database.yaml > {{.PG_DIR}}/$NAME-database.yaml
+        yq -i '.resources = (.resources + ["./" + strenv(NAME) + "-database.yaml"] | unique)' {{.PG_DIR}}/kustomization.yaml
         F=$tmp/role.yaml yq -i '.spec.managed.roles = ((.spec.managed.roles // []) + load(strenv(F)) | unique_by(.name))' {{.PG_DIR}}/postgres-1.yaml
         F=$tmp/ingress.yaml yq -i '(.spec.ingress[] | select(.fromEndpoints and .toPorts[0].ports[0].port == "5432") | .fromEndpoints) |= (. + load(strenv(F)) | unique)' {{.PG_DIR}}/networkpolicy.yaml
         render externalsecret.yaml >> {{.APP_DIR}}/app/externalsecret.yaml
@@ -55,7 +57,7 @@ tasks:
         F=$tmp/egress.yaml yq -i '(select(.spec.endpointSelector.matchLabels."app.kubernetes.io/name" == strenv(APP)) | .spec.egress) |= (. + load(strenv(F)) | unique)' {{.APP_DIR}}/app/networkpolicy.yaml
         yq -i '(select(document_index == 0) | .spec.dependsOn) |= ((. // []) + [{"name": "cloudnative-pg-cluster"}] | unique_by(.name))' {{.APP_DIR}}/ks.yaml
     status:
-      - test -f {{.PG_DIR}}/{{.APP}}-database.yaml
+      - test -f {{.PG_DIR}}/{{.NAME}}-database.yaml
     preconditions:
       - { msg: "Missing app {{.APP_DIR}}", sh: "test -d {{.APP_DIR}}/app" }
       - { msg: "Set BW_ID or BWS_ACCESS_TOKEN + BWS_PROJECT_ID", sh: 'test -n "{{.BW_ID}}" || { test -n "${BWS_ACCESS_TOKEN:-}" && test -n "${BWS_PROJECT_ID:-}"; }' }

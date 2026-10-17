@@ -31,6 +31,11 @@ spec:
           rules:
             dns:
               - matchPattern: "*"
-    # - toEntities: ["world"]
+    # - toCIDRSet:
+    #     - cidr: 0.0.0.0/0
+    #       except:
+    #         - 10.0.0.0/8
+    #         - 172.16.0.0/12
+    #         - 192.168.0.0/16
     #   toPorts:
     #     - ports: [{ port: "443", protocol: TCP }]

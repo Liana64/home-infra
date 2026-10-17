@@ -10,10 +10,6 @@ creation_rules:
     key_groups:
       - age:
           - "age1zmrywhk3kp7490q25eua25rlx4zg9wu97fc64ahdm65zv3dv39psetsa4u"
-  - path_regex: ansible/.*\.sops\.ya?ml
-    key_groups:
-      - age:
-          - "age1zmrywhk3kp7490q25eua25rlx4zg9wu97fc64ahdm65zv3dv39psetsa4u"
 stores:
   yaml:
     indent: 2
