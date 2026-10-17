@@ -65,6 +65,23 @@ tasks:
             | select(.status.phase == "Running" and any(.spec.volumes[]?; .persistentVolumeClaim.claimName == $pvc))
             | "pod/\(.metadata.name)"'
     cmds:
+      - defer: |
+          {{if .EXIT_CODE}}
+          cat >&2 <<MSG
+          Restore failed: {{.PVC}} may be partial, backups are paused, the app is down.
+          Inspect: kubectl -n {{.NS}} describe replicationdestination {{.APP}}-restore
+          Fix and rerun, or resume as-is:
+            kubectl -n {{.NS}} delete replicationdestination {{.APP}}-restore --ignore-not-found
+          {{- range splitLines .WORKLOADS}}{{if .}}
+            kubectl -n {{$.NS}} scale {{splitList "=" . | first}} --replicas={{splitList "=" . | last}}
+          {{- end}}{{end}}
+            kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"paused":false}}'
+          {{- range splitLines .RELEASES}}{{if .}}
+            flux -n {{$.NS}} resume helmrelease {{.}}
+          {{- end}}{{end}}
+          MSG
+          {{end}}
+        silent: true
       - for: { var: RELEASES }
         cmd: flux -n {{.NS}} suspend helmrelease {{.ITEM}}
       - kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"paused":true}}'
