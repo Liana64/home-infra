@@ -70,22 +70,6 @@ spec:
     kubeProxy:
       enabled: false
     prometheus:
-      ingress:
-        enabled: true
-        ingressClassName: traefik
-        annotations:
-          cert-manager.io/cluster-issuer: "letsencrypt-production"
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Observability
-          gethomepage.dev/name: Prometheus
-          gethomepage.dev/description: Time-series event monitoring
-          gethomepage.dev/icon: prometheus.png
-          gethomepage.dev/pod-selector: app.kubernetes.io/name=kube-prometheus-stack-prometheus
-        hosts: ["prometheus.${LAB_DOMAIN}"]
-        pathType: Prefix
-        tls:
-          - secretName: prometheus-tls
-            hosts: ["prometheus.${LAB_DOMAIN}"]
       prometheusSpec:
         scrapeInterval: 1m # Must match interval in Grafana Helm chart
         ruleSelectorNilUsesHelmValues: false
@@ -124,22 +108,6 @@ spec:
           annotations:
             grafana_folder: Kubernetes
     alertmanager:
-      ingress:
-        enabled: true
-        ingressClassName: traefik
-        annotations:
-          cert-manager.io/cluster-issuer: "letsencrypt-production"
-          gethomepage.dev/enabled: "true"
-          gethomepage.dev/group: Observability
-          gethomepage.dev/name: Alert Manager
-          gethomepage.dev/description: Alert handler for kube-prometheus-stack
-          gethomepage.dev/icon: alertmanager.png
-          gethomepage.dev/pod-selector: app.kubernetes.io/name=kube-prometheus-stack-alertmanager
-        hosts: ["alertmanager.${LAB_DOMAIN}"]
-        pathType: Prefix
-        tls:
-          - secretName: alertmanager-tls
-            hosts: ["alertmanager.${LAB_DOMAIN}"]
       config:
         route:
           receiver: ntfy

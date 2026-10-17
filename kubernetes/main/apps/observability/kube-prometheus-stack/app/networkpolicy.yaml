@@ -12,12 +12,11 @@ spec:
   ingress:
     - fromEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: networking
-            app.kubernetes.io/name: traefik
-            app.kubernetes.io/instance: traefik-networking
-        - matchLabels:
             io.kubernetes.pod.namespace: observability
             app.kubernetes.io/name: grafana
+        - matchLabels:
+            io.kubernetes.pod.namespace: home
+            app.kubernetes.io/name: glance
       toPorts:
         - ports:
             - port: "9090"
@@ -52,9 +51,8 @@ spec:
   ingress:
     - fromEndpoints:
         - matchLabels:
-            io.kubernetes.pod.namespace: networking
-            app.kubernetes.io/name: traefik
-            app.kubernetes.io/instance: traefik-networking
+            io.kubernetes.pod.namespace: home
+            app.kubernetes.io/name: glance
         - matchLabels:
             io.kubernetes.pod.namespace: observability
             app.kubernetes.io/name: prometheus

@@ -34,7 +34,7 @@ pages:
             title: Alerts
             css-class: alerts
             cache: 2m
-            url: https://alertmanager.labs.lianas.org/api/v2/alerts?active=true&silenced=false&inhibited=false
+            url: http://kube-prometheus-stack-alertmanager.observability.svc.cluster.local:9093/api/v2/alerts?active=true&silenced=false&inhibited=false
             template: |
               {{ $cutoff := offsetNow "-168h" }}
               {{ $alerts := 0 }}
@@ -156,7 +156,7 @@ pages:
           - type: custom-api
             title: Speedtest
             cache: 1h
-            url: https://prometheus.labs.lianas.org/api/v1/query?query=last_over_time(%7B__name__%3D~%22speedtest_(download_bits_per_second%7Cupload_bits_per_second%7Cping_latency_milliseconds)%22%7D%5B24h%5D)
+            url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090/api/v1/query?query=last_over_time(%7B__name__%3D~%22speedtest_(download_bits_per_second%7Cupload_bits_per_second%7Cping_latency_milliseconds)%22%7D%5B24h%5D)
             template: |
               {{ $down := .JSON.Float `data.result.#(metric.__name__=="speedtest_download_bits_per_second").value.1` }}
               {{ $up := .JSON.Float `data.result.#(metric.__name__=="speedtest_upload_bits_per_second").value.1` }}
