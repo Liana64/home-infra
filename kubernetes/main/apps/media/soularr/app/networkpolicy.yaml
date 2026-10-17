@@ -1,0 +1,38 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: soularr
+  namespace: media
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: soularr
+  ingress:
+    # same-node ClusterIP replies miss CT reverse-xlate (socketLB
+    # hostNamespaceOnly + endpointRoutes) and hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: lidarr
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: slskd
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: lidarr
+      toPorts:
+        - ports:
+            - port: "8686"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: slskd
+      toPorts:
+        - ports:
+            - port: "5030"
+              protocol: TCP
