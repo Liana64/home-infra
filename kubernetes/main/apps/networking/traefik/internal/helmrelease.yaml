@@ -27,10 +27,13 @@ spec:
   values:
     deployment:
       enabled: true
-      replicas: 1
+      kind: DaemonSet
     service:
       annotations:
         io.cilium/lb-ipam-ips: ${LB_TRAEFIK}
+      spec:
+        # preserves client IPs; l2-policy-traefik must only select nodes running a pod
+        externalTrafficPolicy: Local
     env:
       - name: TZ
         value: "${TIMEZONE}"
@@ -62,16 +65,6 @@ spec:
         transport:
           respondingTimeouts:
             readTimeout: 0
-        forwardedHeaders:
-          trustedIPs:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
-        proxyProtocol:
-          trustedIPs:
-            - 10.0.0.0/8
-            - 172.16.0.0/12
-            - 192.168.0.0/16
         http3:
           enabled: true
       metrics:

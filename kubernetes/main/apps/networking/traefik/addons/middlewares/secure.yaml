@@ -15,13 +15,6 @@ spec:
       - '^https://([a-z0-9-]+\.)*${PERSONAL_DOMAIN}$'
       - '^https://([a-z0-9-]+\.)*${LAB_DOMAIN}$'
       - '^https://([a-z0-9-]+\.)*${ORG_DOMAIN}$'
-    hostsProxyHeaders:
-      - "X-Forwarded-Host"
-      - "X-Forwarded-For"
-      - "X-Forwarded-Proto"
-      - "X-GEO-City"
-      - "Cf-Connecting-Ip"
-      - "Cf-Ipcountry"
     stsSeconds: 31536000
     stsIncludeSubdomains: true
     stsPreload: true
@@ -45,8 +38,6 @@ spec:
       X-Frame-Options: "SAMEORIGIN"
       X-Robots-Tag: "noindex,nofollow,noarchive,nosnippet,notranslate,noimageindex"
       X-Permitted-Cross-Domain-Policies: "none"
-      X-Forwarded-Proto: "https"
-      City: X-GEO-City
       X-Powered-By: ""
       server: ""
 ---
@@ -65,13 +56,6 @@ spec:
     accessControlAllowOriginListRegex:
       - '^https://([a-z0-9-]+\.)*${PERSONAL_DOMAIN}$'
       - '^https://([a-z0-9-]+\.)*${ORG_DOMAIN}$'
-    hostsProxyHeaders:
-      - "X-Forwarded-Host"
-      - "X-Forwarded-For"
-      - "X-Forwarded-Proto"
-      - "X-GEO-City"
-      - "Cf-Connecting-Ip"
-      - "Cf-Ipcountry"
     stsSeconds: 31536000
     stsIncludeSubdomains: true
     stsPreload: true
@@ -104,8 +88,6 @@ spec:
       X-Frame-Options: "DENY"
       X-Robots-Tag: "index, follow"
       X-Permitted-Cross-Domain-Policies: "none"
-      X-Forwarded-Proto: "https"
-      City: X-GEO-City
       X-Powered-By: ""
       server: ""
 ---
@@ -127,13 +109,6 @@ spec:
     accessControlAllowHeaders:
       - "Content-Type"
       - "X-API-Key"
-    hostsProxyHeaders:
-      - "X-Forwarded-Host"
-      - "X-Forwarded-For"
-      - "X-Forwarded-Proto"
-      - "X-GEO-City"
-      - "Cf-Connecting-Ip"
-      - "Cf-Ipcountry"
     stsSeconds: 31536000
     stsIncludeSubdomains: false
     stsPreload: true
@@ -154,8 +129,6 @@ spec:
       X-Frame-Options: "SAMEORIGIN"
       X-Robots-Tag: "noindex,nofollow,noarchive,nosnippet,notranslate,noimageindex"
       X-Permitted-Cross-Domain-Policies: "none"
-      X-Forwarded-Proto: "https"
-      City: X-GEO-City
       X-Powered-By: ""
       server: ""
 ---
@@ -181,13 +154,6 @@ spec:
       - "Content-Type"
       - "Origin"
       - "X-Requested-With"
-    hostsProxyHeaders:
-      - "X-Forwarded-Host"
-      - "X-Forwarded-For"
-      - "X-Forwarded-Proto"
-      - "X-GEO-City"
-      - "Cf-Connecting-Ip"
-      - "Cf-Ipcountry"
     stsSeconds: 31536000
     stsIncludeSubdomains: false
     stsPreload: true
@@ -210,8 +176,6 @@ spec:
       X-Frame-Options: "SAMEORIGIN"
       X-Robots-Tag: "noindex,nofollow,noarchive,nosnippet,notranslate,noimageindex"
       X-Permitted-Cross-Domain-Policies: "none"
-      X-Forwarded-Proto: "https"
-      City: X-GEO-City
       X-Powered-By: ""
       server: ""
 ---
@@ -221,10 +185,6 @@ metadata:
   name: traefik-middleware-secure-headers-cryptpad
 spec:
   headers:
-    hostsProxyHeaders:
-      - "X-Forwarded-Host"
-      - "X-Forwarded-For"
-      - "X-Forwarded-Proto"
     stsSeconds: 31536000
     stsIncludeSubdomains: true
     stsPreload: true
@@ -240,10 +200,6 @@ metadata:
   name: traefik-middleware-secure-headers-meet
 spec:
   headers:
-    hostsProxyHeaders:
-      - "X-Forwarded-Host"
-      - "X-Forwarded-For"
-      - "X-Forwarded-Proto"
     stsSeconds: 31536000
     stsIncludeSubdomains: true
     stsPreload: true
@@ -276,10 +232,6 @@ metadata:
   name: traefik-middleware-secure-headers-navidrome
 spec:
   headers:
-    hostsProxyHeaders:
-      - "X-Forwarded-Host"
-      - "X-Forwarded-For"
-      - "X-Forwarded-Proto"
     customRequestHeaders:
       Remote-User: ""
       True-Client-IP: ""
@@ -324,10 +276,6 @@ metadata:
   name: traefik-middleware-secure-headers-feishin
 spec:
   headers:
-    hostsProxyHeaders:
-      - "X-Forwarded-Host"
-      - "X-Forwarded-For"
-      - "X-Forwarded-Proto"
     stsSeconds: 31536000
     stsIncludeSubdomains: true
     stsPreload: true
@@ -370,10 +318,6 @@ metadata:
   name: traefik-middleware-secure-headers-office
 spec:
   headers:
-    hostsProxyHeaders:
-      - "X-Forwarded-Host"
-      - "X-Forwarded-For"
-      - "X-Forwarded-Proto"
     stsSeconds: 31536000
     stsIncludeSubdomains: true
     stsPreload: true
@@ -381,6 +325,37 @@ spec:
     contentTypeNosniff: true
     referrerPolicy: "same-origin"
     contentSecurityPolicy: "upgrade-insecure-requests; frame-ancestors 'self';"
+    customResponseHeaders:
+      Permissions-Policy: >-
+        accelerometer=(),
+        camera=(),
+        geolocation=(),
+        gyroscope=(),
+        magnetometer=(),
+        microphone=(),
+        payment=(),
+        usb=()
+      Cross-Origin-Opener-Policy: same-origin
+      Cross-Origin-Resource-Policy: same-origin
+      X-Frame-Options: "SAMEORIGIN"
+      X-Robots-Tag: "noindex,nofollow,noarchive,nosnippet,notranslate,noimageindex"
+      X-Permitted-Cross-Domain-Policies: "none"
+      X-Powered-By: ""
+      server: ""
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-middleware-secure-headers-media
+spec:
+  headers:
+    stsSeconds: 31536000
+    stsIncludeSubdomains: true
+    stsPreload: true
+    forceSTSHeader: true
+    contentTypeNosniff: true
+    referrerPolicy: "strict-origin-when-cross-origin"
+    contentSecurityPolicy: "upgrade-insecure-requests;"
     customResponseHeaders:
       Permissions-Policy: >-
         accelerometer=(),

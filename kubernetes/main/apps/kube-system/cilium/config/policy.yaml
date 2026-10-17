@@ -11,7 +11,22 @@ spec:
     matchExpressions:
       - key: app.kubernetes.io/instance
         operator: NotIn
-        values: ["traefik-external-networking", "traefik-vpn-networking"]
+        values: ["traefik-networking", "traefik-external-networking", "traefik-vpn-networking"]
+---
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: l2-policy-traefik
+spec:
+  loadBalancerIPs: true
+  serviceSelector:
+    matchLabels:
+      app.kubernetes.io/instance: traefik-networking
+  nodeSelector:
+    matchExpressions:
+      - key: kubernetes.io/hostname
+        operator: In
+        values: ["n1", "n2"]
 ---
 apiVersion: cilium.io/v2alpha1
 kind: CiliumL2AnnouncementPolicy
