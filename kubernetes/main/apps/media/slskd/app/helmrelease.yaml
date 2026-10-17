@@ -22,12 +22,9 @@ spec:
               repository: docker.io/library/busybox
               tag: "1.38.0"
             command:
-              - mkdir
-              - -p
-              - -m
-              - "2775"
-              - /media/Downloads/soulseek
-              - /media/Downloads/soulseek-incomplete
+              - /bin/sh
+              - -c
+              - umask 002 && mkdir -p /media/Downloads/soulseek /media/Downloads/soulseek-incomplete
             securityContext:
               runAsUser: 1000
               runAsGroup: 1000
