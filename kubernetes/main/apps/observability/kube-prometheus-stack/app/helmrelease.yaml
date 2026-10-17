@@ -116,12 +116,26 @@ spec:
             - receiver: "null"
               matchers:
                 - alertname = Watchdog
-            - receiver: "null"
+            - receiver: ntfy-events
               matchers:
                 - alertname =~ Flux.*
             - receiver: ntfy-critical
               matchers:
                 - severity = critical
+        inhibit_rules:
+          - source_matchers: [severity = critical]
+            target_matchers: [severity =~ warning|info]
+            equal: [namespace, alertname]
+          - source_matchers: [severity = warning]
+            target_matchers: [severity = info]
+            equal: [namespace, alertname]
+          - source_matchers: [alertname = InfoInhibitor]
+            target_matchers: [severity = info]
+            equal: [namespace]
+          - target_matchers: [alertname = InfoInhibitor]
+          - source_matchers: [alertname = KubeNodeUnreachable]
+            target_matchers:
+              - alertname =~ KubeDaemonSet(RolloutStuck|MisScheduled)|Kube(let|Scheduler|ControllerManager)InstanceUnreachable
         receivers:
           - name: "null"
           - name: ntfy
@@ -136,6 +150,10 @@ spec:
             webhook_configs:
               - <<: *ntfy
                 url: http://ntfy.home.svc.cluster.local/alerts?template=alerts&priority=5
+          - name: ntfy-events
+            webhook_configs:
+              - <<: *ntfy
+                send_resolved: false
       alertmanagerSpec:
         secrets:
           - alertmanager-ntfy-secret
