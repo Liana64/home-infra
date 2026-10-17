@@ -24,6 +24,13 @@ spec:
             io.kubernetes.pod.namespace: networking
             app.kubernetes.io/name: traefik
     # same-node ClusterIP replies miss CT reverse-xlate, hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: prometheus
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: alertmanager
     # - fromEndpoints:
     #     - matchLabels:
     #         app.kubernetes.io/name: n8n
@@ -37,6 +44,22 @@ spec:
         - ports:
             - port: "8443"
               protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: alertmanager
+      toPorts:
+        - ports:
+            - port: "9093"
+              protocol: TCP
     # - toEndpoints:
     #     - matchLabels:
     #         app.kubernetes.io/name: n8n
@@ -44,7 +67,12 @@ spec:
     #     - ports:
     #         - port: "5678"
     #           protocol: TCP
-    - toEntities: ["world"]
+    - toCIDRSet:
+        - cidr: 0.0.0.0/0
+          except:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
       toPorts:
         - ports:
             - port: "443"
