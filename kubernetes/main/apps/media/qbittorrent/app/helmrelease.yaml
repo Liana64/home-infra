@@ -22,43 +22,13 @@ spec:
               repository: docker.io/powerdns/dnsdist-19
               tag: 1.9.16
             restartPolicy: Always
-          gluetun:
-            dependsOn:
-              - dnsdist
-            image:
-              repository: ghcr.io/qdm12/gluetun
-              tag: v3.41.3
-            env:
-              DOT: "off"
-              DNS_ADDRESS: "127.0.0.2"
-              VPN_SERVICE_PROVIDER: custom
-              VPN_TYPE: wireguard
-              VPN_INTERFACE: wg0
-              WIREGUARD_ENDPOINT_PORT: 51820
-              VPN_PORT_FORWARDING: on
-              VPN_PORT_FORWARDING_PROVIDER: protonvpn
-              PUID: 0
-              PGID: 0
-              FIREWALL_INPUT_PORTS: 8080
-              FIREWALL_OUTBOUND_SUBNETS: ${CLUSTER_CIDR},${SERVICE_CIDR}
-            envFrom:
-              - secretRef:
-                  name: qbittorrent-secret
-            resources:
-              limits:
-                squat.ai/tun: "1"
-            restartPolicy: Always
-            securityContext:
-              runAsUser: 0
-              runAsGroup: 0
-              runAsNonRoot: false
-              allowPrivilegeEscalation: false
-              capabilities:
-                drop:
-                  - ALL
-                add:
-                  - NET_ADMIN
         pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: '[{"name":"vpn","namespace":"kube-system","ips":["172.16.140.20/24"]}]'
+          dnsPolicy: None
+          dnsConfig:
+            nameservers:
+              - 127.0.0.2
           securityContext:
             seccompProfile: { type: RuntimeDefault }
             supplementalGroups:
@@ -75,6 +45,8 @@ spec:
               UMASK: "022"
               QBT_WEBUI_PORT: &port 8080
               QBT_TORRENTING_PORT: &torrentPort 61175
+              QBT_BitTorrent__Session__Interface: net1
+              QBT_BitTorrent__Session__InterfaceName: net1
               QBT_BitTorrent__Session__DefaultSavePath: "/media/Downloads"
               QBT_BitTorrent__Session__QueueingSystemEnabled: "true"
               QBT_BitTorrent__Session__MaxActiveDownloads: 3
@@ -131,27 +103,6 @@ spec:
               capabilities:
                 drop:
                   - ALL
-          port-forward:
-            image:
-              repository: ghcr.io/bjw-s-labs/gluetun-qb-port-sync
-              tag: 0.0.4@sha256:838ba41b3c736b23ae30f7e79a2610173f389a5ac6fb2b3e9c7bd482b9353c18
-            env:
-              GLUETUN_CONTROL_SERVER_HOST: localhost
-              GLUETUN_CONTROL_SERVER_PORT: 8000
-              QBITTORRENT_HOST: localhost
-              QBITTORRENT_WEBUI_PORT: *port
-              CRON_ENABLED: true
-              CRON_SCHEDULE: "*/5 * * * *"
-              LOG_TIMESTAMP: false
-            securityContext:
-              runAsUser: 2000
-              runAsGroup: 2000
-              runAsNonRoot: true
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities:
-                drop:
-                  - ALL
     defaultPodOptions:
       automountServiceAccountToken: false
       affinity:
@@ -201,12 +152,6 @@ spec:
         advancedMounts:
           qbittorrent:
             app:
-              - path: /config
-      empty-config:
-        type: emptyDir
-        advancedMounts:
-          qbittorrent:
-            port-forward:
               - path: /config
       media:
         existingClaim: media

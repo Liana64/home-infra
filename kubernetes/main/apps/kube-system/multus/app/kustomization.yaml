@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni/v4.3.1/deployments/multus-daemonset-thick.yml
+images:
+  - name: ghcr.io/k8snetworkplumbingwg/multus-cni
+    newTag: v4.3.1-thick
+    digest: sha256:a357a79359b80ddd5f4699117946cacf3b54f5baecf7944535594863e875fc25
+patches:
+  - target:
+      kind: DaemonSet
+      name: kube-multus-ds
+    patch: |
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: kube-multus-ds
+      spec:
+        template:
+          spec:
+            #nodeSelector:
+            #  kubernetes.io/hostname: m1
+            initContainers:
+              - name: install-cni
+                image: ghcr.io/siderolabs/install-cni:v1.9.0@sha256:53bdeb6c8d238dd593ee75f265baf4625925a034d8d18f10ffeae88d7fcf2c3e
+                command:
+                  - /install-cni.sh
+                securityContext:
+                  privileged: true
+                volumeMounts:
+                  - name: cnibin
+                    mountPath: /host/opt/cni/bin
+                    mountPropagation: Bidirectional
+            containers:
+              - name: kube-multus
+                resources:
+                  $patch: replace
+                  requests:
+                    cpu: 10m
+                    memory: 64Mi
+            volumes:
+              - name: host-run-netns
+                hostPath:
+                  path: /var/run/netns/

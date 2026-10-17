@@ -110,6 +110,9 @@ nodes:
     networkInterfaces:
       - interface: eth0
         dhcp: true
+      - deviceSelector:
+          hardwareAddr: "52:54:00:c0:fe:15"
+        dhcp: false
     talosImageURL: *talosMinimalImage
     schematic: *schematicMinimal
     patches:

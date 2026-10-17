@@ -12,7 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: traefik
-    - name: generic-device-plugin
+    - name: multus-config
     - name: volsync
     - name: kopia
   path: ./kubernetes/main/apps/media/slskd/app
@@ -27,4 +27,3 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 2Gi

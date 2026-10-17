@@ -16,40 +16,9 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
-        initContainers:
-          gluetun:
-            image:
-              repository: ghcr.io/qdm12/gluetun
-              tag: v3.41.3
-            env:
-              VPN_SERVICE_PROVIDER: custom
-              VPN_TYPE: wireguard
-              VPN_INTERFACE: wg0
-              WIREGUARD_ENDPOINT_PORT: 51820
-              VPN_PORT_FORWARDING: on
-              VPN_PORT_FORWARDING_PROVIDER: protonvpn
-              PUID: 0
-              PGID: 0
-              FIREWALL_INPUT_PORTS: 5030
-              HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE: '{"auth":"apikey","apikey":"$(GLUETUN_API_KEY)"}'
-            envFrom:
-              - secretRef:
-                  name: slskd-vpn-secret
-            resources:
-              limits:
-                squat.ai/tun: "1"
-            restartPolicy: Always
-            securityContext:
-              runAsUser: 0
-              runAsGroup: 0
-              runAsNonRoot: false
-              allowPrivilegeEscalation: false
-              capabilities:
-                drop:
-                  - ALL
-                add:
-                  - NET_ADMIN
         pod:
+          annotations:
+            k8s.v1.cni.cncf.io/networks: '[{"name":"vpn","namespace":"kube-system","ips":["172.16.140.10/24"]}]'
           securityContext:
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
@@ -73,14 +42,7 @@ spec:
               SLSKD_SHARED_DIR: /media/Music
               # KiB/s
               SLSKD_UPLOAD_SPEED_LIMIT: 22700
-              SLSKD_VPN: "true"
-              SLSKD_VPN_PORT_FORWARDING: "true"
-              SLSKD_VPN_GLUETUN_URL: http://localhost:8000
-              SLSKD_VPN_GLUETUN_API_KEY:
-                valueFrom:
-                  secretKeyRef:
-                    name: slskd-vpn-secret
-                    key: GLUETUN_API_KEY
+              SLSKD_SLSK_LISTEN_PORT: 50300
             envFrom:
               - secretRef:
                   name: slskd-secret
