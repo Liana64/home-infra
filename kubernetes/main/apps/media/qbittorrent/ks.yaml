@@ -15,6 +15,7 @@ spec:
     - name: multus-config
     - name: volsync
     - name: kopia
+    - name: prometheus-operator-crds
   path: ./kubernetes/main/apps/media/qbittorrent/app
   prune: true
   sourceRef:

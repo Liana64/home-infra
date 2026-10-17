@@ -26,8 +26,5 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_CAPACITY: 5Gi
       VOLSYNC_UID: "4001"
       VOLSYNC_GID: "4001"
-      VOLSYNC_PUID: "4001"
-      VOLSYNC_PGID: "4001"

@@ -9,6 +9,8 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
+  dependsOn:
+    - name: prometheus-operator-crds
   path: ./kubernetes/main/apps/networking/external-dns/app
   prune: true
   sourceRef:

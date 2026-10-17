@@ -18,9 +18,3 @@ patches:
         path: /spec/trigger
         value:
           schedule: "0 4 * * 6"
-  - patch: |
-      $patch: delete
-      apiVersion: volsync.backube/v1alpha1
-      kind: ReplicationDestination
-      metadata:
-        name: ${APP}-dst

@@ -13,6 +13,8 @@ spec:
   dependsOn:
     - name: traefik
     - name: cloudnative-pg
+    - name: volsync
+    - name: kopia
   path: ./kubernetes/main/apps/database/pgadmin/app
   prune: true
   sourceRef:
@@ -25,3 +27,5 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      VOLSYNC_UID: "5050"
+      VOLSYNC_GID: "5050"

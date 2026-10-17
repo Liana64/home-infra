@@ -10,10 +10,3 @@ resources:
   # - ./secret.sops.yaml
   # - ./configmap.yaml
   - ./helmrelease.yaml
-patches:
-  - patch: |
-      $patch: delete
-      apiVersion: volsync.backube/v1alpha1
-      kind: ReplicationDestination
-      metadata:
-        name: ${APP}-dst

@@ -28,5 +28,3 @@ spec:
     substitute:
       APP: *app
       POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
-      VOLSYNC_CAPACITY: 20Gi
-      VOLSYNC_STORAGECLASS: cluster-nvme

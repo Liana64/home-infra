@@ -9,18 +9,13 @@ patches:
       - op: replace
         path: /spec/sourcePVC
         value: __APP__-data
-  - patch: |
-      $patch: delete
-      apiVersion: volsync.backube/v1alpha1
-      kind: ReplicationDestination
-      metadata:
-        name: ${APP}-dst
 ---
-# In ks.yaml: add to dependsOn and set the PVC capacity.
+# In ks.yaml: add to dependsOn, and set the mover uid/gid when the pod doesn't run as 1000.
 #   dependsOn:
 #     - name: volsync
 #     - name: kopia
 #   postBuild:
 #     substitute:
 #       APP: *app
-#       VOLSYNC_CAPACITY: 2Gi   # match persistence.data.size
+#       VOLSYNC_UID: "1000"
+#       VOLSYNC_GID: "1000"

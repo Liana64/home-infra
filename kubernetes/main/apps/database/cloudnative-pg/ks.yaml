@@ -36,6 +36,7 @@ spec:
   dependsOn:
     - name: cloudnative-pg
     - name: cnpg-barman-plugin
+    - name: prometheus-operator-crds
   path: ./kubernetes/main/apps/database/cloudnative-pg/cluster
   prune: true
   sourceRef:

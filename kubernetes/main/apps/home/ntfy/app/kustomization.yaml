@@ -14,10 +14,3 @@ configMapGenerator:
       - ./resources/alerts.yml
 generatorOptions:
   disableNameSuffixHash: true
-patches:
-  - patch: |
-      $patch: delete
-      apiVersion: volsync.backube/v1alpha1
-      kind: ReplicationDestination
-      metadata:
-        name: ${APP}-dst

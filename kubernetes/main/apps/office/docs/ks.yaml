@@ -15,6 +15,8 @@ spec:
     - name: cloudnative-pg-cluster
     - name: dragonfly-cluster
     - name: s3
+    - name: volsync
+    - name: kopia
   path: ./kubernetes/main/apps/office/docs/app
   prune: true
   sourceRef:

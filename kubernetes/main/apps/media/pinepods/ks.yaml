@@ -12,6 +12,8 @@ spec:
   dependsOn:
     - name: traefik
     - name: cloudnative-pg-cluster
+    - name: volsync
+    - name: kopia
   path: ./kubernetes/main/apps/media/pinepods/app
   prune: true
   sourceRef:
@@ -24,3 +26,5 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      VOLSYNC_UID: "911"
+      VOLSYNC_GID: "911"
