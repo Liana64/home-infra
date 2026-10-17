@@ -6,12 +6,21 @@ metadata:
 spec:
   compress:
     minResponseBodyBytes: 1024
-    excludedContentTypes:
-      - application/zip
-      - application/octet-stream
-      - video/mp4
-      - video/webm
-      - video/x-matroska
-      - video/quicktime
-      - application/vnd.apple.mpegurl
-      - application/x-mpegURL
+    includedContentTypes:
+      - text/html
+      - text/css
+      - text/plain
+      - text/javascript
+      - text/xml
+      - text/csv
+      - application/javascript
+      - application/json
+      - application/problem+json
+      - application/manifest+json
+      - application/xml
+      - application/rss+xml
+      - application/atom+xml
+      - application/wasm
+      - image/svg+xml
+      - font/ttf
+      - font/otf
