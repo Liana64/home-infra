@@ -24,6 +24,8 @@ spec:
             command:
               - mkdir
               - -p
+              - -m
+              - "2775"
               - /media/Downloads/soulseek
               - /media/Downloads/soulseek-incomplete
             securityContext:
