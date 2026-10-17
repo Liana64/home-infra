@@ -65,9 +65,6 @@ spec:
               scheme: https
       websecure:
         asDefault: true
-        http:
-          middlewares:
-            - networking-traefik-middleware-secure-headers@kubernetescrd
         transport:
           respondingTimeouts:
             readTimeout: 0
