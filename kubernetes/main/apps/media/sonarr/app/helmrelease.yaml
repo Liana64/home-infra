@@ -34,16 +34,17 @@ spec:
               repository: ghcr.io/liana64/sonarr-develop
               tag: 4.0.18@sha256:015294120b4e5332094aa217f741103a0c55a9ee6da30746e731ce06de7381d4
             env:
-              COMPlus_EnableDiagnostics: "0"
+              DOTNET_EnableDiagnostics: "0"
               SONARR__APP__INSTANCENAME: Sonarr
               SONARR__AUTH__APIKEY:
                 valueFrom:
                   secretKeyRef:
                     name: sonarr-secret
                     key: api_key
-              SONARR__AUTH__METHOD: External
-              SONARR__AUTH__REQUIRED: DisabledForLocalAddresses
+              SONARR__AUTH__METHOD: Forms
+              SONARR__AUTH__REQUIRED: Enabled
               SONARR__LOG__LEVEL: info
+              SONARR__LOG__ANALYTICSENABLED: "False"
               SONARR__SERVER__PORT: &port 8989
               SONARR__UPDATE__BRANCH: develop
             probes:

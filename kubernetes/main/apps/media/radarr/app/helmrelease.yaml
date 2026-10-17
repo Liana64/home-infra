@@ -34,12 +34,13 @@ spec:
               repository: ghcr.io/liana64/radarr-develop
               tag: 6.3.0@sha256:0f2e007b60ac7fa626a320003580b78bde6da2702b9f220d53be628a7a8f4f80
             env:
-              COMPlus_EnableDiagnostics: "0"
+              DOTNET_EnableDiagnostics: "0"
               RADARR__APP__INSTANCENAME: Radarr
               RADARR__SERVER__PORT: &port 7878
               RADARR__AUTH__METHOD: Forms
-              RADARR__AUTH__REQUIRED: DisabledForLocalAddresses
+              RADARR__AUTH__REQUIRED: Enabled
               RADARR__LOG__LEVEL: info
+              RADARR__LOG__ANALYTICSENABLED: "False"
               RADARR__AUTH__APIKEY:
                 valueFrom:
                   secretKeyRef:
