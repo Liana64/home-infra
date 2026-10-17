@@ -16,6 +16,11 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
+        defaultContainerOptions:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
         containers:
           app:
             # renovate: datasource=docker depName=madeofpendletonwool/pinepods
@@ -37,11 +42,9 @@ spec:
                   secretKeyRef:
                     name: pinepods-db-secret
                     key: DB_PASSWORD
-              VALKEY_HOST: localhost
-              VALKEY_PORT: "6379"
-              DEBUG_MODE: "false"
-              PUID: "1000"
-              PGID: "1000"
+              VALKEY_HOST: 127.0.0.1
+              VALKEY_PORT: &valkeyPort "6379"
+              DEBUG_MODE: "true"
             probes:
               liveness: &probes
                 enabled: true
@@ -57,18 +60,16 @@ spec:
               readiness: *probes
               startup:
                 enabled: true
+                custom: true
                 spec:
+                  httpGet:
+                    path: /api/pinepods_check
+                    port: *port
                   failureThreshold: 30
                   periodSeconds: 5
-            securityContext:
-              # TODO: PUID/PGID image inits as root; harden after a live check
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: false
-              capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 25m
-                memory: 256Mi
               limits:
                 memory: 1Gi
           valkey:
@@ -76,18 +77,31 @@ spec:
             image:
               repository: valkey/valkey
               tag: 9-alpine@sha256:3b83b0b6a598bb390c8186a408a69949772f439548a81c5ea0ab7ccf102c248d
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
+            args:
+              - --bind
+              - 127.0.0.1
+              - --port
+              - *valkeyPort
+              - --save
+              - ""
+              - --appendonly
+              - "no"
             resources:
               requests:
                 cpu: 5m
-                memory: 32Mi
               limits:
                 memory: 128Mi
-
     defaultPodOptions:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 911
+        runAsGroup: 911
+        fsGroup: 911
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: [2000]
+        seccompProfile: {type: RuntimeDefault}
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -95,25 +109,20 @@ spec:
               - matchExpressions:
                   - key: kubernetes.io/hostname
                     operator: In
-                    values:
-                      - "m1"
-      securityContext:
-        seccompProfile: { type: RuntimeDefault }
-
+                    values: ["m1"]
     service:
       app:
         controller: *app
         ports:
           http:
             port: *port
-
     ingress:
       app:
         className: traefik
         annotations:
           cert-manager.io/cluster-issuer: "letsencrypt-production"
           traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-media@kubernetescrd"
           gethomepage.dev/enabled: "true"
           gethomepage.dev/group: Media
           gethomepage.dev/name: Pinepods
@@ -129,30 +138,39 @@ spec:
         tls:
           - secretName: pinepods-tls
             hosts: [*host]
-
     persistence:
-      # episodes are re-fetchable and durable state lives in CNPG — no volsync
       data:
         storageClass: cluster-nvme
         accessMode: ReadWriteOnce
-        size: 10Gi
+        size: 1Gi
         retain: true
         advancedMounts:
           pinepods:
             app:
+              - path: /opt/pinepods
+      media:
+        existingClaim: media
+        advancedMounts:
+          pinepods:
+            app:
               - path: /opt/pinepods/downloads
-                subPath: downloads
-              - path: /opt/pinepods/backups
-                subPath: backups
+                subPath: Podcasts
+      scratch:
+        type: emptyDir
+        advancedMounts:
+          pinepods:
+            app:
+              - {path: /etc/horust/services, subPath: horust}
+              - {path: /pinepods/cache, subPath: cache}
+              - {path: /var/log/pinepods, subPath: log-pinepods}
+              - {path: /var/log/nginx, subPath: log-nginx}
+              - {path: /var/lib/nginx, subPath: nginx}
+              - {path: /var/lib/nginx/logs, subPath: log-nginx}
+              - {path: /run, subPath: run}
+              - {path: /tmp, subPath: tmp}
       valkey-data:
         type: emptyDir
         advancedMounts:
           pinepods:
             valkey:
               - path: /data
-      tmp:
-        type: emptyDir
-        advancedMounts:
-          pinepods:
-            app:
-              - path: /tmp

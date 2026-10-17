@@ -19,6 +19,10 @@ spec:
         - ports:
             - port: "8040"
               protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            cnpg.io/cluster: postgres-1
+            io.kubernetes.pod.namespace: database
   egress:
     - toEndpoints:
         - matchLabels:
@@ -39,7 +43,12 @@ spec:
         - ports:
             - port: "5432"
               protocol: TCP
-    - toEntities: ["world"]
+    - toCIDRSet:
+        - cidr: 0.0.0.0/0
+          except:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
       toPorts:
         - ports:
             - port: "443"
