@@ -18,6 +18,9 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: media
             app.kubernetes.io/name: prowlarr
+        - matchLabels:
+            io.kubernetes.pod.namespace: media
+            app.kubernetes.io/name: soularr
       toPorts:
         - ports:
             - port: "8686"
@@ -49,7 +52,12 @@ spec:
             - port: "8080"
               protocol: TCP
     # metadata (api.lidarr.audio, musicbrainz)
-    - toEntities: ["world"]
+    - toCIDRSet:
+        - cidr: 0.0.0.0/0
+          except:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
       toPorts:
         - ports:
             - port: "443"
