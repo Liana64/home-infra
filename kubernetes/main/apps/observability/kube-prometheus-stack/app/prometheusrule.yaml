@@ -71,6 +71,33 @@ spec:
           for: 15m
           labels:
             severity: critical
+    - name: smart
+      rules:
+        - alert: SmartDeviceUnhealthy
+          annotations:
+            summary: Disk {{ $labels.device }} on {{ $labels.host }} failed its SMART health check — replace it
+          expr: smartctl_device_smart_status == 0
+          for: 5m
+          labels:
+            severity: critical
+        - alert: SmartDeviceHot
+          annotations:
+            summary: Disk {{ $labels.device }} on {{ $labels.host }} is at {{ $value }}°C
+          expr: smartctl_device_temperature{temperature_type="current"} > 55
+          for: 30m
+          labels:
+            severity: warning
+    - name: ingress
+      rules:
+        - alert: IngressBackendUnavailable
+          annotations:
+            summary: Router {{ $labels.router }} is answering {{ $value | humanizePercentage }} of requests with 502/503/504 — backend down or timing out
+          expr: |-
+            sum by (router) (rate(traefik_router_requests_total{code=~"502|503|504"}[5m]))
+              / (sum by (router) (rate(traefik_router_requests_total[5m])) > 0.05) > 0.1
+          for: 15m
+          labels:
+            severity: warning
     - name: seaweedfs
       rules:
         - alert: SeaweedFsDown

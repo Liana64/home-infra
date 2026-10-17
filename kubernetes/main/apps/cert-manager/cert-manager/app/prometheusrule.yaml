@@ -1,0 +1,24 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cert-manager
+spec:
+  groups:
+    - name: cert-manager.rules
+      rules:
+        - alert: CertificateNotReady
+          annotations:
+            summary: Certificate {{ $labels.namespace }}/{{ $labels.name }} is not ready
+          expr: certmanager_certificate_ready_status{condition="True"} == 0
+          for: 1h
+          labels:
+            severity: warning
+        - alert: CertificateExpiringSoon
+          annotations:
+            summary: Certificate {{ $labels.namespace }}/{{ $labels.name }} expires in {{ $value | humanizeDuration }} — renewal is failing
+          expr: certmanager_certificate_expiration_timestamp_seconds - time() < 14 * 86400
+          for: 1h
+          labels:
+            severity: critical
