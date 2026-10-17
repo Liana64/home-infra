@@ -16,6 +16,25 @@ spec:
         strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
+        initContainers:
+          mkdir:
+            image:
+              repository: docker.io/library/busybox
+              tag: "1.38.0"
+            command:
+              - mkdir
+              - -p
+              - /media/Downloads/soulseek
+              - /media/Downloads/soulseek-incomplete
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 1000
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
         pod:
           annotations:
             k8s.v1.cni.cncf.io/networks: '[{"name":"vpn","namespace":"kube-system","ips":["172.16.140.10/24"]}]'
@@ -136,6 +155,8 @@ spec:
         existingClaim: media
         advancedMounts:
           slskd:
+            mkdir:
+              - path: /media
             app:
               - path: /media
       tmp:
