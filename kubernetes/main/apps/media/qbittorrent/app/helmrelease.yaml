@@ -51,7 +51,7 @@ spec:
               QBT_BitTorrent__Session__QueueingSystemEnabled: "true"
               QBT_BitTorrent__Session__MaxActiveDownloads: 3
               QBT_BitTorrent__Session__MaxActiveUploads: 50
-              QBT_BitTorrent__Session__MaxActiveTorrents: 100
+              QBT_BitTorrent__Session__MaxActiveTorrents: 250
               QBT_BitTorrent__Session__MaxActiveCheckingTorrents: 3
               QBT_BitTorrent__Session__IgnoreSlowTorrentsForQueueing: "true"
               QBT_BitTorrent__Session__MaxConnections: -1
@@ -60,9 +60,9 @@ spec:
               QBT_BitTorrent__Session__MaxUploadsPerTorrent: -1
               # KiB/s
               QBT_BitTorrent__Session__GlobalDLSpeedLimit: 52000
-              QBT_BitTorrent__Session__GlobalUPSpeedLimit: 22700
+              QBT_BitTorrent__Session__GlobalUPSpeedLimit: 23000
               QBT_BitTorrent__Session__AlternativeGlobalDLSpeedLimit: 80000
-              QBT_BitTorrent__Session__AlternativeGlobalUPSpeedLimit: 22700
+              QBT_BitTorrent__Session__AlternativeGlobalUPSpeedLimit: 35000
               QBT_BitTorrent__Session__GlobalMaxRatio: 4
               QBT_BitTorrent__Session__ShareLimitAction: Stop
               QBT_BitTorrent__Session__UseRandomPort: "false"
