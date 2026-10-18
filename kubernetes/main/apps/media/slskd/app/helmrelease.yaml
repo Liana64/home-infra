@@ -25,7 +25,7 @@ spec:
               - /bin/sh
               - -c
               - umask 002 && mkdir -p /media/Downloads/soulseek /media/Downloads/soulseek-incomplete
-            securityContext:
+            securityContext: &securityContext
               runAsUser: 1000
               runAsGroup: 1000
               runAsNonRoot: true
@@ -34,6 +34,23 @@ spec:
               capabilities:
                 drop:
                   - ALL
+          natpmp:
+            image:
+              repository: docker.io/library/busybox
+              tag: "1.38.0"
+            restartPolicy: Always
+            command: ["/bin/sh", "/natpmp/natpmp.sh"]
+            env:
+              NATPMP_SYNC: >-
+                grep -qx "  listen_port: $PORT" /config/slskd.yml 2>/dev/null ||
+                printf 'soulseek:\n  listen_port: %s\n' "$PORT" > /config/slskd.yml
+            resources:
+              requests:
+                cpu: 5m
+                memory: 8Mi
+              limits:
+                memory: 32Mi
+            securityContext: *securityContext
         pod:
           annotations:
             k8s.v1.cni.cncf.io/networks: '[{"name":"vpn","namespace":"kube-system","ips":["172.16.140.10/24"]}]'
@@ -61,7 +78,7 @@ spec:
               SLSKD_SHARED_DIR: /media/Music
               # KiB/s
               SLSKD_UPLOAD_SPEED_LIMIT: 22700
-              SLSKD_SLSK_LISTEN_PORT: 50300
+              SLSKD_CONFIG: /config/slskd.yml
             envFrom:
               - secretRef:
                   name: slskd-secret
@@ -158,6 +175,22 @@ spec:
               - path: /media
             app:
               - path: /media
+      config:
+        type: emptyDir
+        advancedMounts:
+          slskd:
+            natpmp:
+              - path: /config
+            app:
+              - path: /config
+      natpmp:
+        type: configMap
+        name: natpmp
+        advancedMounts:
+          slskd:
+            natpmp:
+              - path: /natpmp
+                readOnly: true
       tmp:
         type: emptyDir
         advancedMounts:

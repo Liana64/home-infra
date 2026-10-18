@@ -14,7 +14,7 @@ spec:
     controllers:
       qbittorrent:
         annotations:
-          configmap.reloader.stakater.com/reload: qbittorrent-dnsdist
+          configmap.reloader.stakater.com/reload: qbittorrent-dnsdist,natpmp
           secret.reloader.stakater.com/reload: qbittorrent-secret
         initContainers:
           dnsdist:
@@ -22,6 +22,31 @@ spec:
               repository: docker.io/powerdns/dnsdist-19
               tag: 1.9.16
             restartPolicy: Always
+          natpmp:
+            image:
+              repository: docker.io/library/busybox
+              tag: "1.38.0"
+            restartPolicy: Always
+            command: ["/bin/sh", "/natpmp/natpmp.sh"]
+            env:
+              NATPMP_SYNC: >-
+                wget -qO- localhost:8080/api/v2/app/preferences | grep -q "\"listen_port\":$PORT," ||
+                wget -qO- --post-data "json={\"listen_port\":$PORT}" localhost:8080/api/v2/app/setPreferences
+            resources:
+              requests:
+                cpu: 5m
+                memory: 8Mi
+              limits:
+                memory: 32Mi
+            securityContext:
+              runAsUser: 1000
+              runAsGroup: 1000
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
         pod:
           annotations:
             k8s.v1.cni.cncf.io/networks: '[{"name":"vpn","namespace":"kube-system","ips":["172.16.140.20/24"]}]'
@@ -44,7 +69,6 @@ spec:
             env:
               UMASK: "022"
               QBT_WEBUI_PORT: &port 8080
-              QBT_TORRENTING_PORT: &torrentPort 61175
               QBT_BitTorrent__Session__Interface: net1
               QBT_BitTorrent__Session__InterfaceName: net1
               QBT_BitTorrent__Session__DefaultSavePath: "/media/Downloads"
@@ -159,6 +183,14 @@ spec:
           qbittorrent:
             app:
               - path: /media
+      natpmp:
+        type: configMap
+        name: natpmp
+        advancedMounts:
+          qbittorrent:
+            natpmp:
+              - path: /natpmp
+                readOnly: true
       dnsdist:
         type: configMap
         name: qbittorrent-dnsdist

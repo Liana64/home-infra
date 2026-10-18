@@ -17,7 +17,7 @@ spec:
             severity: warning
         - alert: QbittorrentDisconnected
           annotations:
-            summary: qBittorrent has no peer connectivity — VLAN 140 VPN or forwarded port 61175 is down
+            summary: qBittorrent has no peer connectivity — VLAN 140 VPN or Proton NAT-PMP forward is down
           expr: qbittorrent_connected == 0 or qbittorrent_firewalled == 1
           for: 30m
           labels:

@@ -24,3 +24,11 @@ resources:
   - ./lidarr/ks.yaml
   - ./slskd/ks.yaml
   - ./soularr/ks.yaml
+configMapGenerator:
+  - name: natpmp
+    files:
+      - ./resources/natpmp.sh
+generatorOptions:
+  disableNameSuffixHash: true
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled
