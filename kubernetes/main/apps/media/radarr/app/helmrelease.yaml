@@ -32,7 +32,7 @@ spec:
             # renovate: datasource=docker depName=ghcr.io/liana64/radarr-develop
             image:
               repository: ghcr.io/liana64/radarr-develop
-              tag: 6.3.0@sha256:0f2e007b60ac7fa626a320003580b78bde6da2702b9f220d53be628a7a8f4f80
+              tag: 6.4.4@sha256:81dc738ef31b0ecb8529f539b9e2a056de7b844f87b2979169158e17e4c3514e
             env:
               DOTNET_EnableDiagnostics: "0"
               RADARR__APP__INSTANCENAME: Radarr
