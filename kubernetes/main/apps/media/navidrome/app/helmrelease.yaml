@@ -33,7 +33,7 @@ spec:
               ND_MUSICFOLDER: /music
               ND_DATAFOLDER: /data
               ND_CACHEFOLDER: /cache
-              ND_SCANNER_SCHEDULE: "@every 1h"
+              ND_SCANNER_SCHEDULE: "@every 30m"
               ND_LOGLEVEL: info
               ND_ENABLEEXTERNALSERVICES: "false"
               ND_REVERSEPROXYWHITELIST: "10.244.0.0/16"
