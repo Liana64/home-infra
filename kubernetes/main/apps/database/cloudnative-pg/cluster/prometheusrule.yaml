@@ -13,11 +13,11 @@ spec:
       rules:
         - alert: LongRunningTransaction
           annotations:
-            description: Pod {{ $labels.pod }} is taking more than 5 minutes (300 seconds) for a query.
-            summary: A query is taking longer than 5 minutes.
+            description: Pod {{ $labels.pod }} has held a transaction open for more than 15 minutes (900 seconds).
+            summary: A transaction has been open longer than 15 minutes.
           expr: |-
-            cnpg_backends_max_tx_duration_seconds > 300
-          for: 1m
+            cnpg_backends_max_tx_duration_seconds > 900
+          for: 5m
           labels:
             severity: warning
         - alert: BackendsWaiting
