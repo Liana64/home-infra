@@ -12,20 +12,3 @@
         href: http://slzb.${PERSONAL_DOMAIN}
         icon: zigbee2mqtt
         description: Zigbee coordinator
-- Devices:
-    - n1:
-        href: http://ms-01.${PERSONAL_DOMAIN}:8006
-        icon: proxmox
-        description: Node 1 (MS-01)
-    - n2:
-        href: http://n2.${PERSONAL_DOMAIN}:8006
-        icon: proxmox
-        description: Node 2 (MS-01)
-    - n3:
-        href: http://n3.${PERSONAL_DOMAIN}:8006
-        icon: proxmox
-        description: Node 3 (OptiPlex 7050)
-    - Carrot:
-        href: http://172.16.200.20
-        icon: valetudo
-        description: Robot vacuum
