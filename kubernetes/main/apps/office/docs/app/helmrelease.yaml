@@ -167,7 +167,7 @@ spec:
             # renovate: datasource=docker depName=lasuite/impress-y-provider
             image:
               repository: lasuite/impress-y-provider
-              tag: v6.0.0@sha256:2d1126daf3e86795f2d6862109401858ff228884742ce932254123208c8df86a
+              tag: v6.0.1@sha256:1e59a01707d33ae288419808127d485636244a830784cdbbbd24a541b54555df
             env:
               HOME: /tmp
               PORT: &yProviderPort 4444
