@@ -26,6 +26,7 @@ resources:
   - ./soularr/ks.yaml
 configMapGenerator:
   - name: natpmp
+    namespace: media
     files:
       - ./resources/natpmp.sh
 generatorOptions:
