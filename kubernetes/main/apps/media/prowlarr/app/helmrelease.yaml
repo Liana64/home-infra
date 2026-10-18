@@ -28,7 +28,7 @@ spec:
             # renovate: datasource=docker depName=ghcr.io/liana64/prowlarr-develop
             image:
               repository: ghcr.io/liana64/prowlarr-develop
-              tag: 2.5.1@sha256:10b28f68cb4e6f0c6f4ec17e23e231e504b5a9504269f66b4528f9bd8ef80825
+              tag: 2.6.5@sha256:d00b3b9ebe52e035bb10b908f00bcbc15c40c14e09e980272e505f1dfe3a7ef0
             env:
               DOTNET_EnableDiagnostics: "0"
               PROWLARR__APP__INSTANCENAME: Prowlarr
