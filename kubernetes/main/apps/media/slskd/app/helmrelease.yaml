@@ -78,6 +78,8 @@ spec:
               SLSKD_SHARED_DIR: /media/Music
               # KiB/s
               SLSKD_UPLOAD_SPEED_LIMIT: 22700
+              # minutes
+              SLSKD_SHARE_CACHE_RETENTION: 60
               SLSKD_CONFIG: /config/slskd.yml
             envFrom:
               - secretRef:
@@ -108,7 +110,7 @@ spec:
                 cpu: 20m
                 memory: 256Mi
               limits:
-                memory: 1024Mi
+                memory: 2048Mi
             securityContext:
               runAsUser: 1000
               runAsGroup: 1000
