@@ -39,3 +39,4 @@ data:
 
   # Backups
   CNPG_B2_REGION: "us-east-005"
+  SOPS_AGE_RECIPIENT: "age1zmrywhk3kp7490q25eua25rlx4zg9wu97fc64ahdm65zv3dv39psetsa4u"
