@@ -4,6 +4,8 @@ kind: CiliumNetworkPolicy
 metadata:
   name: netshoot
   namespace: networking
+  annotations:
+    home-infra/broad-egress: debug pod
 spec:
   endpointSelector:
     matchLabels:

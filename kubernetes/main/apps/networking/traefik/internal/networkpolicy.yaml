@@ -4,16 +4,16 @@ kind: CiliumNetworkPolicy
 metadata:
   name: traefik
   namespace: networking
+  annotations:
+    home-infra/broad-egress: routes to backends in every namespace
 spec:
   endpointSelector:
     matchLabels:
       app.kubernetes.io/name: traefik
       app.kubernetes.io/instance: traefik-networking
   ingress:
-    # world = LAN/WAN via LB; cluster = pods hairpinning through ingress hostnames
     - fromEntities:
         - world
-        - cluster
       toPorts:
         - ports:
             - port: "8000"
@@ -24,6 +24,20 @@ spec:
             - port: "8443"
               protocol: UDP
             # ssh entrypoint (forgejo git-ssh, exposed as 22)
+            - port: "2222"
+              protocol: TCP
+    - fromEndpoints:
+        - matchExpressions:
+            - key: io.kubernetes.pod.namespace
+              operator: Exists
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+            - port: "8443"
+              protocol: UDP
             - port: "2222"
               protocol: TCP
     - fromEndpoints:

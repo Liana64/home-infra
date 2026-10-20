@@ -33,6 +33,16 @@ spec:
     - toFQDNs:
         - matchName: api.anthropic.com
         - matchName: github.com
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/instance: traefik-networking
+      toPorts:
+        - ports:
+            - port: "8443"
+              protocol: TCP
+            - port: "2222"
+              protocol: TCP
     - toCIDRSet:
         - cidr: 0.0.0.0/0
           except:

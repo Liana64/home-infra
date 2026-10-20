@@ -1,0 +1,31 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: default-deny
+  namespace: volsync-system
+spec:
+  endpointSelector: {}
+  ingress:
+    - fromEntities:
+        - health
+  egress:
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: kube-system
+            k8s-app: kube-dns
+      toPorts:
+        - ports:
+            - port: "53"
+              protocol: ANY
+          rules:
+            dns:
+              - matchPattern: "*"
+    - toFQDNs:
+        - matchName: api.backblazeb2.com
+        - matchPattern: "*.backblazeb2.com"
+        - matchPattern: "*.backblaze.com"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

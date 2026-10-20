@@ -5,6 +5,8 @@ kind: CiliumNetworkPolicy
 metadata:
   name: prometheus
   namespace: observability
+  annotations:
+    home-infra/broad-egress: scrapes targets in every namespace
 spec:
   endpointSelector:
     matchLabels:

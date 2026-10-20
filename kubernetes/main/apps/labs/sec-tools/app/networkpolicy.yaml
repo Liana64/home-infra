@@ -4,6 +4,8 @@ kind: CiliumNetworkPolicy
 metadata:
   name: sec-tools
   namespace: default
+  annotations:
+    home-infra/broad-egress: security tooling targets arbitrary hosts
 spec:
   endpointSelector:
     matchLabels:

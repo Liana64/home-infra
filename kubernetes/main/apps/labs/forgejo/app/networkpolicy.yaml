@@ -23,6 +23,8 @@ spec:
         - matchLabels:
             app.kubernetes.io/name: prometheus
             io.kubernetes.pod.namespace: observability
+        - matchLabels:
+            io.kubernetes.pod.namespace: renovate
       toPorts:
         - ports:
             - port: "3000"

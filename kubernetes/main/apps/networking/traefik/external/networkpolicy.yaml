@@ -4,6 +4,8 @@ kind: CiliumNetworkPolicy
 metadata:
   name: traefik-external
   namespace: networking
+  annotations:
+    home-infra/broad-egress: routes to backends in every namespace
 spec:
   endpointSelector:
     matchLabels:
@@ -12,7 +14,6 @@ spec:
   ingress:
     - fromEntities:
         - world
-        - cluster
       toPorts:
         - ports:
             - port: "8000"
@@ -20,6 +21,18 @@ spec:
             - port: "8443"
               protocol: TCP
             # http3
+            - port: "8443"
+              protocol: UDP
+    - fromEndpoints:
+        - matchExpressions:
+            - key: io.kubernetes.pod.namespace
+              operator: Exists
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
             - port: "8443"
               protocol: UDP
     - fromEndpoints:

@@ -12,7 +12,18 @@ spec:
   ingress:
     - fromEntities:
         - world
-        - cluster
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+            - port: "8443"
+              protocol: TCP
+            - port: "8443"
+              protocol: UDP
+    - fromEndpoints:
+        - matchExpressions:
+            - key: io.kubernetes.pod.namespace
+              operator: Exists
       toPorts:
         - ports:
             - port: "8000"

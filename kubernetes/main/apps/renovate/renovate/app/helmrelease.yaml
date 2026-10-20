@@ -39,7 +39,8 @@ spec:
             env:
               LOG_LEVEL: info
               RENOVATE_PLATFORM: forgejo
-              RENOVATE_ENDPOINT: "https://git.${ORG_DOMAIN}/api/v1"
+              RENOVATE_ENDPOINT: "http://forgejo-http.labs.svc.cluster.local:3000/api/v1"
+              RENOVATE_GIT_URL: endpoint
               RENOVATE_AUTODISCOVER: "false"
               RENOVATE_REPOSITORIES: liana/home-infra
               RENOVATE_ONBOARDING: "false"
