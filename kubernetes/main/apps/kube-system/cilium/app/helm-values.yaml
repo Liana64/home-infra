@@ -31,7 +31,10 @@ cluster:
   name: milberry
 cni:
   exclusive: false
-enableIPv4BIGTCP: true
+enableIPv4BIGTCP: false
+encryption:
+  enabled: true
+  type: wireguard
 dashboards:
   enabled: true
 endpointRoutes:
