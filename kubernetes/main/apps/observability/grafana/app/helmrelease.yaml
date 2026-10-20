@@ -175,13 +175,13 @@ spec:
         flux-control-plane:
           url: https://raw.githubusercontent.com/fluxcd/flux2-monitoring-example/main/monitoring/configs/dashboards/control-plane.json
           datasource: Prometheus
-        nvidia-dcgm-exporter:
-          # renovate: depName="NVIDIA DCGM Exporter Dashboard"
-          gnetId: 15117
-          revision: 2
-          datasource:
-            - { name: DS_PROMETHEUS, value: Prometheus }
-            - { name: DS_PROMETHEUS-HPC, value: Prometheus }
+        #nvidia-dcgm-exporter:
+        #  # renovate: depName="NVIDIA DCGM Exporter Dashboard"
+        #  gnetId: 15117
+        #  revision: 2
+        #  datasource:
+        #    - { name: DS_PROMETHEUS, value: Prometheus }
+        #    - { name: DS_PROMETHEUS-HPC, value: Prometheus }
         node-exporter-full:
           # renovate: depName="Node Exporter Full"
           gnetId: 1860

@@ -7,7 +7,7 @@ resources:
   - ./prometheus-operator-crds/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
   - ./grafana/ks.yaml
-  - ./dcgm-exporter/ks.yaml
+  #- ./dcgm-exporter/ks.yaml
   #- ./loki/ks.yaml
   - ./speedtest-exporter/ks.yaml
   #- ./changedetection/ks.yaml

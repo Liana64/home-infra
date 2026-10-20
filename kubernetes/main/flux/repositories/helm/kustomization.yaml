@@ -16,7 +16,7 @@ resources:
   - ./k8tz.yaml
   - ./metrics-server.yaml
   - ./node-feature-discovery.yaml
-  - ./nvidia-device-plugin.yaml
+  #- ./nvidia-device-plugin.yaml
   - ./openebs.yaml
   - ./piped.yaml
   - ./piraeus.yaml
@@ -25,4 +25,4 @@ resources:
   - ./rook-ceph.yaml
   - ./traefik.yaml
   - ./csi-driver-smb.yaml
-  - ./dcgm-exporter.yaml
+  #- ./dcgm-exporter.yaml
