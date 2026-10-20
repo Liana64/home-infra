@@ -55,6 +55,9 @@ spec:
           annotations:
             k8s.v1.cni.cncf.io/networks: '[{"name":"vpn","namespace":"kube-system","ips":["172.16.140.10/24"]}]'
           securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
             seccompProfile: { type: RuntimeDefault }

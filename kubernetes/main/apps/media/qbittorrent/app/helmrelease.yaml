@@ -22,6 +22,15 @@ spec:
               repository: docker.io/powerdns/dnsdist-19
               tag: 1.9.16
             restartPolicy: Always
+            securityContext:
+              runAsUser: 953
+              runAsGroup: 953
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
           natpmp:
             image:
               repository: docker.io/library/busybox
@@ -55,9 +64,15 @@ spec:
             nameservers:
               - 127.0.0.2
           securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
             seccompProfile: { type: RuntimeDefault }
             supplementalGroups:
               - 2000
+            sysctls:
+              - name: net.ipv4.ip_unprivileged_port_start
+                value: "53"
           terminationGracePeriodSeconds: 120
         containers:
           app:
