@@ -57,7 +57,6 @@ nodes:
             - device: /dev/sdb
               partitions:
                 - mountpoint: /var/mnt/local-pool
-      - "@./patches/control/disable-admission-control.yaml"
       - "@./patches/mesh/etcd.yaml"
       - "@./patches/global/containerd.yaml"
     nodeLabels: &ms01cluster

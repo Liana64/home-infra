@@ -98,3 +98,14 @@ spec:
                   type: RuntimeDefault
       target:
         kind: Deployment
+    - patch: |
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: flux-system
+          labels:
+            pod-security.kubernetes.io/enforce: restricted
+            pod-security.kubernetes.io/audit: restricted
+      target:
+        kind: Namespace
+        name: flux-system
