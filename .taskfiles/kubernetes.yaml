@@ -70,6 +70,22 @@ tasks:
     requires:
       vars: ["name"]
 
+  drops:
+    desc: Show Hubble policy drops across all nodes
+    summary: |
+      Args:
+        ns: Namespace to filter on, either side of the flow (optional)
+        app: app.kubernetes.io/name to filter on, either side of the flow (optional)
+        since: Lookback window (default: 10m)
+        ipv6: Include IPv6 flows (default: false)
+    cmd: |
+      for p in $(kubectl get pod -n kube-system -l k8s-app=cilium -o name); do
+        kubectl exec -n kube-system "$p" -c cilium-agent -- hubble observe --verdict DROPPED --since {{.since}} {{if .ns}}--namespace {{.ns}}{{end}} {{if .app}}--label app.kubernetes.io/name={{.app}}{{end}} {{if ne .ipv6 "true"}}--ipv4{{end}} -o compact
+      done
+    vars:
+      since: '{{.since | default "10m"}}'
+      ipv6: '{{.ipv6 | default "false"}}'
+
   sanitize:
     desc: Delete pods that aren't working as intended
     cmds:
