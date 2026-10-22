@@ -1,0 +1,78 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app talos-backup
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      talos-backup:
+        type: cronjob
+        cronjob:
+          schedule: "0 23 * * *"
+          timeZone: "${TIMEZONE}"
+          backoffLimit: 2
+          concurrencyPolicy: Forbid
+          failedJobsHistory: 1
+          successfulJobsHistory: 1
+        pod:
+          restartPolicy: Never
+        defaultContainerOptions:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+        containers:
+          app:
+            # renovate: datasource=docker depName=ghcr.io/siderolabs/talos-backup
+            image:
+              repository: ghcr.io/siderolabs/talos-backup
+              tag: v0.1.0-beta.3@sha256:05c86663b251a407551dc948097e32e163a345818117eb52c573b0447bd0c7a7
+            command: ["/talos-backup"]
+            workingDir: /tmp
+            env:
+              TZ: "${TIMEZONE}"
+              CUSTOM_S3_ENDPOINT: http://s3.database.svc.cluster.local:8333
+              USE_PATH_STYLE: "true"
+              AWS_REGION: us-east-1
+              BUCKET: etcd
+              CLUSTER_NAME: "${CLUSTER_NAME}"
+              AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+              AGE_X25519_PUBLIC_KEY: "${SOPS_AGE_RECIPIENT}"
+            envFrom:
+              - secretRef:
+                  name: talos-backup-s3-secret
+            resources:
+              requests:
+                cpu: 10m
+                memory: 128Mi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    persistence:
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+      talos:
+        type: emptyDir
+        globalMounts:
+          - path: /.talos
+      talos-secrets:
+        type: secret
+        name: *app
+        globalMounts:
+          - path: /var/run/secrets/talos.dev
+            readOnly: true

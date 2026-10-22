@@ -128,6 +128,25 @@ tasks:
       - msg: Node not found
         sh: "talosctl --nodes {{.controller}} get machineconfig >/dev/null 2>&1"
 
+  recover-etcd:
+    desc: Re-bootstrap etcd from a talos-backup snapshot eg "task talos:recover-etcd node=172.16.4.12 snapshot=./milberry-….snap.age"
+    prompt: Bootstrap etcd on {{.node}} from {{.snapshot}}? Every control plane must have had EPHEMERAL wiped.
+    cmds:
+      - |
+        set -eu
+        db=$(mktemp); trap 'rm -f "$db"' EXIT
+        age -d -i "{{.AGE_FILE}}" -o "$db" "{{.snapshot}}"
+        talosctl -n {{.node}} bootstrap --recover-from="$db"
+    requires:
+      vars: ["node", "snapshot"]
+    preconditions:
+      - *talosconfig
+      - *talosinfo
+      - msg: "Snapshot not found"
+        sh: 'test -f "{{.snapshot}}"'
+      - msg: "etcd on {{.node}} is not waiting for bootstrap (wipe: talosctl -n <cp> reset --graceful=false --reboot --system-labels-to-wipe=EPHEMERAL)"
+        sh: "talosctl -n {{.node}} service etcd | grep -q 'STATE.*Preparing'"
+
   run:
     desc: Run talos command
     dir: "{{.BOOTSTRAP_TALOS_DIR}}"

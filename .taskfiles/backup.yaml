@@ -27,6 +27,16 @@ tasks:
         EOF
       - kubectl -n database wait backup/{{.NAME}} --for=jsonpath='{.status.phase}'=completed --timeout=30m
 
+  etcd:
+    desc: Take an on-demand etcd snapshot to s3://etcd eg "task backup:etcd"
+    vars:
+      NAME: talos-backup-{{now | unixEpoch}}
+    cmds:
+      - kubectl -n kube-system create job --from=cronjob/talos-backup {{.NAME}}
+      - for i in $(seq 120); do kubectl -n kube-system get job {{.NAME}} -o jsonpath='{.status.conditions[?(@.status=="True")].type}' | grep -qE 'Complete|Failed' && break; sleep 5; done
+      - kubectl -n kube-system logs job/{{.NAME}}
+      - test "$(kubectl -n kube-system get job {{.NAME}} -o jsonpath='{.status.succeeded}')" = 1
+
   volsync:
     desc: Take an on-demand volsync snapshot of an app eg "task backup:volsync APP=linkding NS=home"
     requires:

@@ -9,4 +9,5 @@ resources:
   - ./coredns/ks.yaml
   - ./metrics-server/ks.yaml
   - ./multus/ks.yaml
+  - ./talos-backup/ks.yaml
   #- ./thunderbolt-routes/ks.yaml
