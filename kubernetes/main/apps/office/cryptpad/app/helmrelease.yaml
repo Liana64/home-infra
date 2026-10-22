@@ -24,7 +24,7 @@ spec:
             # renovate: datasource=docker depName=ghcr.io/liana64/cryptpad
             image:
               repository: ghcr.io/liana64/cryptpad
-              tag: 2026.5.1
+              tag: 2026.5.1@sha256:797626d522594a19a8ad52df4a5f58732f32d68afd89c918fe919f0e7795d8a7
             env:
               TZ: "${TIMEZONE}"
               CRYPTPAD_CONFIG: /config/config.js

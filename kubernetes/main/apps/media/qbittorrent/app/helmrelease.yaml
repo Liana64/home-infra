@@ -20,7 +20,7 @@ spec:
           dnsdist:
             image:
               repository: docker.io/powerdns/dnsdist-19
-              tag: 1.9.16
+              tag: 1.9.16@sha256:260b1120947a10c494fad4d93cde33ebace34bf4800c88ebb114dd7f9e829809
             restartPolicy: Always
             securityContext:
               runAsUser: 953
@@ -34,7 +34,7 @@ spec:
           natpmp:
             image:
               repository: docker.io/library/busybox
-              tag: "1.38.0"
+              tag: 1.38.0@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e
             restartPolicy: Always
             command: ["/bin/sh", "/natpmp/natpmp.sh"]
             env:

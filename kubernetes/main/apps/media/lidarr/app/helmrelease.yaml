@@ -32,7 +32,7 @@ spec:
             # renovate: datasource=docker depName=ghcr.io/liana64/lidarr-develop
             image:
               repository: ghcr.io/liana64/lidarr-develop
-              tag: 3.1.6.5078
+              tag: 3.1.6.5078@sha256:fd841aadaa7e66635ccff23c9d98236ba3ef6a9655999edd8076ad4f5caaded2
             env:
               DOTNET_EnableDiagnostics: "0"
               LIDARR__APP__INSTANCENAME: Lidarr
