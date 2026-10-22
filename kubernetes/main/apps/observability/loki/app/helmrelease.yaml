@@ -28,17 +28,9 @@ spec:
     - name: openebs
       namespace: openebs
   valuesFrom:
-    - targetPath: loki.storage.bucketNames.chunks
-      kind: Secret
-      name: &secret loki
-      valuesKey: BUCKET_NAME
-    - targetPath: loki.storage.s3.endpoint
-      kind: Secret
-      name: *secret
-      valuesKey: BUCKET_HOST
     - targetPath: loki.storage.s3.accessKeyId
       kind: Secret
-      name: *secret
+      name: &secret loki-s3-secret
       valuesKey: AWS_ACCESS_KEY_ID
     - targetPath: loki.storage.s3.secretAccessKey
       kind: Secret
@@ -59,6 +51,7 @@ spec:
       storage:
         type: s3
         s3:
+          endpoint: s3.database.svc.cluster.local:8333
           s3ForcePathStyle: true
           insecure: true
         bucketNames:
@@ -92,6 +85,9 @@ spec:
           shard_streams:
             enabled: true
           split_queries_by_interval: 1h
+        compactor:
+          retention_enabled: true
+          delete_request_store: s3
         query_scheduler:
           max_outstanding_requests_per_tenant: 4096
         frontend:
@@ -105,8 +101,6 @@ spec:
             local:
               directory: /rules
           rule_path: /rules/fake
-      limits_config:
-        retention_period: 21d
     singleBinary:
       replicas: 1
       persistence:
