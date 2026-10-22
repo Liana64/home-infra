@@ -24,6 +24,7 @@ resources:
   - ./lidarr/ks.yaml
   - ./slskd/ks.yaml
   - ./soularr/ks.yaml
+  - ./audiobookshelf/ks.yaml
 configMapGenerator:
   - name: natpmp
     namespace: media
