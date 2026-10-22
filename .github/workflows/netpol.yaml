@@ -1,0 +1,20 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: "Network Policy"
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths: ["kubernetes/main/**", "scripts/netpol-check.sh"]
+
+jobs:
+  broad-egress:
+    name: Broad egress
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check broad egress
+        shell: bash
+        run: bash ./scripts/netpol-check.sh ./kubernetes/main
