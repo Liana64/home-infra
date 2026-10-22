@@ -45,6 +45,7 @@ spec:
               VALKEY_HOST: 127.0.0.1
               VALKEY_PORT: &valkeyPort "6379"
               DEBUG_MODE: "true"
+              PINEPODS_REFRESH_CRON: "0 35 */6 * * *"
             probes:
               liveness: &probes
                 enabled: true
