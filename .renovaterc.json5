@@ -88,7 +88,7 @@
       description: "Container images annotated above an image:/repository:/tag: block",
       managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
       matchStrings: [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n(\\s+image:\\n)?(\\s+repository: \\S+\\n)?\\s+tag: (?<currentValue>[^@\"'\\s]+)(@(?<currentDigest>sha256:[a-f0-9]+))?",
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n(\\s+image:\\n)?(\\s+repository: \\S+\\n)?\\s+tag: (?<currentValue>[^@\"'\\s]+)((@|\\n\\s+digest: )(?<currentDigest>sha256:[a-f0-9]+))?",
       ],
       datasourceTemplate: "{{{datasource}}}",
       depNameTemplate: "{{{depName}}}",
