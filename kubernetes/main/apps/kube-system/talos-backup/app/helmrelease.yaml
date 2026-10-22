@@ -39,7 +39,8 @@ spec:
             env:
               TZ: "${TIMEZONE}"
               CUSTOM_S3_ENDPOINT: http://s3.database.svc.cluster.local:8333
-              USE_PATH_STYLE: "true"
+              # NOTE: beta.3 inverts this check; flip to "true" on the next release
+              USE_PATH_STYLE: "false"
               AWS_REGION: us-east-1
               BUCKET: etcd
               CLUSTER_NAME: "${CLUSTER_NAME}"
