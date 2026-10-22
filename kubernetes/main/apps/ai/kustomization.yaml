@@ -6,9 +6,3 @@ resources:
   - ./namespace.yaml
   - ./networkpolicy.yaml
   - ./eek/ks.yaml
-  # - ./codex/ks.yaml
-  #- ./claude-code/ks.yaml
-  #- ./filebrowser/ks.yaml
-  #- ./mcp-nixos/ks.yaml
-  #- ./openclaw/ks.yaml
-  #- ./qdrant-mcp/ks.yaml
