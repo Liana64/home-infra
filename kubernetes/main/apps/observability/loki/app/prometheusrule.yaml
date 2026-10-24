@@ -67,12 +67,12 @@ spec:
           annotations:
             summary: Alloy {{ $labels.namespace }}/{{ $labels.pod }} has {{ $value }} {{ $labels.health_type }} components
         - alert: AlloyLokiWriteDropping
-          expr: sum(rate(loki_write_dropped_entries_total[10m])) > 0
+          expr: sum by (reason) (rate(loki_write_dropped_entries_total{reason!="ingester_error"}[10m])) > 0
           for: 10m
           labels:
             severity: warning
           annotations:
-            summary: Alloy is dropping log entries it failed to write to Loki
+            summary: Alloy is dropping log entries before they reach Loki ({{ $labels.reason }})
         - alert: VectorDown
           expr: absent(up{job="vector-metrics", namespace="observability"} == 1)
           for: 10m

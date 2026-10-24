@@ -39,14 +39,12 @@ spec:
       runAsNonRoot: true
     resources:
       limits:
-        cpu: 100m
         memory: 128Mi
       requests:
         cpu: 100m
         memory: 128Mi
     initContainerResources:
       limits:
-        cpu: 100m
         memory: 128Mi
       requests:
         cpu: 100m

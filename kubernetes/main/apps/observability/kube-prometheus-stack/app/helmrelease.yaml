@@ -135,7 +135,7 @@ spec:
           - target_matchers: [alertname = InfoInhibitor]
           - source_matchers: [alertname = KubeNodeUnreachable]
             target_matchers:
-              - alertname =~ KubeDaemonSet(RolloutStuck|MisScheduled)|Kube(let|Scheduler|ControllerManager)InstanceUnreachable
+              - alertname =~ KubeDaemonSet(RolloutStuck|MisScheduled)|Kube(let|Scheduler|ControllerManager)InstanceUnreachable|KubePodNotReady|TargetDown
         receivers:
           - name: "null"
           - name: ntfy
@@ -214,6 +214,8 @@ spec:
         - pods=[*]
         - deployments=[*]
         - persistentvolumeclaims=[*]
+      metricAnnotationsAllowList:
+        - pods=[k8s.v1.cni.cncf.io/networks,k8s.v1.cni.cncf.io/network-status]
       prometheus:
         monitor:
           enabled: true
