@@ -215,7 +215,7 @@ spec:
         - deployments=[*]
         - persistentvolumeclaims=[*]
       metricAnnotationsAllowList:
-        - pods=[k8s.v1.cni.cncf.io/networks,k8s.v1.cni.cncf.io/network-status]
+        - pods=[k8s.v1.cni.cncf.io/networks]
       prometheus:
         monitor:
           enabled: true

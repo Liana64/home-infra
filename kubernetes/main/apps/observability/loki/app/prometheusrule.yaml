@@ -22,6 +22,13 @@ spec:
             severity: warning
           annotations:
             summary: Loki has received no log lines for 15m
+        - alert: LokiPushErrors
+          expr: sum(rate(loki_request_duration_seconds_count{route="loki_api_v1_push", status_code=~"5.."}[10m])) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Loki is failing log pushes with 5xx errors
         - alert: LokiDiscardingSamples
           expr: sum by (reason) (rate(loki_discarded_samples_total[15m])) > 1
           for: 30m

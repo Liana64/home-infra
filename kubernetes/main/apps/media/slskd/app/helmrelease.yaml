@@ -51,6 +51,14 @@ spec:
               limits:
                 memory: 32Mi
             securityContext: *securityContext
+            probes:
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command: ["test", "-e", "/sys/class/net/net1"]
+                  periodSeconds: 30
         pod:
           annotations:
             k8s.v1.cni.cncf.io/networks: '[{"name":"vpn","namespace":"kube-system","ips":["172.16.140.10/24"]}]'
