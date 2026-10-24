@@ -72,6 +72,8 @@ spec:
         - matchName: piraeus.io
         - matchName: gitlab.com
         - matchName: grafana.com
+        - matchName: tuf-repo-cdn.sigstore.dev
+        - matchName: rekor.sigstore.dev
       toPorts:
         - ports:
             - port: "443"
