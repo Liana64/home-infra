@@ -1,0 +1,64 @@
+logging {
+	level  = "info"
+	format = "logfmt"
+}
+
+loki.source.file "audit" {
+	targets = [{
+		__path__ = "/var/log/audit/kube/kube-apiserver.log",
+		job      = "audit",
+		node     = sys.env("K8S_NODE_NAME"),
+	}]
+	tail_from_end = true
+	forward_to    = [loki.process.audit.receiver]
+}
+
+loki.process "audit" {
+	stage.json {
+		expressions = {
+			stage       = "",
+			verb        = "",
+			resource    = "objectRef.resource",
+			subresource = "objectRef.subresource",
+			code        = "responseStatus.code",
+			ts          = "stageTimestamp",
+		}
+	}
+
+	stage.drop {
+		source     = "stage"
+		expression = "^(RequestReceived|ResponseStarted)$"
+	}
+
+	stage.drop {
+		source     = "resource"
+		expression = "^(leases|events|tokenreviews|subjectaccessreviews|selfsubjectaccessreviews|localsubjectaccessreviews|selfsubjectrulesreviews)$"
+	}
+
+	stage.drop {
+		source = "subresource"
+		value  = "status"
+	}
+
+	stage.template {
+		source   = "noise"
+		template = `{{ if and (eq .verb "get" "list" "watch") (not .subresource) (not (eq (print .code) "401" "403")) (or (eq .verb "watch") (ne (print .resource) "secrets")) }}true{{ end }}`
+	}
+
+	stage.drop {
+		source = "noise"
+		value  = "true"
+	}
+
+	stage.timestamp {
+		source = "ts"
+		format = "RFC3339Nano"
+	}
+	forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+	endpoint {
+		url = "http://loki.observability.svc.cluster.local:3100/loki/api/v1/push"
+	}
+}

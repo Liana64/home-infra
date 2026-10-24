@@ -1,0 +1,83 @@
+---
+# yaml-language-server: $schema=https://github.com/fluxcd-community/flux2-schemas/raw/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app alloy-audit
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: alloy
+      version: 1.14.1
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    nameOverride: *app
+    crds:
+      create: false
+    # renovate: datasource=docker depName=grafana/alloy
+    image:
+      repository: grafana/alloy
+      tag: v1.21.1
+      digest: sha256:4039c971193053a84e53dd9ed3e7d4561c069256b024631cd3498a353ed7ece8
+    global:
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        runAsGroup: 65534
+        seccompProfile: { type: RuntimeDefault }
+    alloy:
+      configMap:
+        create: false
+        name: alloy-audit-config
+        key: config.alloy
+      enableReporting: false
+      storagePath: /var/lib/alloy
+      mounts:
+        extra:
+          - name: audit
+            mountPath: /var/log/audit/kube
+            readOnly: true
+          - name: storage
+            mountPath: /var/lib/alloy
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: { drop: ["ALL"] }
+      resources:
+        requests:
+          cpu: 10m
+        limits:
+          memory: 256Mi
+    controller:
+      type: daemonset
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
+      volumes:
+        extra:
+          - name: audit
+            hostPath:
+              path: /var/log/audit/kube
+          - name: storage
+            emptyDir: {}
+      tolerations:
+        - key: node-role.kubernetes.io/etcd-only
+          operator: Exists
+          effect: NoSchedule
+    rbac:
+      create: false
+    serviceAccount:
+      automountServiceAccountToken: false
+    serviceMonitor:
+      enabled: true
