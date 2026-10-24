@@ -6,10 +6,12 @@ resources:
   - ./networkpolicy.yaml
   - ./prometheus-operator-crds/ks.yaml
   - ./kube-prometheus-stack/ks.yaml
+  - ./alloy/ks.yaml
   - ./grafana/ks.yaml
   #- ./dcgm-exporter/ks.yaml
   - ./loki/ks.yaml
   - ./speedtest-exporter/ks.yaml
+  - ./vector/ks.yaml
   #- ./changedetection/ks.yaml
   #- ./blackbox-exporter/ks.yaml
   #- ./gatus/ks.yaml

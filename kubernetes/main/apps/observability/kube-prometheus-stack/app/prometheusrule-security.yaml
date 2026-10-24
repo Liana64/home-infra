@@ -36,6 +36,17 @@ spec:
           for: 10m
           labels:
             severity: warning
+        - alert: DnsNxdomainSpike
+          annotations:
+            summary: Namespace {{ $labels.destination_namespace }} is getting {{ $value | humanize }} NXDOMAIN/s, over 5x its baseline
+          expr: |
+            sum by (destination_namespace) (rate(hubble_dns_responses_total{rcode="Non-Existent Domain"}[15m])) > 1
+            and
+            sum by (destination_namespace) (rate(hubble_dns_responses_total{rcode="Non-Existent Domain"}[15m]))
+              > 5 * sum by (destination_namespace) (rate(hubble_dns_responses_total{rcode="Non-Existent Domain"}[1d] offset 1d))
+          for: 15m
+          labels:
+            severity: warning
         - alert: UnmanagedPodRunning
           annotations:
             summary: Pod {{ $labels.namespace }}/{{ $labels.pod }} has no owning controller and has been running for 15 minutes

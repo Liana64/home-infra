@@ -1,0 +1,109 @@
+---
+groups:
+  - name: kernel
+    rules:
+      - alert: NodeFilesystemFailed
+        expr: |
+          sum by (node) (count_over_time({job="kernel"} |~ "Remounting filesystem read-only|xfs_do_force_shutdown|Filesystem has been shut down" [5m])) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.node }} shut down or remounted a filesystem read-only"
+      - alert: NodeStorageError
+        expr: |
+          sum by (node) (count_over_time({job="kernel"} |~ `nvme\S* .*(timeout|reset)|I/O error, dev|Buffer I/O error|blk_update_request` [5m])) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "Block device I/O errors on {{ $labels.node }}"
+      - alert: NodeHardwareError
+        expr: |
+          sum by (node) (count_over_time({job="kernel"} |~ `Hardware Error.*(Uncorrected|Fatal|PROCESSOR_CONTEXT_CORRUPT)|EDAC MC\d+: \d+ UE|AER: (Multiple )?Uncorrected` [5m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Uncorrected machine check, memory or PCIe errors on {{ $labels.node }}"
+      - alert: NodeKernelHang
+        expr: |
+          sum by (node) (count_over_time({job="kernel"} |~ `blocked for more than \d+ seconds|soft lockup|hard LOCKUP|rcu.*detected stall` [5m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Hung tasks or CPU lockups on {{ $labels.node }}"
+      - alert: NodeKernelOOMKill
+        expr: |
+          sum by (node) (count_over_time({job="kernel"} |= "Out of memory: Killed process" [5m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kernel OOM killer fired on {{ $labels.node }}"
+      - alert: NodeConntrackFull
+        expr: |
+          sum by (node) (count_over_time({job="kernel"} |= "nf_conntrack: table full" [5m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "Conntrack table full on {{ $labels.node }}, packets are dropped"
+      - alert: NodeVfioError
+        expr: |
+          sum by (node) (count_over_time({job="kernel"} |~ "vfio.*(error|-22)" [5m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "vfio errors on {{ $labels.node }}"
+      - alert: NodeGpuError
+        expr: |
+          sum by (node) (count_over_time({job="kernel"} |~ `NVRM: Xid|thunderbolt .*(disconnected|error|failed)` [5m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "GPU Xid or Thunderbolt link errors on {{ $labels.node }}"
+  - name: pipeline
+    rules:
+      - alert: TalosLogsMissing
+        expr: |
+          (count(sum by (node) (count_over_time({job="talos"}[30m]))) or vector(0))
+            < count(sum by (node) (count_over_time({job="talos"}[6h])))
+        labels:
+          severity: warning
+        annotations:
+          summary: "Only {{ $value }} nodes shipped Talos logs in 30m, fewer than in the last 6h; check vector and the node logging config"
+  - name: auth
+    rules:
+      - alert: PocketIdLoginFailures
+        expr: |
+          sum by (ip) (count_over_time({namespace="security", app="pocket-id"} |= "HTTP request completed" | logfmt | method="POST" and path=~"/api/(webauthn/login/finish|one-time-access.*|oidc/token|device-login/verification.*)" and status=~"4.." [10m])) > 10
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $value }} failed pocket-id logins from {{ $labels.ip }} in 10m"
+      - alert: ForgejoLoginFailures
+        expr: |
+          sum(count_over_time({namespace="labs", app="forgejo"} |= "Failed authentication attempt" [10m])) > 5
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $value }} failed Forgejo logins in 10m"
+  - name: audit
+    rules:
+      - alert: KubePodExec
+        expr: |
+          sum by (user, src, namespace, name) (count_over_time({job="audit"} | json user="user.username", src="sourceIPs[0]", namespace="objectRef.namespace", name="objectRef.name", subresource="objectRef.subresource" | subresource=~"exec|attach|portforward" | user!="admin" or (src!=ip("${OPS_CIDR}") and src!=ip("${MGMT_CIDR}")) [5m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.user }} from {{ $labels.src }} opened exec/attach/portforward into {{ $labels.namespace }}/{{ $labels.name }}"
+      - alert: KubeForbiddenRequests
+        expr: |
+          sum by (user) (count_over_time({job="audit"} | json user="user.username", code="responseStatus.code" | code=~"401|403" [10m])) > 5
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $value }} unauthorized or forbidden apiserver requests from {{ $labels.user }} in 10m"
+      - alert: KubeClusterRoleBindingChanged
+        expr: |
+          sum by (user, name) (count_over_time({job="audit"} | json user="user.username", resource="objectRef.resource", name="objectRef.name", verb="verb", code="responseStatus.code" | resource="clusterrolebindings" and verb=~"create|update|patch|delete" and code=~"2.." and user!~"system:(apiserver|serviceaccount:flux-system:.*)" [5m])) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.user }} changed ClusterRoleBinding {{ $labels.name }} outside Flux"

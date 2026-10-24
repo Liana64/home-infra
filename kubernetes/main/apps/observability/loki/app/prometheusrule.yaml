@@ -1,0 +1,89 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: logging-pipeline
+spec:
+  groups:
+    - name: logging-pipeline
+      rules:
+        - alert: LokiDown
+          expr: absent(up{job="observability/loki"} == 1)
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Loki is down or not being scraped
+        - alert: LokiIngestionStopped
+          expr: sum(rate(loki_distributor_lines_received_total[15m])) == 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: Loki has received no log lines for 15m
+        - alert: LokiDiscardingSamples
+          expr: sum by (reason) (rate(loki_discarded_samples_total[15m])) > 1
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: Loki is discarding {{ $value | humanize }} lines/s ({{ $labels.reason }})
+        - alert: LokiRuleEvaluationFailing
+          expr: sum by (rule_group) (increase(loki_prometheus_rule_evaluation_failures_total[15m])) > 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: Loki ruler is failing to evaluate {{ $labels.rule_group }}
+        - alert: LokiRulerNotificationsFailing
+          expr: sum(increase(loki_prometheus_notifications_errors_total[15m])) + sum(increase(loki_prometheus_notifications_dropped_total[15m])) > 0
+          for: 15m
+          labels:
+            severity: critical
+          annotations:
+            summary: Loki ruler cannot deliver alerts to Alertmanager, log-based alerts are silent
+        - alert: AlloyDown
+          expr: absent(up{job="alloy", namespace="observability"} == 1)
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Alloy is down or not being scraped
+        - alert: AlloyAuditNotReading
+          expr: |
+            (count(sum by (pod) (rate(loki_source_file_read_lines_total{job="alloy-audit"}[15m])) > 0) or vector(0))
+              < scalar(kube_daemonset_status_desired_number_scheduled{namespace="kube-system", daemonset="alloy-audit"})
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: Only {{ $value }} alloy-audit pods are reading apiserver audit logs, fewer than scheduled
+        - alert: AlloyComponentUnhealthy
+          expr: sum by (namespace, pod, health_type) (alloy_component_controller_running_components{health_type!="healthy"}) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Alloy {{ $labels.namespace }}/{{ $labels.pod }} has {{ $value }} {{ $labels.health_type }} components
+        - alert: AlloyLokiWriteDropping
+          expr: sum(rate(loki_write_dropped_entries_total[10m])) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Alloy is dropping log entries it failed to write to Loki
+        - alert: VectorDown
+          expr: absent(up{job="vector-metrics", namespace="observability"} == 1)
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Vector is down or not being scraped
+        - alert: VectorSinkErrors
+          expr: sum(rate(vector_component_errors_total{component_kind="sink"}[10m])) > 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Vector is failing to forward Talos logs to Alloy

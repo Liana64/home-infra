@@ -1,0 +1,93 @@
+---
+# yaml-language-server: $schema=https://github.com/fluxcd-community/flux2-schemas/raw/main/helmrelease-helm-v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app alloy
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: *app
+      version: 1.14.1
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    crds:
+      create: false
+    # renovate: datasource=docker depName=grafana/alloy
+    image:
+      repository: grafana/alloy
+      tag: v1.21.1
+      digest: sha256:4039c971193053a84e53dd9ed3e7d4561c069256b024631cd3498a353ed7ece8
+    global:
+      podSecurityContext:
+        runAsNonRoot: true
+        runAsUser: 473
+        runAsGroup: 473
+        fsGroup: 473
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    alloy:
+      configMap:
+        create: false
+        name: alloy-config
+        key: config.alloy
+      enableReporting: false
+      storagePath: /var/lib/alloy
+      extraPorts:
+        - name: push
+          port: 3500
+          targetPort: 3500
+          protocol: TCP
+        - name: syslog-tcp
+          port: 1514
+          targetPort: 1514
+          protocol: TCP
+        - name: syslog-udp
+          port: 1514
+          targetPort: 1514
+          protocol: UDP
+      mounts:
+        extra:
+          - name: storage
+            mountPath: /var/lib/alloy
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: { drop: ["ALL"] }
+      resources:
+        requests:
+          cpu: 20m
+        limits:
+          memory: 512Mi
+    controller:
+      type: statefulset
+      replicas: 1
+      enableStatefulSetAutoDeletePVC: true
+      volumeClaimTemplates:
+        - metadata:
+            name: storage
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            storageClassName: cluster-nvme
+            resources:
+              requests:
+                storage: 1Gi
+    rbac:
+      rules:
+        - apiGroups: [""]
+          resources: ["pods", "pods/log", "events"]
+          verbs: ["get", "list", "watch"]
+    serviceMonitor:
+      enabled: true

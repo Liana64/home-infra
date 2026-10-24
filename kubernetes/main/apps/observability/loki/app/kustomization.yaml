@@ -5,3 +5,10 @@ resources:
   - ./externalsecret.yaml
   - ./helmrelease.yaml
   - ./networkpolicy.yaml
+  - ./prometheusrule.yaml
+configMapGenerator:
+  - name: loki-rules
+    files:
+      - ./rules/alerts.yaml
+generatorOptions:
+  disableNameSuffixHash: true

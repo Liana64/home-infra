@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: alloy
+  namespace: observability
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/name: alloy
+  ingress:
+    - fromCIDR:
+        - "${NODE_CIDR}"
+        - "${MGMT_CIDR}"
+      toPorts:
+        - ports:
+            - port: "1514"
+              protocol: TCP
+            - port: "1514"
+              protocol: UDP
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: vector
+      toPorts:
+        - ports:
+            - port: "3500"
+              protocol: TCP
+    # same-node ClusterIP replies miss CT reverse-xlate (socketLB
+    # hostNamespaceOnly + endpointRoutes) and hit ingress policy
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: loki
+  egress:
+    - toEntities:
+        - kube-apiserver
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: loki
+      toPorts:
+        - ports:
+            - port: "3100"
+              protocol: TCP

@@ -1,0 +1,70 @@
+---
+data_dir: /var/lib/vector
+
+api:
+  enabled: true
+  address: 0.0.0.0:8686
+
+sources:
+  internal_metrics:
+    type: internal_metrics
+
+  talos:
+    type: socket
+    mode: tcp
+    address: 0.0.0.0:6050
+    host_key: source_ip
+    decoding:
+      codec: json
+    framing:
+      method: newline_delimited
+
+transforms:
+  talos_parse:
+    type: remap
+    inputs: [talos]
+    source: |
+      nodes = {
+        "172.16.4.11": "n1",
+        "172.16.4.12": "n2",
+        "172.16.4.13": "n3",
+        "172.16.4.14": "m1",
+      }
+      .node = string(get(nodes, [string(.source_ip) ?? ""]) ?? null) ?? "unknown"
+      .job = if exists(.facility) { "kernel" } else { "talos" }
+      .service = ."talos-service" || "kernel"
+      .level = ."talos-level"
+      .message = .msg
+      if .job == "talos" { .timestamp = parse_timestamp(."talos-time", "%+") ?? now() }
+
+  talos_filter:
+    type: filter
+    inputs: [talos_parse]
+    condition: |
+      ."talos-service" != "kernel" &&
+      to_unix_timestamp(now()) - to_unix_timestamp(timestamp!(.timestamp)) < 1800 &&
+      to_unix_timestamp(timestamp!(.timestamp)) - to_unix_timestamp(now()) < 300 &&
+      !match(string(.message) ?? "", r'OK \[/machine\.MachineService/(CPUFreqStats|CPUInfo|DiskStats|LoadAvg|Memory|NetworkDeviceStats|Processes|ServiceList|SystemStat)\]')
+
+sinks:
+  alloy:
+    type: loki
+    inputs: [talos_filter]
+    endpoint: http://alloy.observability.svc.cluster.local:3500
+    encoding:
+      codec: text
+    labels:
+      job: "{{ job }}"
+      node: "{{ node }}"
+    structured_metadata:
+      service: "{{ service }}"
+      level: "{{ level }}"
+      source_ip: "{{ source_ip }}"
+    out_of_order_action: accept
+    healthcheck:
+      enabled: false
+
+  prometheus:
+    type: prometheus_exporter
+    inputs: [internal_metrics]
+    address: 0.0.0.0:9598

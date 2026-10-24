@@ -148,6 +148,7 @@ patches:
   - "@./patches/global/openebs.yaml"
   - "@./patches/global/sysctls.yaml"
   - "@./patches/global/luks2.yaml"
+  - "@./patches/global/logging.yaml"
 
 controlPlane:
   patches:

@@ -1,0 +1,90 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app vector
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      vector:
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+        defaultContainerOptions:
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+        containers:
+          app:
+            # renovate: datasource=docker depName=timberio/vector
+            image:
+              repository: timberio/vector
+              tag: 0.60.0-distroless-static@sha256:6dc08ffc32aa4984174a97a117e270b81867b1205d3737602ad4fda53637853e
+            args: ["--config", "/etc/vector/vector.yaml"]
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 8686
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 256Mi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: vector
+        type: LoadBalancer
+        annotations:
+          lbipam.cilium.io/ips: "${LB_VECTOR_TALOS}"
+        ports:
+          talos:
+            port: 6050
+            protocol: TCP
+      metrics:
+        controller: vector
+        ports:
+          metrics:
+            port: 9598
+    serviceMonitor:
+      app:
+        serviceName: vector-metrics
+        endpoints:
+          - port: metrics
+            scheme: http
+            path: /metrics
+            interval: 1m
+    persistence:
+      config:
+        type: configMap
+        name: vector-config
+        globalMounts:
+          - path: /etc/vector
+            readOnly: true
+      data:
+        type: emptyDir
+        globalMounts:
+          - path: /var/lib/vector

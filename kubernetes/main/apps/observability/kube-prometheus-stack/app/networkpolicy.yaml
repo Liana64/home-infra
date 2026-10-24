@@ -62,6 +62,9 @@ spec:
             io.kubernetes.pod.namespace: observability
             app.kubernetes.io/name: grafana
         - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: loki
+        - matchLabels:
             io.kubernetes.pod.namespace: flux-system
             app: notification-controller
       toPorts:

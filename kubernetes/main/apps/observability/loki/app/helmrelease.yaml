@@ -82,14 +82,22 @@ spec:
           grpc_server_max_recv_msg_size: 8388608
           grpc_server_max_send_msg_size: 8388608
         limits_config:
-          ingestion_burst_size_mb: 128
-          ingestion_rate_mb: 64
+          ingestion_burst_size_mb: 32
+          ingestion_rate_mb: 16
+          deletion_mode: disabled
           max_query_parallelism: 100
-          per_stream_rate_limit: 64M
-          per_stream_rate_limit_burst: 128M
+          per_stream_rate_limit: 8MB
+          per_stream_rate_limit_burst: 32MB
           reject_old_samples: true
           reject_old_samples_max_age: 168h
           retention_period: 30d
+          retention_stream:
+            - selector: '{job=~"kernel|talos|syslog"}'
+              priority: 1
+              period: 90d
+            - selector: '{app="authelia"}'
+              priority: 1
+              period: 90d
           shard_streams:
             enabled: true
           split_queries_by_interval: 1h
@@ -107,8 +115,8 @@ spec:
           storage:
             type: local
             local:
-              directory: /rules
-          rule_path: /rules/fake
+              directory: /var/loki/rules
+          rule_path: /var/loki/rules-temp
     singleBinary:
       replicas: 1
       resources:
@@ -116,10 +124,18 @@ spec:
           cpu: 50m
         limits:
           memory: 1Gi
+      extraVolumes:
+        - name: rules
+          configMap:
+            name: loki-rules
+      extraVolumeMounts:
+        - name: rules
+          mountPath: /var/loki/rules/fake
+          readOnly: true
       persistence:
         enabled: true
         storageClass: cluster-nvme
-        size: 64Gi
+        size: 10Gi
     gateway:
       enabled: false
     sidecar:
@@ -139,3 +155,6 @@ spec:
       enabled: false
     test:
       enabled: false
+    monitoring:
+      serviceMonitor:
+        enabled: true

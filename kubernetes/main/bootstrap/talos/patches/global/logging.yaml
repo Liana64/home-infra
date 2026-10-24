@@ -1,0 +1,11 @@
+---
+machine:
+  logging:
+    destinations:
+      - endpoint: tcp://172.16.5.25:6050/
+        format: json_lines
+---
+apiVersion: v1alpha1
+kind: KmsgLogConfig
+name: vector
+url: tcp://172.16.5.25:6050/
