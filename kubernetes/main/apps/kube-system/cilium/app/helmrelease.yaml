@@ -34,7 +34,7 @@ spec:
       enabled: true
       metrics:
         enabled:
-          - dns:query
+          - dns:query;labelsContext=source_namespace,destination_namespace
           - drop:labelsContext=source_namespace,destination_namespace
           - tcp
           - flow
