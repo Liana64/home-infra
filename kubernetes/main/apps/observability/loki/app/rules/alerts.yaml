@@ -58,16 +58,6 @@ groups:
           severity: warning
         annotations:
           summary: "GPU Xid or Thunderbolt link errors on {{ $labels.node }}"
-  - name: pipeline
-    rules:
-      - alert: TalosLogsMissing
-        expr: |
-          (count(sum by (node) (count_over_time({job="talos"}[30m]))) or vector(0))
-            < count(sum by (node) (count_over_time({job="talos"}[6h])))
-        labels:
-          severity: warning
-        annotations:
-          summary: "Only {{ $value }} nodes shipped Talos logs in 30m, fewer than in the last 6h; check vector and the node logging config"
   - name: auth
     rules:
       - alert: PocketIdLoginFailures

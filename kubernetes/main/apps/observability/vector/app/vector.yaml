@@ -46,6 +46,18 @@ transforms:
       to_unix_timestamp(timestamp!(.timestamp)) - to_unix_timestamp(now()) < 300 &&
       !match(string(.message) ?? "", r'OK \[/machine\.MachineService/(CPUFreqStats|CPUInfo|DiskStats|LoadAvg|Memory|NetworkDeviceStats|Processes|ServiceList|SystemStat)\]')
 
+  talos_metrics:
+    type: log_to_metric
+    inputs: [talos_parse]
+    metrics:
+      - type: counter
+        field: message
+        namespace: vector
+        name: talos_log_lines_total
+        tags:
+          log_job: "{{ job }}"
+          internal_ip: "{{ source_ip }}"
+
 sinks:
   alloy:
     type: loki
@@ -66,5 +78,6 @@ sinks:
 
   prometheus:
     type: prometheus_exporter
-    inputs: [internal_metrics]
+    inputs: [internal_metrics, talos_metrics]
     address: 0.0.0.0:9598
+    suppress_timestamp: true

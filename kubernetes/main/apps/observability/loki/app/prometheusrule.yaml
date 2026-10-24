@@ -80,6 +80,15 @@ spec:
             severity: warning
           annotations:
             summary: Vector is down or not being scraped
+        - alert: TalosLogsMissing
+          expr: |
+            kube_node_info unless on (internal_ip)
+              (sum by (internal_ip) (rate(vector_talos_log_lines_total{log_job="talos"}[30m])) > 0)
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: Node {{ $labels.node }} has shipped no Talos logs for 30m, check vector and the node logging config
         - alert: VectorSinkErrors
           expr: sum(rate(vector_component_errors_total{component_kind="sink"}[10m])) > 0
           for: 10m
