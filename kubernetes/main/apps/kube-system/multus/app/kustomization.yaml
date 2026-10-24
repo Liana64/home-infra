@@ -10,34 +10,6 @@ images:
     digest: sha256:a357a79359b80ddd5f4699117946cacf3b54f5baecf7944535594863e875fc25
 patches:
   - target:
-      kind: ConfigMap
-      name: multus-daemon-config
-    patch: |
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: multus-daemon-config
-      data:
-        daemon-config.json: |
-          {
-              "chrootDir": "/hostroot",
-              "cniVersion": "0.3.1",
-              "logLevel": "verbose",
-              "logToStderr": true,
-              "cniConfigDir": "/host/etc/cni/net.d",
-              "multusConfigFile": "/etc/cni/net.d/multus.d/00-multus.conf",
-              "socketDir": "/host/run/multus/"
-          }
-        00-multus.conf: |
-          {
-              "cniVersion": "0.3.1",
-              "logLevel": "verbose",
-              "logToStderr": true,
-              "name": "multus-cni-network",
-              "clusterNetwork": "/host/etc/cni/net.d/05-cilium.conflist",
-              "type": "multus-shim"
-          }
-  - target:
       kind: DaemonSet
       name: kube-multus-ds
     patch: |
@@ -45,8 +17,6 @@ patches:
       kind: DaemonSet
       metadata:
         name: kube-multus-ds
-        annotations:
-          configmap.reloader.stakater.com/reload: multus-daemon-config
       spec:
         template:
           spec:
@@ -71,14 +41,6 @@ patches:
                     cpu: 10m
                     memory: 64Mi
             volumes:
-              - name: multus-daemon-config
-                configMap:
-                  name: multus-daemon-config
-                  items:
-                    - key: daemon-config.json
-                      path: daemon-config.json
-                    - key: 00-multus.conf
-                      path: 00-multus.conf
               - name: host-run-netns
                 hostPath:
                   path: /var/run/netns/
