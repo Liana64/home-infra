@@ -103,12 +103,14 @@ spec:
             port: *metrics
     serviceMonitor:
       app:
-        serviceName: anubis
+        service:
+          identifier: app
         endpoints: &endpoints
           - port: metrics
             interval: 30s
       org:
-        serviceName: anubis-org
+        service:
+          identifier: org
         endpoints: *endpoints
     ingress:
       app:
