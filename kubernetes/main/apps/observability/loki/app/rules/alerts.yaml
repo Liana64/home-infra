@@ -78,7 +78,13 @@ groups:
     rules:
       - alert: KubePodExec
         expr: |
-          sum by (user, src, namespace, name) (count_over_time({job="audit"} | json user="user.username", src="sourceIPs[0]", namespace="objectRef.namespace", name="objectRef.name", subresource="objectRef.subresource" | subresource=~"exec|attach|portforward" | user!="admin" or (src!=ip("${OPS_CIDR}") and src!=ip("${MGMT_CIDR}")) [5m])) > 0
+          sum by (user, src, namespace, name) (count_over_time({job="audit"}
+            | json user="user.username", src="sourceIPs[0]", namespace="objectRef.namespace", name="objectRef.name", subresource="objectRef.subresource", uri="requestURI"
+            | subresource=~"exec|attach|portforward"
+            | user!="admin" or (src!=ip("${OPS_CIDR}") and src!=ip("${MGMT_CIDR}"))
+            | label_format actor=`{{ .user }} {{ .uri }}`
+            | actor!~`system:serviceaccount:database:cnpg-cloudnative-pg /api/v1/namespaces/database/pods/[a-z0-9-]+/exec\?command=%2Fcontroller%2Fmanager&command=backup&.*`
+          [5m])) > 0
         labels:
           severity: warning
         annotations:
