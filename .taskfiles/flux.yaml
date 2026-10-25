@@ -82,6 +82,54 @@ tasks:
     requires:
       vars: ["ns", "hr"]
 
+  suspend:
+    desc: Suspend Kustomizations and HelmReleases by app, namespace, or all
+    summary: &toggle-summary |
+      Usage:
+        task flux:{suspend,resume} app=<name>
+        task flux:{suspend,resume} ns=<namespace>
+        task flux:{suspend,resume} -- --all
+    cmds:
+      - task: toggle
+        vars: { action: suspend }
+
+  resume:
+    desc: Resume Kustomizations and HelmReleases by app, namespace, or all
+    summary: *toggle-summary
+    cmds:
+      - task: toggle
+        vars: { action: resume }
+
+  toggle:
+    internal: true
+    set: [pipefail]
+    vars:
+      all: '{{if has "--all" (splitArgs .CLI_ARGS)}}true{{end}}'
+      ks: '{{if .all}}true{{else if .ns}}.spec.targetNamespace == "{{.ns}}"{{else}}.metadata.name == "{{.app}}"{{end}}'
+      hr: '{{if .all}}true{{else if .ns}}.metadata.namespace == "{{.ns}}"{{else}}.metadata.labels["app.kubernetes.io/name"] == "{{.app}}"{{end}}'
+      order: '{{if eq .action "resume"}}hr ks{{else}}ks hr{{end}}'
+      flags: '{{if and (eq .action "resume") (not .app)}}--wait=false{{end}}'
+    cmds:
+      - task: confirm-all
+        if: '[ -n "{{.all}}" ]'
+        vars: { action: "{{.action}}" }
+      - |
+        targets=$(for kind in {{.order}}; do
+          if [ "$kind" = ks ]; then filter='{{.ks}}'; else filter='{{.hr}}'; fi
+          kubectl get "$kind" -A -o json \
+            | jq -r ".items[] | select($filter) | \"$kind \(.metadata.namespace) \(.metadata.name)\"" || exit
+        done) || exit
+        [ -n "$targets" ] || { echo "No Flux resources match" >&2; exit 1; }
+        echo "$targets" | { rc=0; while read -r kind ns name; do flux {{.action}} "$kind" "$name" -n "$ns" {{.flags}} || rc=1; done; exit $rc; }
+    preconditions:
+      - *kubeconfig
+      - msg: Specify exactly one of app=<name>, ns=<namespace>, or -- --all
+        sh: test "$(echo {{.app}} {{.ns}} {{.all}} | wc -w)" -eq 1
+
+  confirm-all:
+    internal: true
+    prompt: "{{.action}} every Kustomization and HelmRelease in the cluster, including already-suspended ones ... continue?"
+
   errors:
     desc: List errors from all namespaces
     cmd: flux logs -A --level=error
