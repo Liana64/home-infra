@@ -1,6 +1,7 @@
 ---
 fullnameOverride: coredns
 k8sAppLabelOverride: kube-dns
+replicaCount: 2
 serviceAccount:
   create: true
 service:
@@ -26,8 +27,10 @@ servers:
       - name: kubernetes
         parameters: cluster.local in-addr.arpa ip6.arpa
         configBlock: |-
-          pods insecure
+          pods verified
           fallthrough in-addr.arpa ip6.arpa
+      - name: autopath
+        parameters: "@kubernetes"
       - name: forward
         parameters: . /etc/resolv.conf
       - name: cache
@@ -40,7 +43,17 @@ resources:
     cpu: 20m
     memory: 128Mi
   limits:
-    memory: 128Mi
+    cpu: null
+    memory: 256Mi
+podDisruptionBudget:
+  maxUnavailable: 1
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        k8s-app: kube-dns
 affinity:
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
