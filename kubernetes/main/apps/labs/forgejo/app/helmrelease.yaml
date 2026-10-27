@@ -12,8 +12,8 @@ spec:
     image:
       rootless: true
       # renovate: datasource=docker depName=code.forgejo.org/forgejo/forgejo
-      tag: 16.0.5-rootless
-      digest: sha256:5effb7305584aca479b29fde6f9631a6dbe86ae798ae02eeea33a3666f0c0bf8
+      tag: 17.0.1-rootless
+      digest: sha256:5ef02fbcf22beef56b8c844952ffad58cfe177b6f98e46e6abb5df90b88dc8d3
     serviceAccount:
       create: true
     podSecurityContext:
