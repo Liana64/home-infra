@@ -21,7 +21,7 @@ spec:
             # renovate: datasource=docker depName=lasuite/impress-backend
             image: &backendImage
               repository: lasuite/impress-backend
-              tag: v6.0.1@sha256:082237655aae5fbb4d1ce55d82c32b7e40f67ea8094a720b46e9e36f8919b267
+              tag: v6.0.4@sha256:3a2bdf2fa7b7b4462fbeaefc339e9121047227e46d8f85adf6bbc8701ecbb394
             command: ["python", "manage.py", "migrate", "--no-input"]
             env: &backendEnv
               TZ: "${TIMEZONE}"
