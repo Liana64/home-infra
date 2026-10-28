@@ -91,7 +91,11 @@ groups:
           summary: "{{ $labels.user }} from {{ $labels.src }} opened exec/attach/portforward into {{ $labels.namespace }}/{{ $labels.name }}"
       - alert: KubeForbiddenRequests
         expr: |
-          sum by (user) (count_over_time({job="audit"} | json user="user.username", code="responseStatus.code" | code=~"401|403" [10m])) > 5
+          sum by (user) (count_over_time({job="audit"}
+            | json user="user.username", code="responseStatus.code", verb="verb", resource="objectRef.resource", reason="annotations[\"authorization.k8s.io/reason\"]"
+            | code=~"401|403"
+            | user!~"system:node:.+" or verb!="get" or resource!="pods" or reason!~"no relationship found.*"
+          [10m])) > 5
         labels:
           severity: warning
         annotations:
