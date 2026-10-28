@@ -31,24 +31,23 @@ tasks:
       Args:
         path: Path under apps containing the Flux Kustomization resource (ks.yaml) (required)
         ns: Namespace the Flux Kustomization exists in (default: flux-system)
+    set: [pipefail]
     cmd: |
       flux build ks $(basename {{.path}}) \
           --namespace {{.ns}} \
-          --kustomization-file {{.KUBERNETES_DIR}}/{{.CLUSTER}}/apps/{{.path}}/ks.yaml \
           --path {{.KUBERNETES_DIR}}/{{.CLUSTER}}/apps/{{.path}} \
-          {{- if contains "not found" .ks }}--dry-run \{{ end }}
       | \
       kubectl apply --server-side --field-manager=kustomize-controller -f -
     requires:
       vars: ["path"]
     vars:
       ns: '{{.ns | default "flux-system"}}'
-      ks:
-        sh: flux --namespace {{.ns}} get kustomizations $(basename {{.path}}) 2>&1
     preconditions:
       - *kubeconfig
       - msg: Missing Flux Kustomization for app {{.path}}
         sh: test -f {{.KUBERNETES_DIR}}/{{.CLUSTER}}/apps/{{.path}}/ks.yaml
+      - msg: Kustomization {{.path}} not in cluster; substitution needs its live spec, reconcile cluster-apps first
+        sh: flux get ks $(basename {{.path}}) --namespace {{.ns}}
 
   reconcile:
     desc: Force update Flux to pull in changes from your Git repository
