@@ -11,3 +11,4 @@ resources:
   #- ./external-dns/ks.yaml
   #- ./cloudflared/ks.yaml
   - ./smtp-relay/ks.yaml
+  - ./socks/ks.yaml
