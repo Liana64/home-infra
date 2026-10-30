@@ -23,6 +23,7 @@ spec:
           ttlSecondsAfterFinished: 86400
         pod:
           restartPolicy: Never
+          hostUsers: false
           dnsConfig:
             options:
               - name: ndots
