@@ -27,3 +27,13 @@ spec:
           for: 5m
           labels:
             severity: critical
+
+        - alert: VolSyncMoverRetrying
+          expr: |-
+            sum by (obj_namespace, obj_name) (increase(volsync_kopia_job_retries_total{role="source"}[1h])) > 10
+          annotations:
+            summary: >-
+              {{ $labels.obj_namespace }}/{{ $labels.obj_name }} mover retried {{ $value | humanize }} times in the last hour
+          for: 15m
+          labels:
+            severity: warning

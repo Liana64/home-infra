@@ -11,6 +11,9 @@ spec:
   kopia:
     copyMethod: "${VOLSYNC_COPYMETHOD:=Direct}"
     compression: zstd-fastest
+    cacheCapacity: 1Gi
+    cacheStorageClassName: cluster-nvme
+    cacheAccessModes: ["ReadWriteOnce"]
     moverPodLabels:
       app.kubernetes.io/created-by: volsync
     moverSecurityContext:
