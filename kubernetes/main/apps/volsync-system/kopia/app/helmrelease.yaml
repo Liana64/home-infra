@@ -72,6 +72,10 @@ spec:
                 cpu: 10m
                 memory: 384Mi
     defaultPodOptions:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
       securityContext:
         runAsNonRoot: true
         seccompProfile: { type: RuntimeDefault }
