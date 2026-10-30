@@ -24,10 +24,6 @@ spec:
         pod:
           restartPolicy: Never
           hostUsers: false
-          dnsConfig:
-            options:
-              - name: ndots
-                value: "1"
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000

@@ -25,11 +25,6 @@ spec:
     - kind: ConfigMap
       name: cilium-helm-values
   values:
-    # NOTE: Testing FQDN DNS resolution when `false`
-    #dnsProxy:
-    #  enabled: true
-    #  enableTransparentMode: true
-    #l7Proxy: true
     hubble:
       enabled: true
       metrics:

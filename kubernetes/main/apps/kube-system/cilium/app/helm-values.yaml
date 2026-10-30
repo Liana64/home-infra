@@ -19,7 +19,7 @@ bpf:
   #https://github.com/siderolabs/talos/issues/10002#issuecomment-2573907377
 bpfClockProbe: true
 dnsProxy:
-  enableTransparentMode: false
+  enableTransparentMode: true
 bgpControlPlane:
   enabled: true
 cgroup:
