@@ -28,7 +28,7 @@ spec:
             # renovate: datasource=docker depName=gristlabs/grist-oss
             image:
               repository: gristlabs/grist-oss
-              tag: 1.7.21@sha256:73e4815fcc1b5dfff6cd47b37a3ec2bb80d3c70b27efba4c8714a57781d414d1
+              tag: 1.7.22@sha256:40d2c0ce0c29b2aa1ec1dcf9652ec26a13a8f2b4b44116733bcede428afd27dc
             env:
               TZ: "${TIMEZONE}"
               HOME: /tmp
