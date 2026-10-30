@@ -1,0 +1,5 @@
+source: loki
+url: http://loki.observability.svc.cluster.local:3100
+query: '{namespace="networking", app="traefik"} | pod=~"traefik-external-.+"'
+labels:
+  type: traefik

@@ -99,7 +99,7 @@
       description: "Container images pinned inline as image: repo:tag@digest",
       managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
       matchStrings: [
-        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n\\s+image(?:Name)?: \\S+?:(?<currentValue>[^@\"'\\s:]+)(@(?<currentDigest>sha256:[a-f0-9]+))?",
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\\n\\s+(?:image(?:Name)?|reference): \\S+?:(?<currentValue>[^@\"'\\s:]+)(@(?<currentDigest>sha256:[a-f0-9]+))?",
       ],
       datasourceTemplate: "{{{datasource}}}",
       depNameTemplate: "{{{depName}}}",

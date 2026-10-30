@@ -20,6 +20,10 @@ spec:
         - matchLabels:
             io.kubernetes.pod.namespace: kube-system
             app.kubernetes.io/name: alloy-audit
+        - matchLabels:
+            io.kubernetes.pod.namespace: security
+            app.kubernetes.io/name: crowdsec
+            app.kubernetes.io/controller: agent
       toPorts:
         - ports:
             - port: "3100"

@@ -28,6 +28,19 @@ spec:
     deployment:
       enabled: true
       kind: DaemonSet
+      additionalVolumes:
+        - name: crowdsec-bouncer-plugin
+          image:
+            # renovate: datasource=docker depName=ghcr.io/liana64/traefik-crowdsec-bouncer
+            reference: ghcr.io/liana64/traefik-crowdsec-bouncer:1.8.1@sha256:b0ca5ade11d528990ae21f433faa778deab1db68af19f20b2b006f8dfdaab892
+            pullPolicy: IfNotPresent
+    experimental:
+      localPlugins:
+        crowdsec-bouncer:
+          type: localPath
+          moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+          mountPath: /plugins-local/src/github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+          volumeName: crowdsec-bouncer-plugin
     service:
       enabled: true
       type: LoadBalancer
@@ -70,6 +83,9 @@ spec:
               scheme: https
       websecure:
         asDefault: true
+        http:
+          middlewares:
+            - networking-traefik-middleware-crowdsec@kubernetescrd
         transport:
           respondingTimeouts:
             readTimeout: 0

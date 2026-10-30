@@ -1,0 +1,18 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-middleware-crowdsec
+spec:
+  plugin:
+    crowdsec-bouncer:
+      enabled: true
+      crowdsecMode: stream
+      crowdsecLapiHost: crowdsec-lapi.security.svc.cluster.local:8080
+      crowdsecLapiKey: "${CROWDSEC_BOUNCER_KEY}"
+      updateMaxFailure: -1
+      streamStartupBlock: false
+      clientTrustedIPs:
+        - 10.0.0.0/8
+        - 172.16.0.0/12
+        - 192.168.0.0/16
