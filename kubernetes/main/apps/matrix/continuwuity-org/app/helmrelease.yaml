@@ -36,8 +36,7 @@ spec:
               CONTINUWUITY_ALLOW_FEDERATION: "true"
               CONTINUWUITY_TRUSTED_SERVERS: '["matrix.org","dovi.dev"]'
               CONTINUWUITY_ALLOW_CHECK_FOR_UPDATES: "false"
-              # token-gated; the first account to register becomes server admin
-              CONTINUWUITY_ALLOW_REGISTRATION: "true"
+              CONTINUWUITY_ALLOW_REGISTRATION: "false"
               CONTINUWUITY_WELL_KNOWN__SERVER: "matrix.${ORG_DOMAIN}:443"
               CONTINUWUITY_WELL_KNOWN__CLIENT: "https://matrix.${ORG_DOMAIN}"
               CONTINUWUITY_WELL_KNOWN__SUPPORT_EMAIL: "liana@${ORG_DOMAIN}"
@@ -81,6 +80,7 @@ spec:
       # RocksDB needs to flush and close cleanly
       terminationGracePeriodSeconds: 120
       automountServiceAccountToken: false
+      hostUsers: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -97,7 +97,7 @@ spec:
             port: 8008
 
     ingress:
-      # public homeserver: the client-server API is open so others can register
+      # public client-server API so org members can sign in from anywhere
       app:
         className: traefik-external
         annotations:
