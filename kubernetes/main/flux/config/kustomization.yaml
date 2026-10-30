@@ -5,3 +5,10 @@ resources:
   - ./flux.yaml
   - ./cluster.yaml
   - ./networkpolicy.yaml
+secretGenerator:
+  - name: git-signing-keys
+    namespace: flux-system
+    files:
+      - ./liana.asc
+generatorOptions:
+  disableNameSuffixHash: true

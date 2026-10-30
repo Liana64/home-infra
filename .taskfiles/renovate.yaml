@@ -11,3 +11,16 @@ tasks:
     cmds:
       - "{{.KUBECTL_CMD}} delete job renovate-manual --ignore-not-found"
       - "{{.KUBECTL_CMD}} create job renovate-manual --from=cronjob/renovate"
+
+  merge:
+    desc: Merge Renovate branches into main with a signed merge commit
+    summary: "task renovate:merge BRANCHES='renovate/foo renovate/bar'"
+    requires:
+      vars: [BRANCHES]
+    cmds:
+      - git fetch origin
+      - git switch main
+      - git merge --ff-only origin/main
+      - for: { var: BRANCHES }
+        cmd: git merge -S --no-ff --no-edit origin/{{.ITEM}}
+      - git verify-commit HEAD

@@ -12,6 +12,10 @@ spec:
     name: github-deploy-key
   ref:
     branch: "main"
+  verify:
+    mode: HEAD
+    secretRef:
+      name: git-signing-keys
   ignore: |
     # exclude all
     /*
