@@ -52,6 +52,7 @@ spec:
 
     defaultPodOptions:
       automountServiceAccountToken: false
+      hostUsers: false
       securityContext:
         runAsNonRoot: true
         # nginx user baked into the image

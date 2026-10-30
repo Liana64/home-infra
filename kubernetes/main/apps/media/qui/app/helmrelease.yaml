@@ -52,6 +52,7 @@ spec:
               capabilities: { drop: ["ALL"] }
     defaultPodOptions:
       automountServiceAccountToken: false
+      hostUsers: false
       securityContext:
         runAsNonRoot: true
         seccompProfile: { type: RuntimeDefault }

@@ -14,6 +14,7 @@ spec:
   values:
     defaultPodOptions:
       automountServiceAccountToken: false
+      hostUsers: false
     controllers:
       flaresolverr:
         replicas: 1

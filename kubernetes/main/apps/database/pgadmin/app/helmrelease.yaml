@@ -16,6 +16,7 @@ spec:
   values:
     defaultPodOptions:
       automountServiceAccountToken: false
+      hostUsers: false
     controllers:
       pgadmin:
         annotations:

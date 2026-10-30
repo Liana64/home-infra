@@ -80,6 +80,7 @@ spec:
       # RocksDB needs to flush and close cleanly
       terminationGracePeriodSeconds: 120
       automountServiceAccountToken: false
+      hostUsers: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000

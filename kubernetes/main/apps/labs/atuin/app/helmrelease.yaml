@@ -59,6 +59,7 @@ spec:
                 memory: 256Mi
     defaultPodOptions:
       automountServiceAccountToken: false
+      hostUsers: false
       securityContext:
         runAsNonRoot: true
         runAsUser: 65534

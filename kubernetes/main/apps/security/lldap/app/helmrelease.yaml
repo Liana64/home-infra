@@ -12,6 +12,7 @@ spec:
   values:
     defaultPodOptions:
       automountServiceAccountToken: false
+      hostUsers: false
     controllers:
       lldap:
         replicas: 1

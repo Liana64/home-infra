@@ -66,6 +66,7 @@ spec:
                   - ALL
     defaultPodOptions:
       automountServiceAccountToken: false
+      hostUsers: false
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
