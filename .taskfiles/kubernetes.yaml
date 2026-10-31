@@ -6,6 +6,15 @@ vars:
   KUBECONFORM_SCRIPT: "{{.SCRIPTS_DIR}}/kubeconform.sh"
 
 tasks:
+  install-kubeconfig:
+    desc: Install kubeconfig
+    cmds:
+      - mkdir -p {{.HOME}}/.kube
+      - ln -sfn {{.KUBECONFIG_FILE}} {{.HOME}}/.kube/config
+    preconditions:
+      - msg: Missing kubeconfig
+        sh: test -f {{.KUBECONFIG_FILE}}
+
   resources:
     desc: Gather common resources in your cluster, useful when asking for support
     cmds:
