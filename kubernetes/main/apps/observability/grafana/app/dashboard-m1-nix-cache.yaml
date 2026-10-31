@@ -1,0 +1,193 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: m1-nix-cache-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Storage
+data:
+  m1-nix-cache.json: |
+    {
+      "annotations": {"list": []},
+      "editable": false,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "atticd",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 4, "x": 0, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "color": {"mode": "thresholds"},
+              "mappings": [
+                {"type": "value", "options": {
+                  "0": {"text": "DOWN", "color": "red"},
+                  "1": {"text": "UP", "color": "green"}
+                }}
+              ],
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "node_systemd_unit_state{host=\"m1\",name=\"atticd.service\",state=\"active\"}", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Store paths",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 4, "x": 4, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "fixed", "fixedColor": "blue"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area"},
+          "targets": [
+            {"expr": "sum(attic_objects)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "NAR size",
+          "description": "Uncompressed size of every cached store path",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 4, "x": 8, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "bytes", "color": {"mode": "fixed", "fixedColor": "blue"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area"},
+          "targets": [
+            {"expr": "sum(attic_nar_size_bytes)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "On disk",
+          "description": "Referenced bytes of tank/cluster/nix-cache against its refquota",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 4, "x": 12, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "min": 0,
+              "max": 1,
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [
+                {"color": "green", "value": null},
+                {"color": "orange", "value": 0.8},
+                {"color": "red", "value": 0.9}
+              ]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "zfs_dataset_referenced_bytes{host=\"m1\",name=\"tank/cluster/nix-cache\"} / zfs_dataset_referenced_quota_bytes{host=\"m1\",name=\"tank/cluster/nix-cache\"}", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Storage ratio",
+          "description": "NAR size over bytes on disk, from attic chunk dedup plus zstd",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 4, "x": 16, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "none", "decimals": 2, "color": {"mode": "fixed", "fixedColor": "purple"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "sum(attic_nar_size_bytes) / sum(zfs_dataset_referenced_bytes{host=\"m1\",name=\"tank/cluster/nix-cache\"})", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Last push",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 4, "x": 20, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "s", "color": {"mode": "fixed", "fixedColor": "text"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "time() - max(attic_last_push_time_seconds)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Systems in cache",
+          "description": "Age of each machine's newest NixOS system pushed by m1",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 8, "x": 0, "y": 4},
+          "fieldConfig": {
+            "defaults": {"custom": {"align": "left"}},
+            "overrides": [
+              {"matcher": {"id": "byName", "options": "Last push"}, "properties": [{"id": "unit", "value": "s"}]}
+            ]
+          },
+          "options": {"sortBy": [{"displayName": "Last push", "desc": false}]},
+          "targets": [
+            {"expr": "time() - max by (machine) (attic_system_last_push_time_seconds)", "refId": "A", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ],
+          "transformations": [
+            {"id": "organize", "options": {
+              "excludeByName": {"Time": true},
+              "renameByName": {"machine": "Machine", "Value": "Last push"}
+            }}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Store paths",
+          "description": "Steps up on push, down on attic GC (3 month retention)",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 8, "x": 8, "y": 4},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "color": {"mode": "fixed", "fixedColor": "blue"},
+              "custom": {"drawStyle": "line", "lineInterpolation": "stepAfter", "lineWidth": 2, "fillOpacity": 10, "showPoints": "never"}
+            },
+            "overrides": []
+          },
+          "options": {"legend": {"showLegend": false}, "tooltip": {"mode": "single"}},
+          "targets": [
+            {"expr": "sum(attic_objects)", "refId": "A", "legendFormat": "paths", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Size",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 8, "x": 16, "y": 4},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "min": 0,
+              "custom": {"drawStyle": "line", "lineWidth": 2, "fillOpacity": 0, "showPoints": "never", "spanNulls": true}
+            },
+            "overrides": [
+              {"matcher": {"id": "byName", "options": "refquota"}, "properties": [
+                {"id": "color", "value": {"mode": "fixed", "fixedColor": "red"}},
+                {"id": "custom.lineStyle", "value": {"fill": "dash", "dash": [10, 10]}}
+              ]}
+            ]
+          },
+          "options": {
+            "legend": {"displayMode": "list", "placement": "bottom", "showLegend": true},
+            "tooltip": {"mode": "multi", "sort": "desc"}
+          },
+          "targets": [
+            {"expr": "sum(attic_nar_size_bytes)", "refId": "A", "legendFormat": "NAR size", "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "zfs_dataset_referenced_bytes{host=\"m1\",name=\"tank/cluster/nix-cache\"}", "refId": "B", "legendFormat": "on disk", "datasource": {"type": "prometheus", "uid": "prometheus"}},
+            {"expr": "zfs_dataset_referenced_quota_bytes{host=\"m1\",name=\"tank/cluster/nix-cache\"}", "refId": "C", "legendFormat": "refquota", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        }
+      ],
+      "refresh": "5m",
+      "schemaVersion": 39,
+      "tags": ["nix", "attic", "m1"],
+      "templating": {"list": []},
+      "time": {"from": "now-30d", "to": "now"},
+      "timezone": "browser",
+      "title": "m1 nix cache",
+      "uid": "m1-nix-cache",
+      "version": 1
+    }

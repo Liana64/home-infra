@@ -6,6 +6,7 @@ resources:
   - ./dashboard-backups.yaml
   - ./dashboard-m1-storage.yaml
   - ./dashboard-m1-seaweedfs.yaml
+  - ./dashboard-m1-nix-cache.yaml
   - ./networkpolicy.yaml
   - ./secret.sops.yaml
   - ./helmrelease.yaml
