@@ -1,0 +1,138 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: readarr
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      readarr:
+        strategy: Recreate
+        annotations:
+          reloader.stakater.com/auto: "true"
+
+        pod:
+          terminationGracePeriodSeconds: 60
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            seccompProfile: { type: RuntimeDefault }
+            fsGroup: 1000
+            fsGroupChangePolicy: "OnRootMismatch"
+            # 2000 = m1 media share gid (tank/cluster/media 2775 root 2000:2000)
+            supplementalGroups:
+              - 2000
+
+        containers:
+          app:
+            # renovate: datasource=docker depName=ghcr.io/pennydreadful/bookshelf versioning=regex:^hardcover-v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)\.(?<build>\d+)$
+            image:
+              repository: ghcr.io/pennydreadful/bookshelf
+              tag: hardcover-v0.4.21.182@sha256:67498dd5ece516867d72ee642abd6c1a66b36a135c8f7da0127109564372beb1
+            command: ["/app/readarr/bin/Readarr"]
+            args: ["-nobrowser", "-data=/config"]
+            workingDir: /app/readarr/bin
+            env:
+              TMPDIR: /tmp
+              READARR__APP__INSTANCENAME: Readarr
+              READARR__SERVER__PORT: &port 8787
+              READARR__AUTH__METHOD: Forms
+              READARR__AUTH__REQUIRED: Enabled
+              READARR__LOG__LEVEL: info
+              READARR__LOG__ANALYTICSENABLED: "False"
+              READARR__AUTH__APIKEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: readarr-secret
+                    key: api_key
+            probes:
+              liveness:
+                enabled: true
+              readiness:
+                enabled: true
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 5
+            resources:
+              requests:
+                cpu: 20m
+                memory: 256Mi
+              limits:
+                memory: 1024Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - "m1"
+
+    service:
+      app:
+        controller: readarr
+        ports:
+          http:
+            port: *port
+
+    ingress:
+      app:
+        className: traefik
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          external-dns.alpha.kubernetes.io/target: "external.${PERSONAL_DOMAIN}"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-no-auth@kubernetescrd"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Media
+          gethomepage.dev/name: Readarr
+          gethomepage.dev/description: Books
+          gethomepage.dev/icon: readarr
+        hosts:
+          - host: &host "readarr.${LAB_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: readarr-tls
+            hosts: [*host]
+
+    persistence:
+      config:
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        retain: true
+        globalMounts:
+          - path: /config
+      media:
+        existingClaim: media
+        advancedMounts:
+          readarr:
+            app:
+              - path: /media
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
