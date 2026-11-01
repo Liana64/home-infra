@@ -7,9 +7,10 @@ vars:
 
 tasks:
   postgres:
-    desc: Take an on-demand postgres-1 backup eg "task backup:postgres"
+    desc: Backup a CNPG cluster on-demand, e.g. "task backup:postgres [PG=postgres-1]"
     vars:
-      NAME: postgres-1-{{now | date "20060102-150405"}}
+      PG: '{{.PG | default "postgres-1"}}'
+      NAME: '{{.PG}}-{{now | date "20060102-150405"}}'
     cmds:
       - |
         kubectl apply -f - <<EOF
@@ -20,7 +21,7 @@ tasks:
           namespace: database
         spec:
           cluster:
-            name: postgres-1
+            name: {{.PG}}
           method: plugin
           pluginConfiguration:
             name: barman-cloud.cloudnative-pg.io
@@ -28,7 +29,7 @@ tasks:
       - kubectl -n database wait backup/{{.NAME}} --for=jsonpath='{.status.phase}'=completed --timeout=30m
 
   etcd:
-    desc: Take an on-demand etcd snapshot to s3://etcd eg "task backup:etcd"
+    desc: Snapshot etcd on-demand, e.g. "task backup:etcd"
     vars:
       NAME: talos-backup-{{now | unixEpoch}}
     cmds:
@@ -38,7 +39,7 @@ tasks:
       - test "$(kubectl -n kube-system get job {{.NAME}} -o jsonpath='{.status.succeeded}')" = 1
 
   volsync:
-    desc: Take an on-demand volsync snapshot of an app eg "task backup:volsync APP=linkding NS=home"
+    desc: Snapshot an app on-demand, e.g. "task backup:volsync APP=linkding NS=home"
     requires:
       vars: [APP, NS]
     vars:
@@ -48,7 +49,7 @@ tasks:
       - kubectl -n {{.NS}} wait replicationsource/{{.APP}} --for=jsonpath='{.status.lastManualSync}'={{.ID}} --timeout=30m
 
   restore:
-    desc: Overwrite an app's PVC with a kopia snapshot eg "task backup:restore APP=linkding NS=home [PREVIOUS=1]"
+    desc: Restore a kopia snapshot e.g. "task backup:restore APP=linkding NS=home [PREVIOUS=1]"
     prompt: Scale down {{.NS}}/{{.APP}} and overwrite its PVC with a snapshot?
     requires:
       vars: [APP, NS]
@@ -99,6 +100,16 @@ tasks:
         cmd: kubectl -n {{.NS}} scale {{splitList "=" .ITEM | first}} --replicas=0
       - test -z "{{catLines .PODS}}" || kubectl -n {{.NS}} wait {{catLines .PODS}} --for=delete --timeout=5m
       - |
+        {{if .NODE}}
+        pvc=$(kubectl -n {{.NS}} get pvc {{.PVC}} -o json | jq --arg n {{.NODE}} '{apiVersion, kind,
+          metadata: (.metadata | {name, namespace, labels, annotations: ((.annotations // {})
+            | with_entries(select(.key | test("^(pv|volume)\\.") | not)) + {"volume.kubernetes.io/selected-node": $n})}),
+          spec: (.spec | del(.volumeName))}')
+        kubectl patch pv $(kubectl -n {{.NS}} get pvc {{.PVC}} -o jsonpath='{.spec.volumeName}') -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
+        kubectl -n {{.NS}} delete pvc {{.PVC}} volsync-src-{{.APP}}-cache --ignore-not-found
+        echo "$pvc" | kubectl create -f -
+        {{end}}
+      - |
         kubectl apply -f - <<EOF
         apiVersion: volsync.backube/v1alpha1
         kind: ReplicationDestination
@@ -131,6 +142,16 @@ tasks:
       - kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"paused":false}}'
       - for: { var: RELEASES }
         cmd: flux -n {{.NS}} resume helmrelease {{.ITEM}}
+
+  move:
+    desc: Backup and restore an app onto another node, e.g. "task backup:move APP=linkding NS=home NODE=n2"
+    requires:
+      vars: [APP, NS, NODE]
+    cmds:
+      - task: volsync
+        vars: { APP: "{{.APP}}", NS: "{{.NS}}" }
+      - task: restore
+        vars: { APP: "{{.APP}}", NS: "{{.NS}}", NODE: "{{.NODE}}" }
 
   list:
     desc: List postgres backups and volsync sources

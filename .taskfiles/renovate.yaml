@@ -13,7 +13,7 @@ tasks:
       - "{{.KUBECTL_CMD}} create job renovate-manual --from=cronjob/renovate"
 
   merge:
-    desc: Merge Renovate branches into main with a signed merge commit
+    desc: Merge Renovate branches into main with a signed commit
     summary: "task renovate:merge BRANCHES='renovate/foo renovate/bar'"
     requires:
       vars: [BRANCHES]
