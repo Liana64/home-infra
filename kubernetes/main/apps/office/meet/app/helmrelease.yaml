@@ -21,7 +21,7 @@ spec:
             # renovate: datasource=docker depName=lasuite/meet-backend
             image: &backendImage
               repository: lasuite/meet-backend
-              tag: v1.34.0@sha256:899bce24d8d10602d2501f05fc9554aee35df1e33a083de8c7ef42b166e78429
+              tag: v1.37.0@sha256:302bfb88b56f85809026111de69dec5629101c94fc58ee51d762d366ff7f86da
             command: ["python", "manage.py", "migrate", "--no-input"]
             env: &backendEnv
               TZ: "${TIMEZONE}"
