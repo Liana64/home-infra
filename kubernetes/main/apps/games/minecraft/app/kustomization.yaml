@@ -17,7 +17,3 @@ patches:
       - op: replace
         path: /spec/sourcePVC
         value: ${APP}-data
-      - op: replace
-        path: /spec/trigger
-        value:
-          schedule: "0 4 * * *"

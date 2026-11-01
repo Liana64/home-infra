@@ -27,4 +27,5 @@ spec:
   postBuild:
     substitute:
       APP: *app
+      VOLSYNC_SCHEDULE: "30 */6 * * *"
       POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local

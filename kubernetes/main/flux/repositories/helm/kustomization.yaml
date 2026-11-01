@@ -13,7 +13,6 @@ resources:
   - ./grafana.yaml
   - ./itzg.yaml
   - ./jetstack.yaml
-  - ./k8tz.yaml
   - ./metrics-server.yaml
   - ./node-feature-discovery.yaml
   #- ./nvidia-device-plugin.yaml

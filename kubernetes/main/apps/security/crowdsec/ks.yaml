@@ -11,6 +11,8 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: loki
+    - name: volsync
+    - name: kopia
   path: ./kubernetes/main/apps/security/crowdsec/app
   prune: true
   sourceRef:
@@ -20,3 +22,6 @@ spec:
   interval: 30m
   retryInterval: 1m
   timeout: 5m
+  postBuild:
+    substitute:
+      APP: *app

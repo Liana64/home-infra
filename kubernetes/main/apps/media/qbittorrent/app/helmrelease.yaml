@@ -90,6 +90,7 @@ spec:
               repository: ghcr.io/liana64/qbittorrent
               tag: 5.2.4@sha256:9dbbb13c2acb729a82e2a47cb39a0e9b9f142d94f46af33403a5c0a2cb7c9c55
             env:
+              TZ: "${TIMEZONE}"
               UMASK: "022"
               QBT_WEBUI_PORT: &port 8080
               QBT_BitTorrent__Session__Interface: net1

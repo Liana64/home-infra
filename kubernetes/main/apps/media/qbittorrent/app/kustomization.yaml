@@ -17,13 +17,3 @@ generatorOptions:
   disableNameSuffixHash: true
   annotations:
     kustomize.toolkit.fluxcd.io/substitute: disabled
-patches:
-  - target:
-      group: volsync.backube
-      version: v1alpha1
-      kind: ReplicationSource
-    patch: |
-      - op: replace
-        path: /spec/trigger
-        value:
-          schedule: "0 4 * * 6"

@@ -13,13 +13,3 @@ configMapGenerator:
       - ./resources/mosquitto.conf
 generatorOptions:
   disableNameSuffixHash: true
-patches:
-  - target:
-      group: volsync.backube
-      version: v1alpha1
-      kind: ReplicationSource
-    patch: |
-      - op: replace
-        path: /spec/trigger
-        value:
-          schedule: "0 4 * * 6"

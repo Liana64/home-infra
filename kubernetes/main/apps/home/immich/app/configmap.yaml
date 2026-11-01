@@ -5,7 +5,7 @@ kind: ConfigMap
 metadata:
   name: immich-configmap
 data:
-  TZ: America/Chicago
+  TZ: "${TIMEZONE}"
   IMMICH_LOG_LEVEL: log
   IMMICH_MEDIA_LOCATION: /library
   IMMICH_TELEMETRY_INCLUDE: all

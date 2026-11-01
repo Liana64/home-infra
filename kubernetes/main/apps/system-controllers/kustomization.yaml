@@ -7,4 +7,3 @@ resources:
   - ./networkpolicy.yaml
   - ./snapshot-controller/ks.yaml
   - ./kubelet-csr-approver/ks.yaml
-  - ./k8tz/ks.yaml
