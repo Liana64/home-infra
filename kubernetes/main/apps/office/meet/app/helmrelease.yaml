@@ -112,7 +112,7 @@ spec:
             # renovate: datasource=docker depName=lasuite/meet-frontend
             image:
               repository: lasuite/meet-frontend
-              tag: v1.34.0@sha256:aa7d0ea5c9d2bf9e40c5f6e93cb30399662dfd1b4a549c3bb997b85f72ad02b4
+              tag: v1.37.0@sha256:2cfd5b8c0d9da1a187cecd628f3a88ecb64f6ba1cd1c80d1b8f7f6fa4c9faefe
             probes:
               liveness: &frontendProbes
                 enabled: true
