@@ -29,8 +29,6 @@ includes:
   talos:
     taskfile: .taskfiles/talos.yaml
     aliases: [t]
-  tofu:
-    taskfile: .taskfiles/tofu.yaml
   backup:
     taskfile: .taskfiles/backup.yaml
     aliases: [b]
@@ -55,10 +53,8 @@ tasks:
       - task: sops:setup
 
   check:
-    desc: Validate the repo (pre-commit, kubeconform, sops, tofu fmt)
+    desc: Validate the repo (pre-commit, kubeconform, sops)
     cmds:
       - task: precommit:run
       - task: kubernetes:kubeconform
       - task: sops:check
-      - task: tofu:fmt
-        vars: { check: true }

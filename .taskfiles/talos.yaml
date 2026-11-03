@@ -30,13 +30,6 @@ tasks:
         msg: Missing talhelper config file
         sh: test -f {{.TALHELPER_CONFIG_FILE}}
 
-  rebuild:
-    desc: Destroy and re-bootstrap the Talos cluster
-    dir: "{{.BOOTSTRAP_TALOS_DIR}}"
-    cmds:
-      - task: :tofu:nuke-talos
-      - task: bootstrap
-
   generate:
     desc: Generate Talos configs with talhelper
     dir: "{{.BOOTSTRAP_TALOS_DIR}}"
