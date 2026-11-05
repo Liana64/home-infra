@@ -52,6 +52,11 @@
       groupName: "flux",
     },
     {
+      matchPackageNames: ["siderolabs/talos", "ghcr.io/siderolabs/kubelet"],
+      separateMinorPatch: true,
+      separateMultipleMinor: true,
+    },
+    {
       matchPackageNames: ["dragonflydb/dragonfly-operator", "ghcr.io/dragonflydb/operator"],
       groupName: "dragonfly-operator",
     },
@@ -115,6 +120,16 @@
       datasourceTemplate: "{{{datasource}}}",
       depNameTemplate: "{{{depName}}}",
       versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+    },
+    {
+      customType: "regex",
+      description: "Talos and Kubernetes versions in talconfig",
+      managerFilePatterns: ["/(^|/)talconfig\\.yaml$/"],
+      matchStrings: [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\w+Version: (?<currentValue>\\S+)",
+      ],
+      datasourceTemplate: "{{{datasource}}}",
+      depNameTemplate: "{{{depName}}}",
     },
     {
       customType: "regex",

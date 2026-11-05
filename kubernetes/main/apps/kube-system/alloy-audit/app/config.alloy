@@ -3,12 +3,16 @@ logging {
 	format = "logfmt"
 }
 
-loki.source.file "audit" {
-	targets = [{
+local.file_match "audit" {
+	path_targets = [{
 		__path__ = "/var/log/audit/kube/kube-apiserver.log",
 		job      = "audit",
 		node     = sys.env("K8S_NODE_NAME"),
 	}]
+}
+
+loki.source.file "audit" {
+	targets       = local.file_match.audit.targets
 	tail_from_end = true
 	forward_to    = [loki.process.audit.receiver]
 }

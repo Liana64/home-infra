@@ -9,7 +9,7 @@ vars:
 
 tasks:
   app:
-    desc: Scaffold an app from the template eg "task template:app APP=foo NS=home"
+    desc: Scaffold an app, e.g. "task template:app APP=foo NS=home"
     requires:
       vars: [APP, NS]
     vars:
@@ -21,10 +21,13 @@ tasks:
     status:
       - test -d {{.DEST}}
     preconditions:
-      - { msg: "Unknown namespace {{.NS}}", sh: "test -f {{.APPS_DIR}}/{{.NS}}/kustomization.yaml" }
+      - {
+          msg: "Unknown namespace {{.NS}}",
+          sh: "test -f {{.APPS_DIR}}/{{.NS}}/kustomization.yaml",
+        }
 
   postgres:
-    desc: Add a managed postgres role and database for an app eg "task template:postgres APP=foo NS=home [NAME=foo-bar ROLE=foo_bar DB=foo_bar] [BW_ID=uuid]"
+    desc: Add a managed postgres role and database for an app, e.g. "task template:postgres APP=foo NS=home [NAME=foo-bar ROLE=foo_bar DB=foo_bar] [BW_ID=uuid]"
     requires:
       vars: [APP, NS]
     vars:
@@ -60,4 +63,7 @@ tasks:
       - test -f {{.PG_DIR}}/{{.NAME}}-database.yaml
     preconditions:
       - { msg: "Missing app {{.APP_DIR}}", sh: "test -d {{.APP_DIR}}/app" }
-      - { msg: "Set BW_ID or BWS_ACCESS_TOKEN + BWS_PROJECT_ID", sh: 'test -n "{{.BW_ID}}" || { test -n "${BWS_ACCESS_TOKEN:-}" && test -n "${BWS_PROJECT_ID:-}"; }' }
+      - {
+          msg: "Set BW_ID or BWS_ACCESS_TOKEN + BWS_PROJECT_ID",
+          sh: 'test -n "{{.BW_ID}}" || { test -n "${BWS_ACCESS_TOKEN:-}" && test -n "${BWS_PROJECT_ID:-}"; }',
+        }

@@ -93,33 +93,31 @@ tasks:
       - msg: Missing helmfile
         sh: test -f {{.HELMFILE_FILE}}
 
-  # batch (sequential node IPs): for x in {0..6}; do task talos:upgrade image=factory.talos.dev/installer/xxx:v1.7.4 node=10.1.2.10$x; done
   upgrade:
-    desc: Upgrade Talos on a node
+    desc: Upgrade a node to talconfig's talosVersion once the cluster is healthy eg "task talos:upgrade node=172.16.4.13 [-- --reboot-mode=powercycle]"
     dir: "{{.BOOTSTRAP_TALOS_DIR}}"
+    set: [pipefail]
     cmds:
-      - "talosctl --nodes {{.node}} upgrade --image {{.image}} --wait=true --timeout=10m --preserve=true --reboot-mode={{.mode}}"
-    vars:
-      mode: '{{.mode | default "default"}}'
+      - task: health
+      - talhelper gencommand upgrade --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --node {{.node}} --extra-flags="--timeout=10m {{.CLI_ARGS}}" | bash
     requires:
-      vars: ["node", "image"]
+      vars: ["node"]
     preconditions:
+      - *talconfig
       - *talosconfig
       - *talosinfo
       - msg: Node not found
         sh: "talosctl --nodes {{.node}} get machineconfig >/dev/null 2>&1"
 
   upgrade-k8s:
-    desc: Upgrade Kubernetes across the cluster
+    desc: Upgrade Kubernetes to talconfig's kubernetesVersion eg "task talos:upgrade-k8s [-- --dry-run]"
     dir: "{{.BOOTSTRAP_TALOS_DIR}}"
-    cmd: "talosctl --nodes {{.controller}} upgrade-k8s --to {{.to}}"
-    requires:
-      vars: ["controller", "to"]
+    set: [pipefail]
+    cmd: talhelper gencommand upgrade-k8s --config-file {{.TALHELPER_CONFIG_FILE}} --out-dir {{.TALHELPER_CLUSTER_DIR}} --extra-flags="{{.CLI_ARGS}}" | bash
     preconditions:
+      - *talconfig
       - *talosconfig
       - *talosinfo
-      - msg: Node not found
-        sh: "talosctl --nodes {{.controller}} get machineconfig >/dev/null 2>&1"
 
   recover-etcd:
     desc: Re-bootstrap etcd from a talos-backup snapshot eg "task talos:recover-etcd node=172.16.4.12 snapshot=./milberry-….snap.age"
