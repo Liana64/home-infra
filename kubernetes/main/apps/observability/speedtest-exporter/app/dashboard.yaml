@@ -50,7 +50,7 @@ data:
           },
           "targets": [
             {
-              "expr": "last_over_time(speedtest_download_bits_per_second[3h])",
+              "expr": "max(last_over_time(speedtest_download_bits_per_second[3h]))",
               "instant": true,
               "refId": "A"
             }
@@ -76,7 +76,7 @@ data:
           },
           "targets": [
             {
-              "expr": "last_over_time(speedtest_upload_bits_per_second[3h])",
+              "expr": "max(last_over_time(speedtest_upload_bits_per_second[3h]))",
               "instant": true,
               "refId": "A"
             }
@@ -102,7 +102,7 @@ data:
           },
           "targets": [
             {
-              "expr": "last_over_time(speedtest_ping_latency_milliseconds[3h])",
+              "expr": "max(last_over_time(speedtest_ping_latency_milliseconds[3h]))",
               "instant": true,
               "refId": "A"
             }
@@ -128,7 +128,7 @@ data:
           },
           "targets": [
             {
-              "expr": "last_over_time(speedtest_jitter_latency_milliseconds[3h])",
+              "expr": "max(last_over_time(speedtest_jitter_latency_milliseconds[3h]))",
               "instant": true,
               "refId": "A"
             }
@@ -154,7 +154,7 @@ data:
           },
           "targets": [
             {
-              "expr": "time() - timestamp(last_over_time(speedtest_up[24h]))",
+              "expr": "time() - max(max_over_time(timestamp(speedtest_up)[24h:1m]))",
               "instant": true,
               "refId": "A"
             }
@@ -164,6 +164,7 @@ data:
           "type": "timeseries",
           "title": "Bandwidth",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "interval": "1h",
           "gridPos": { "h": 10, "w": 12, "x": 0, "y": 4 },
           "fieldConfig": {
             "defaults": {
@@ -199,12 +200,12 @@ data:
           },
           "targets": [
             {
-              "expr": "speedtest_download_bits_per_second",
+              "expr": "max(last_over_time(speedtest_download_bits_per_second[$__interval]))",
               "legendFormat": "Download",
               "refId": "A"
             },
             {
-              "expr": "speedtest_upload_bits_per_second",
+              "expr": "max(last_over_time(speedtest_upload_bits_per_second[$__interval]))",
               "legendFormat": "Upload",
               "refId": "B"
             }
@@ -214,6 +215,7 @@ data:
           "type": "timeseries",
           "title": "Latency",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "interval": "1h",
           "gridPos": { "h": 10, "w": 12, "x": 12, "y": 4 },
           "fieldConfig": {
             "defaults": {
@@ -249,12 +251,12 @@ data:
           },
           "targets": [
             {
-              "expr": "speedtest_ping_latency_milliseconds",
+              "expr": "max(last_over_time(speedtest_ping_latency_milliseconds[$__interval]))",
               "legendFormat": "Ping",
               "refId": "A"
             },
             {
-              "expr": "speedtest_jitter_latency_milliseconds",
+              "expr": "max(last_over_time(speedtest_jitter_latency_milliseconds[$__interval]))",
               "legendFormat": "Jitter",
               "refId": "B"
             }
