@@ -1,3 +1,10 @@
 ---
 providerRegex: ^[nm]\d+$
 bypassDnsResolution: true
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - topologyKey: kubernetes.io/hostname
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: kubelet-csr-approver
