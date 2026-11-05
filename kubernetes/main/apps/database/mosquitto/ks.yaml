@@ -10,9 +10,6 @@ spec:
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
-  dependsOn:
-    - name: volsync
-    - name: kopia
   path: ./kubernetes/main/apps/database/mosquitto/app
   prune: true
   sourceRef:
@@ -25,4 +22,3 @@ spec:
   postBuild:
     substitute:
       APP: *app
-      VOLSYNC_SCHEDULE: "0 10 * * 6"
