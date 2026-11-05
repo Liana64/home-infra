@@ -14,3 +14,48 @@ spec:
         - "${M1_HOST}:9327"
       labels:
         host: m1
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: catbox
+  namespace: observability
+spec:
+  staticConfigs:
+    - targets:
+        - "${CATBOX_HOST}:9100"
+        - "${CATBOX_HOST}:9633"
+      labels:
+        host: catbox
+# ---
+# # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+# apiVersion: monitoring.coreos.com/v1alpha1
+# kind: ScrapeConfig
+# metadata:
+#   name: oob
+#   namespace: observability
+# spec:
+#   staticConfigs:
+#     - targets:
+#         - "${OOB_HOST}:9100"
+#         - "${OOB_HOST}:9134"
+#         - "${OOB_HOST}:9633"
+#       labels:
+#         host: oob
+# ---
+# # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/scrapeconfig_v1alpha1.json
+# apiVersion: monitoring.coreos.com/v1alpha1
+# kind: ScrapeConfig
+# metadata:
+#   name: oob-ups
+#   namespace: observability
+# spec:
+#   metricsPath: /ups_metrics
+#   params:
+#     ups: [cyberpower]
+#   staticConfigs:
+#     - targets:
+#         - "${OOB_HOST}:9199"
+#       labels:
+#         host: oob

@@ -118,7 +118,7 @@ spec:
                 - alertname = Watchdog
             - receiver: ntfy-events
               matchers:
-                - alertname =~ Flux.*
+                - alertname =~ Flux.*|AtticSystemPushed
             - receiver: ntfy-critical
               matchers:
                 - severity = critical

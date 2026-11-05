@@ -40,6 +40,26 @@ spec:
               protocol: TCP
             - port: "9327"
               protocol: TCP
+    - toCIDR:
+        - ${CATBOX_HOST}/32
+      toPorts:
+        - ports:
+            - port: "9100"
+              protocol: TCP
+            - port: "9633"
+              protocol: TCP
+#     - toCIDR:
+#         - ${OOB_HOST}/32
+#       toPorts:
+#         - ports:
+#             - port: "9100"
+#               protocol: TCP
+#             - port: "9134"
+#               protocol: TCP
+#             - port: "9199"
+#               protocol: TCP
+#             - port: "9633"
+#               protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy

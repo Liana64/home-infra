@@ -121,6 +121,89 @@ spec:
           for: 5m
           labels:
             severity: critical
+    - name: restic
+      rules:
+        - alert: ResticBackupStale
+          annotations:
+            summary: No restic snapshot of m1 tank in over 36h
+          expr: time() - restic_latest_snapshot_time_seconds > 36 * 3600 or absent(restic_latest_snapshot_time_seconds)
+          for: 1h
+          labels:
+            severity: critical
+    - name: attic
+      rules:
+        - alert: AtticdDown
+          annotations:
+            summary: atticd on m1 is not active — m1 builds fail at the push hook and hosts fall back to building
+          expr: node_systemd_unit_state{host="m1",name="atticd.service",state="active"} == 0
+          for: 5m
+          labels:
+            severity: warning
+        - alert: AtticMetricsStale
+          annotations:
+            summary: attic cache metrics on m1 have not refreshed in over 30m — attic-metrics.service is failing
+          expr: time() - node_textfile_mtime_seconds{host="m1",file=~".*/attic.prom"} > 1800 or absent(attic_objects)
+          for: 15m
+          labels:
+            severity: warning
+        - alert: AtticSystemPushed
+          annotations:
+            summary: NixOS system for {{ $labels.machine }} pushed to {{ $labels.cache }}
+          expr: time() - attic_system_last_push_time_seconds < 900
+          labels:
+            severity: none
+#     - name: oob
+#       rules:
+#         - alert: OobDown
+#           annotations:
+#             summary: oob exporter {{ $labels.instance }} is not answering scrapes
+#           expr: up{host="oob"} == 0
+#           for: 5m
+#           labels:
+#             severity: critical
+#         - alert: UnifiDown
+#           annotations:
+#             summary: UniFi controller on oob is not active
+#           expr: node_systemd_unit_state{host="oob",name="unifi.service",state="active"} == 0
+#           for: 15m
+#           labels:
+#             severity: critical
+#         - alert: OobUnitFailed
+#           annotations:
+#             summary: "{{ $labels.name }} on oob failed"
+#           expr: node_systemd_unit_state{host="oob",state="failed"} == 1
+#           for: 5m
+#           labels:
+#             severity: warning
+#     - name: ups
+#       rules:
+#         - alert: UpsOnBattery
+#           annotations:
+#             summary: UPS {{ $labels.ups }} on battery, {{ with printf "network_ups_tools_battery_charge{ups='%s'}" $labels.ups | query }}{{ . | first | value }}{{ end }}% charge
+#           expr: network_ups_tools_ups_status{flag="OB"} == 1
+#           for: 1m
+#           labels:
+#             severity: critical
+#         - alert: UpsLowBattery
+#           annotations:
+#             summary: UPS {{ $labels.ups }} reports low battery — shutdown imminent
+#           expr: network_ups_tools_ups_status{flag="LB"} == 1
+#           labels:
+#             severity: critical
+#         - alert: UpsReplaceBattery
+#           annotations:
+#             summary: UPS {{ $labels.ups }} reports its battery needs replacing
+#           expr: network_ups_tools_ups_status{flag="RB"} == 1
+#           for: 1h
+#           labels:
+#             severity: warning
+#         - alert: UpsMetricsAbsent
+#           annotations:
+#             summary: network_ups_tools_ups_status has no series — nut driver or exporter on oob down
+#           expr: absent(network_ups_tools_ups_status)
+#           for: 15m
+#           labels:
+#             severity: warning
     - name: dockerhub
       rules:
         - alert: BootstrapRateLimitRisk
