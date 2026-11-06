@@ -1,0 +1,18 @@
+---
+machine:
+  kubelet:
+    nodeIP:
+      validSubnets:
+        - 172.16.4.0/24
+    extraMounts:
+      - destination: /var/mnt/local-pool
+        type: bind
+        source: /var/mnt/local-pool
+        options:
+          - bind
+          - rshared
+          - rw
+  disks:
+    - device: /dev/sdb
+      partitions:
+        - mountpoint: /var/mnt/local-pool

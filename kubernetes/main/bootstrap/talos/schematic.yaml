@@ -1,0 +1,15 @@
+---
+customization:
+  bootloader: sd-boot
+  extraKernelArgs:
+    - -console
+    - console=tty0
+    - console=ttyS0
+    - lockdown=integrity
+    - ia32_emulation=0
+    - init_on_free=1
+    - page_alloc.shuffle=1
+  systemExtensions:
+    officialExtensions:
+      - siderolabs/drbd
+      - siderolabs/qemu-guest-agent

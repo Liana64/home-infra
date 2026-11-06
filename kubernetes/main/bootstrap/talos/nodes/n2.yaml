@@ -1,0 +1,25 @@
+---
+machine:
+  install:
+    diskSelector:
+      size: < 200gb
+  nodeLabels:
+    hardware/manufacturer: minisforum
+    hardware/model: ms-01
+    node-role.kubernetes.io/control-plane: control-plane
+    topology.kubernetes.io/region: us-central
+    topology.kubernetes.io/zone: milberry
+---
+apiVersion: v1alpha1
+kind: HostnameConfig
+auto: off
+hostname: n2
+---
+apiVersion: v1alpha1
+kind: DHCPv4Config
+name: eth0
+---
+apiVersion: v1alpha1
+kind: Layer2VIPConfig
+name: 172.16.4.10
+link: eth0

@@ -30,7 +30,6 @@ This is my kubernetes homelab, currently running on a cluster of MinisForum devi
 - [Taskfile](https://taskfile.dev/)
 - [Direnv](https://github.com/direnv/direnv)
 - [Talosctl](https://github.com/siderolabs/talos)
-- [Talhelper](https://github.com/budimanjojo/talhelper)
 - [SOPS](https://github.com/getsops/sops)
 - [age](https://github.com/FiloSottile/age)
 

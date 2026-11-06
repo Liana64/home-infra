@@ -138,8 +138,8 @@
     },
     {
       customType: "regex",
-      description: "Talos and Kubernetes versions in talconfig",
-      managerFilePatterns: ["/(^|/)talconfig\\.yaml$/"],
+      description: "Talos and Kubernetes versions in the Talos cluster file",
+      managerFilePatterns: ["/bootstrap/talos/cluster\\.yaml$/"],
       matchStrings: [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n\\w+Version: (?<currentValue>\\S+)",
       ],

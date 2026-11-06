@@ -1,0 +1,27 @@
+---
+machine:
+  install:
+    diskSelector:
+      size: "> 32GB"
+  nodeLabels:
+    hardware/manufacturer: dell
+    hardware/model: optiplex-7050
+    node-role.kubernetes.io/control-plane: control-plane
+    topology.kubernetes.io/region: us-central
+    topology.kubernetes.io/zone: milberry
+  nodeTaints:
+    node-role.kubernetes.io/etcd-only: true:NoSchedule
+---
+apiVersion: v1alpha1
+kind: HostnameConfig
+auto: off
+hostname: n3
+---
+apiVersion: v1alpha1
+kind: DHCPv4Config
+name: eth0
+---
+apiVersion: v1alpha1
+kind: Layer2VIPConfig
+name: 172.16.4.10
+link: eth0
