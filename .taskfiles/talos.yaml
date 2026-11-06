@@ -57,7 +57,7 @@ tasks:
   health:
     desc: Get Talos cluster health
     dir: "{{.BOOTSTRAP_TALOS_DIR}}"
-    cmd: "talosctl health --server=false"
+    cmd: talosctl health --server=false --nodes "$(talosctl config info -o json | jq -r '.endpoints[0]')"
     preconditions:
       - &talosconfig
         msg: Missing talosconfig
