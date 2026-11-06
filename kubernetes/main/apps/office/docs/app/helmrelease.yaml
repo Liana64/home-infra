@@ -58,6 +58,8 @@ spec:
               LOGIN_REDIRECT_URL_FAILURE: *url
               LOGOUT_REDIRECT_URL: *url
               SESSION_COOKIE_AGE: "259200"
+              REDIS_URL: &redis redis://docs-valkey.office.svc.cluster.local:6379/1
+              DJANGO_CELERY_BROKER_URL: *redis
             envFrom: &backendEnvFrom
               - secretRef:
                   name: docs-backend-secret
