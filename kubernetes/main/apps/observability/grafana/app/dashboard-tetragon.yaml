@@ -1,0 +1,128 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tetragon-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Security
+data:
+  tetragon.json: |
+    {
+      "annotations": {"list": []},
+      "editable": false,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Policies enabled",
+          "description": "Tracing policies loaded per node",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "fixed", "fixedColor": "green"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "min(sum by (node) (tetragon_tracingpolicy_loaded{state=\"enabled\"}))", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Policies failing",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "sum(tetragon_tracingpolicy_loaded{state=~\"error|load_error|partially_enabled\"})", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Events lost",
+          "description": "Kernel ring buffer drops plus failed exports over the range — non-zero means blind spots",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 1}]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "sum(increase(tetragon_observer_ringbuf_events_lost_total[$__range])) + sum(increase(tetragon_events_export_failed_total[$__range]))", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Last export",
+          "description": "Age of the newest exported event, oldest node",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "s", "color": {"mode": "fixed", "fixedColor": "blue"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "time() - min(tetragon_events_last_exported_timestamp)", "refId": "A", "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Policy events",
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+          "fieldConfig": {"defaults": {"unit": "short", "custom": {"drawStyle": "bars", "fillOpacity": 80, "stacking": {"mode": "normal"}}}, "overrides": []},
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+          "targets": [
+            {"expr": "sum by (policy, host) (count_over_time({namespace=\"kube-system\", app=\"tetragon\", container=\"export-stdout\"} | json policy=\"process_kprobe.policy_name\", host=\"node_name\" [$__interval]))", "refId": "A", "legendFormat": "{{policy}} · {{host}}", "interval": "5m", "datasource": {"type": "loki", "uid": "loki"}}
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Hits by binary",
+          "description": "Counted since each agent started — counters are born non-zero, so increase() misses first hits",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+          "fieldConfig": {"defaults": {"unit": "short"}, "overrides": []},
+          "options": {"sortBy": [{"displayName": "Hits", "desc": true}]},
+          "targets": [
+            {"expr": "sum by (policy, hook, node, binary) (max_over_time(tetragon_policy_events_total[$__range]))", "refId": "A", "format": "table", "instant": true, "datasource": {"type": "prometheus", "uid": "prometheus"}}
+          ],
+          "transformations": [
+            {"id": "organize", "options": {
+              "excludeByName": {"Time": true},
+              "renameByName": {"policy": "Policy", "hook": "Hook", "node": "Node", "binary": "Binary", "Value": "Hits"}
+            }}
+          ]
+        },
+        {
+          "type": "logs",
+          "title": "Events",
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 14, "w": 24, "x": 0, "y": 12},
+          "options": {"showTime": true, "wrapLogMessage": true, "sortOrder": "Descending", "enableLogDetails": true},
+          "targets": [
+            {"expr": "{namespace=\"kube-system\", app=\"tetragon\", container=\"export-stdout\"} | json policy=\"process_kprobe.policy_name\", hook=\"process_kprobe.function_name\", binary=\"process_kprobe.process.binary\", pod_ns=\"process_kprobe.process.pod.namespace\", pod_name=\"process_kprobe.process.pod.name\", arg=\"process_kprobe.args[0]\", host=\"node_name\" | line_format \"{{.host}}  {{.policy}}  {{.hook}}  {{.binary}}{{with .pod_name}}  {{$.pod_ns}}/{{.}}{{end}}  {{.arg}}\"", "refId": "A", "datasource": {"type": "loki", "uid": "loki"}}
+          ]
+        }
+      ],
+      "refresh": "1m",
+      "schemaVersion": 39,
+      "tags": ["security", "tetragon"],
+      "templating": {"list": []},
+      "time": {"from": "now-24h", "to": "now"},
+      "timezone": "browser",
+      "title": "Tetragon",
+      "uid": "tetragon",
+      "version": 1
+    }
