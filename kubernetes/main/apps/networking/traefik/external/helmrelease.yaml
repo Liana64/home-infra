@@ -42,8 +42,6 @@ spec:
           mountPath: /plugins-local/src/github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
           volumeName: crowdsec-bouncer-plugin
     service:
-      enabled: true
-      type: LoadBalancer
       annotations:
         external-dns.alpha.kubernetes.io/hostname: "external.${PERSONAL_DOMAIN}"
         lbipam.cilium.io/ips: "${LB_TRAEFIK_EXTERNAL}"
