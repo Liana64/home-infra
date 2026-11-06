@@ -21,7 +21,7 @@ tasks:
       - git for-each-ref --sort=subject --format='%(refname:lstrip=3)%09%(committerdate:relative)%09%(subject)' refs/remotes/origin/renovate | column -t -s $'\t'
 
   merge:
-    desc: Merge Renovate branches into main with a signed commit
+    desc: Cherry-pick Renovate branches onto main as signed commits
     summary: "task renovate:merge BRANCHES='renovate/foo renovate/bar'"
     requires:
       vars: [BRANCHES]
@@ -33,5 +33,7 @@ tasks:
       - git switch main
       - git merge --ff-only origin/main
       - for: { var: BRANCHES }
-        cmd: git merge -S --no-ff --no-edit origin/{{.ITEM}}
+        cmd: |
+          echo "Touch key to sign {{.ITEM}}"
+          git cherry-pick -S --empty=drop main..origin/{{.ITEM}}
       - git verify-commit HEAD
