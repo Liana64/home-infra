@@ -25,6 +25,9 @@ tasks:
     summary: "task renovate:merge BRANCHES='renovate/foo renovate/bar'"
     requires:
       vars: [BRANCHES]
+    preconditions:
+      - sh: git diff --cached --quiet
+        msg: Index has staged changes; unstage or commit first
     cmds:
       - git fetch origin
       - git switch main
