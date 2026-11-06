@@ -11,8 +11,3 @@ resources:
   - ./cnpg-barman-plugin/ks.yaml
   - ./pgadmin/ks.yaml
   - ./mosquitto/ks.yaml
-  #- ./qdrant/ks.yaml
-  #- ./minio/ks.yaml
-  #- ./rabbitmq/ks.yaml
-  #- ./mysql/ks.yaml
-  #- ./mssql/ks.yaml
