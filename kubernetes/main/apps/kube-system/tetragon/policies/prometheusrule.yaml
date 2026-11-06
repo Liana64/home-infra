@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/monitoring.coreos.com/prometheusrule_v1.json
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: tetragon
+spec:
+  groups:
+    - name: tetragon.rules
+      rules:
+        - alert: TetragonPolicyEvent
+          annotations:
+            summary: "{{ $labels.policy }}: {{ $labels.binary }} on {{ $labels.node }} in {{ $labels.namespace }}/{{ $labels.workload }}"
+          expr: |
+            sum by (node, policy, namespace, workload, binary) (
+              increase(tetragon_policy_events_total{policy=~"sensitive-files|kernel-modules|host-shells"}[5m]) > 0
+              or (tetragon_policy_events_total{policy=~"sensitive-files|kernel-modules|host-shells"}
+                  unless tetragon_policy_events_total offset 5m)
+            )
+          labels:
+            severity: warning

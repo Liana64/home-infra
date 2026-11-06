@@ -1,0 +1,12 @@
+---
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: kernel-modules
+spec:
+  kprobes:
+    - call: do_init_module
+      syscall: false
+      args:
+        - index: 0
+          type: module
