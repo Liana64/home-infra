@@ -48,6 +48,7 @@ spec:
         enabled: false
     additionalArguments:
       - "--serversTransport.insecureSkipVerify=true"
+      - "--global.aliasHeadersStrategy=delete"
       - "--entrypoints.web.transport.respondingTimeouts.readTimeout=0"
       - "--entrypoints.websecure.transport.respondingTimeouts.readTimeout=0"
     ports:
