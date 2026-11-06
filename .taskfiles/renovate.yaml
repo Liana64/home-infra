@@ -26,8 +26,8 @@ tasks:
     requires:
       vars: [BRANCHES]
     preconditions:
-      - sh: git diff --cached --quiet
-        msg: Index has staged changes; unstage or commit first
+      - sh: git diff HEAD --quiet
+        msg: Tracked files have uncommitted changes; commit or stash first
     cmds:
       - git fetch origin
       - git switch main
