@@ -1,0 +1,121 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: selinux-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Security
+data:
+  selinux.json: |
+    {
+      "annotations": {"list": []},
+      "editable": false,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Denials",
+          "description": "AVC denials in range, permissive and enforcing",
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 4, "w": 8, "x": 0, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "fixed", "fixedColor": "yellow"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "sum(count_over_time({job=\"kernel\", node=~\"$node\"} |= \"avc:  denied\" [$__range]))", "queryType": "instant", "refId": "A", "datasource": {"type": "loki", "uid": "loki"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Blocked",
+          "description": "Denials enforced (permissive=0): these actions failed",
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 4, "w": 8, "x": 8, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "noValue": "0",
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "red", "value": 1}]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "sum(count_over_time({job=\"kernel\", node=~\"$node\"} |= \"avc:  denied\" |= \"permissive=0\" [$__range]))", "queryType": "instant", "refId": "A", "datasource": {"type": "loki", "uid": "loki"}}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Nodes reporting",
+          "description": "Nodes with any denial in range",
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 4, "w": 8, "x": 16, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "short", "noValue": "0", "color": {"mode": "fixed", "fixedColor": "blue"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "count(sum by (node) (count_over_time({job=\"kernel\", node=~\"$node\"} |= \"avc:  denied\" [$__range])))", "queryType": "instant", "refId": "A", "datasource": {"type": "loki", "uid": "loki"}}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Denials by node",
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 4},
+          "fieldConfig": {"defaults": {"unit": "short", "custom": {"drawStyle": "bars", "fillOpacity": 80, "stacking": {"mode": "normal"}}}, "overrides": []},
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+          "targets": [
+            {"expr": "sum by (node) (count_over_time({job=\"kernel\", node=~\"$node\"} |= \"avc:  denied\" [$__interval]))", "legendFormat": "{{node}}", "refId": "A", "datasource": {"type": "loki", "uid": "loki"}}
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Top denials",
+          "description": "Grouped by source domain, target type, class and permission",
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 10, "w": 24, "x": 0, "y": 12},
+          "fieldConfig": {"defaults": {}, "overrides": []},
+          "options": {"sortBy": [{"displayName": "Count", "desc": true}]},
+          "transformations": [
+            {"id": "organize", "options": {"excludeByName": {"Time": true}, "renameByName": {"Value #A": "Count"}, "indexByName": {"node": 0, "comm": 1, "perm": 2, "scontext": 3, "tcontext": 4, "tclass": 5, "permissive": 6, "Value #A": 7}}}
+          ],
+          "targets": [
+            {"expr": "topk(25, sum by (node, comm, perm, scontext, tcontext, tclass, permissive) (count_over_time({job=\"kernel\", node=~\"$node\"} |= \"avc:  denied\" | regexp `avc:\\s+denied\\s+\\{ (?P<perm>[^}]+) \\} for .*comm=\"(?P<comm>[^\"]+)\".* scontext=(?P<scontext>\\S+) tcontext=(?P<tcontext>\\S+) tclass=(?P<tclass>\\S+) permissive=(?P<permissive>\\d)` [$__range])))", "queryType": "instant", "format": "table", "refId": "A", "datasource": {"type": "loki", "uid": "loki"}}
+          ]
+        },
+        {
+          "type": "logs",
+          "title": "Denial log",
+          "datasource": {"type": "loki", "uid": "loki"},
+          "gridPos": {"h": 10, "w": 24, "x": 0, "y": 22},
+          "options": {"showTime": true, "wrapLogMessage": true, "sortOrder": "Descending", "enableLogDetails": true},
+          "targets": [
+            {"expr": "{job=\"kernel\", node=~\"$node\"} |= \"avc:  denied\"", "refId": "A", "datasource": {"type": "loki", "uid": "loki"}}
+          ]
+        }
+      ],
+      "refresh": "1m",
+      "schemaVersion": 39,
+      "tags": ["security", "selinux"],
+      "templating": {
+        "list": [
+          {
+            "name": "node",
+            "label": "Node",
+            "type": "query",
+            "datasource": {"type": "loki", "uid": "loki"},
+            "query": {"label": "node", "stream": "{job=\"kernel\"}", "type": 1},
+            "includeAll": true,
+            "multi": true,
+            "allValue": ".+",
+            "current": {"selected": true, "text": "All", "value": "$__all"},
+            "refresh": 2
+          }
+        ]
+      },
+      "time": {"from": "now-24h", "to": "now"},
+      "title": "SELinux",
+      "uid": "selinux"
+    }

@@ -17,7 +17,7 @@ rules:
   - image: registry.k8s.io/*
     keyless:
       issuer: https://accounts.google.com
-      subject: krel-trust@k8s-releng-prod.iam.gserviceaccount.com
+      subjectRegex: ^(krel-trust@k8s-releng-prod|k8s-infra-gcr-promoter@k8s-artifacts-prod)\.iam\.gserviceaccount\.com$
   - image: ghcr.io/fluxcd/*
     keyless:
       issuer: https://token.actions.githubusercontent.com

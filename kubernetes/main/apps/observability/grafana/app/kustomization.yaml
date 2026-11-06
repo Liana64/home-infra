@@ -8,6 +8,7 @@ resources:
   - ./dashboard-m1-seaweedfs.yaml
   - ./dashboard-m1-nix-cache.yaml
   - ./dashboard-tetragon.yaml
+  - ./dashboard-selinux.yaml
   - ./networkpolicy.yaml
   - ./secret.sops.yaml
   - ./helmrelease.yaml
