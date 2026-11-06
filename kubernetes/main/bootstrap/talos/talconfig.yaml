@@ -4,7 +4,7 @@
 # renovate: datasource=github-releases depName=siderolabs/talos
 talosVersion: v1.14.5
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-kubernetesVersion: v1.35.2
+kubernetesVersion: v1.36.6
 
 clusterName: &clustername milberry
 
@@ -31,12 +31,24 @@ nodes:
       #- interface: eth1
       #  addresses:
       #    - 10.10.10.11/24
-    # https://factory.talos.dev/?arch=amd64&board=undefined&bootloader=sd-boot&cmdline=-console+console%3Dtty0&cmdline-set=true&extensions=-&extensions=siderolabs%2Fqemu-guest-agent&platform=nocloud&secureboot=true&target=cloud&version=1.12.6
-    talosImageURL: &talosMinimalImage factory.talos.dev/nocloud-installer-secureboot/d9cb0be10f95f364c88e92c9a695cc38373fb0f2f5ad8b612cba97d81c6b75be
+    machineSpec: &machineSpec
+      mode: nocloud
+      secureboot: true
     schematic: &schematicMinimal
       customization:
+        bootloader: sd-boot
+        extraKernelArgs:
+          - -console
+          - console=tty0
+          - console=ttyS0
+          - lockdown=integrity
+          - ia32_emulation=0
+          - init_on_free=1
+          - page_alloc.shuffle=1
+          - debugfs=off
         systemExtensions:
           officialExtensions:
+            - siderolabs/drbd
             - siderolabs/qemu-guest-agent
     patches: &clusterPatches
       - |
@@ -77,7 +89,7 @@ nodes:
       #- interface: eth1
       #  addresses:
       #    - 10.10.10.12/24
-    talosImageURL: *talosMinimalImage
+    machineSpec: *machineSpec
     schematic: *schematicMinimal
     patches: *clusterPatches
     nodeLabels: *ms01cluster
@@ -93,7 +105,7 @@ nodes:
         dhcp: true
         vip:
           ip: *kubeapiip
-    talosImageURL: *talosMinimalImage
+    machineSpec: *machineSpec
     schematic: *schematicMinimal
     patches: *clusterPatches
     nodeLabels:
@@ -112,7 +124,7 @@ nodes:
       - deviceSelector:
           hardwareAddr: "52:54:00:c0:fe:15"
         dhcp: false
-    talosImageURL: *talosMinimalImage
+    machineSpec: *machineSpec
     schematic: *schematicMinimal
     patches:
       - |
@@ -145,6 +157,7 @@ patches:
   - "@./patches/global/cluster-discovery.yaml"
   - "@./patches/global/hostdns.yaml"
   - "@./patches/global/kubelet.yaml"
+  - "@./patches/global/drbd.yaml"
   - "@./patches/global/openebs.yaml"
   - "@./patches/global/sysctls.yaml"
   - "@./patches/global/luks2.yaml"
