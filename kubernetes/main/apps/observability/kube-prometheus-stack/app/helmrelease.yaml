@@ -117,6 +117,7 @@ spec:
               matchers:
                 - alertname = Watchdog
             - receiver: ntfy-events
+              group_by: [alertname, namespace, machine]
               matchers:
                 - alertname =~ Flux.*|AtticSystemPushed
             - receiver: ntfy-critical
