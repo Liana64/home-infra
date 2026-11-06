@@ -12,6 +12,14 @@ tasks:
       - "{{.KUBECTL_CMD}} delete job renovate-manual --ignore-not-found"
       - "{{.KUBECTL_CMD}} create job renovate-manual --from=cronjob/renovate"
 
+  ls:
+    desc: List Renovate branches with age and update
+    silent: true
+    cmds:
+      - git fetch -pq origin
+      - echo
+      - git for-each-ref --sort=subject --format='%(refname:lstrip=3)%09%(committerdate:relative)%09%(subject)' refs/remotes/origin/renovate | column -t -s $'\t'
+
   merge:
     desc: Merge Renovate branches into main with a signed commit
     summary: "task renovate:merge BRANCHES='renovate/foo renovate/bar'"
