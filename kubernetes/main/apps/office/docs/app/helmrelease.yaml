@@ -57,6 +57,7 @@ spec:
               LOGIN_REDIRECT_URL: *url
               LOGIN_REDIRECT_URL_FAILURE: *url
               LOGOUT_REDIRECT_URL: *url
+              SESSION_COOKIE_AGE: "259200"
             envFrom: &backendEnvFrom
               - secretRef:
                   name: docs-backend-secret
@@ -342,6 +343,7 @@ spec:
           gethomepage.dev/name: Docs
           gethomepage.dev/description: Collaborative documents
           gethomepage.dev/icon: mdi-file-document-edit
+          gethomepage.dev/href: "https://docs.${ORG_DOMAIN}"
         hosts:
           - host: &host "docs.${ORG_DOMAIN}"
             paths:
