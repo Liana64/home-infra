@@ -37,6 +37,7 @@ spec:
   extensions:
     - name: vector
       ensure: present
+      # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/pgvector extractVersion=^(?<version>\d+\.\d+\.\d+)-18-trixie$
       version: "0.8.7"
     - name: cube
       ensure: present

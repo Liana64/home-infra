@@ -60,6 +60,10 @@
       groupName: "dragonfly-operator",
     },
     {
+      matchPackageNames: ["ghcr.io/cloudnative-pg/pgvector"],
+      groupName: "pgvector",
+    },
+    {
       matchPackageNames: [
         "ghcr.io/liana64/mautrix-**",
         "ghcr.io/liana64/sec-tools",
@@ -119,6 +123,18 @@
       datasourceTemplate: "{{{datasource}}}",
       depNameTemplate: "{{{depName}}}",
       versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+    },
+    {
+      customType: "regex",
+      description: "Bare versions derived from another package's tags (e.g. CNPG extension versions)",
+      managerFilePatterns: ["/(^|/)kubernetes/.+\\.ya?ml$/"],
+      matchStrings: [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) extractVersion=(?<extractVersion>\\S+)\\n\\s+version: \"(?<currentValue>[^\"]+)\"",
+      ],
+      datasourceTemplate: "{{{datasource}}}",
+      depNameTemplate: "{{{depName}}}",
+      extractVersionTemplate: "{{{extractVersion}}}",
+      versioningTemplate: "semver",
     },
     {
       customType: "regex",
