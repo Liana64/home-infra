@@ -6,4 +6,3 @@ resources:
   - ./host-shells.yaml
   - ./kernel-modules.yaml
   - ./prometheusrule.yaml
-  - ./sensitive-files.yaml

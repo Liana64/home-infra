@@ -10,3 +10,7 @@ spec:
       args:
         - index: 0
           type: module
+      selectors:
+        - matchBinaries:
+            - operator: NotIn
+              values: ["/usr/bin/init"]
