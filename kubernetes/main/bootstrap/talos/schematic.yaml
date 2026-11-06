@@ -6,6 +6,7 @@ customization:
     - console=tty0
     - console=ttyS0
     - lockdown=integrity
+    - enforcing=1
     - ia32_emulation=0
     - init_on_free=1
     - page_alloc.shuffle=1

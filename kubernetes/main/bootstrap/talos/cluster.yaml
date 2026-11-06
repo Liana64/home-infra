@@ -29,6 +29,7 @@ patches:
     - global/containerd.yaml
     - global/network.yaml
     - global/install.yaml
+    - global/security.yaml
   controlplane:
     - control/cluster.yaml
     - control/etcd.yaml

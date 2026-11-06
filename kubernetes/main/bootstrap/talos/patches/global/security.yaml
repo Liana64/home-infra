@@ -1,0 +1,24 @@
+---
+apiVersion: v1alpha1
+kind: CRICustomizationConfig
+name: disable-nri
+content: |
+  [plugins]
+    [plugins."io.containerd.nri.v1.nri"]
+      disable = true
+---
+apiVersion: v1alpha1
+kind: SecurityProfileConfig
+workloadIsolation: true
+---
+apiVersion: v1alpha1
+kind: ImageVerificationConfig
+rules:
+  - image: registry.k8s.io/*
+    keyless:
+      issuer: https://accounts.google.com
+      subject: krel-trust@k8s-releng-prod.iam.gserviceaccount.com
+  - image: ghcr.io/fluxcd/*
+    keyless:
+      issuer: https://token.actions.githubusercontent.com
+      subjectRegex: ^https://github\.com/fluxcd/.*$
