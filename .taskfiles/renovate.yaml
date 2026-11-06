@@ -28,6 +28,8 @@ tasks:
     preconditions:
       - sh: git diff HEAD --quiet
         msg: Tracked files have uncommitted changes; commit or stash first
+      - sh: test ! -d "$(git rev-parse --git-path sequencer)"
+        msg: Cherry-pick in progress; run git cherry-pick --continue or --abort
     cmds:
       - git fetch origin
       - git switch main
