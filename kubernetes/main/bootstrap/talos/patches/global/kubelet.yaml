@@ -6,6 +6,5 @@ machine:
       imageGCHighThresholdPercent: 60
       imageGCLowThresholdPercent: 45
       imageMaximumGCAge: 168h
-      seccompDefault: true
     extraArgs:
       rotate-server-certificates: true
