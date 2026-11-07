@@ -248,23 +248,14 @@ spec:
         #   revision: 26
         #   datasource:
         #     - { name: DS_PROMETHEUS, value: Prometheus }
-        redis:
-          # renovate: depName="Redis Dashboard for Prometheus Redis Exporter 1.x"
-          gnetId: 763 # https://grafana.com/grafana/dashboards/763?tab=revisions
-          revision: 5
-          datasource: Prometheus
-        rabbitmq-overview:
-          url: https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/b836ca1d0824d8d4c24a62985ce869c388697c79/deps/rabbitmq_prometheus/docker/grafana/dashboards/RabbitMQ-Overview.json
-          datasource: Prometheus
-        rabbitmq-perftest:
-          url: https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/b836ca1d0824d8d4c24a62985ce869c388697c79/deps/rabbitmq_prometheus/docker/grafana/dashboards/RabbitMQ-PerfTest.json
-          datasource: Prometheus
-        rabbitmq-quorum:
-          url: https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/b836ca1d0824d8d4c24a62985ce869c388697c79/deps/rabbitmq_prometheus/docker/grafana/dashboards/RabbitMQ-Quorum-Queues-Raft.json
-          datasource: Prometheus
-        rabbitmq-stream:
-          url: https://raw.githubusercontent.com/rabbitmq/rabbitmq-server/b836ca1d0824d8d4c24a62985ce869c388697c79/deps/rabbitmq_prometheus/docker/grafana/dashboards/RabbitMQ-Stream.json
-          datasource: Prometheus
+        dragonfly:
+          url: https://raw.githubusercontent.com/dragonflydb/dragonfly/4bfe1a06f9702658759d47e9b9b5fa5e13a47761/tools/local/monitoring/grafana/provisioning/dashboards/dragonfly.json
+          datasource:
+            - { name: DS_PROMETHEUS, value: prometheus }
+        qbittorrent:
+          url: https://raw.githubusercontent.com/esanchezm/prometheus-qbittorrent-exporter/fac38ac30d29e3bac4d3044c2011f523fc7c04c6/grafana/dashboard.json
+          datasource:
+            - { name: DS_PROMETHEUS, value: prometheus }
       storage:
         smartctl-exporter:
           # renovate: depName="SMARTctl Exporter Dashboard"
