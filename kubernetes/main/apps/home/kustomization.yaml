@@ -13,3 +13,4 @@ resources:
   - ./immich/ks.yaml
   - ./ntfy/ks.yaml
   - ./thelounge/ks.yaml
+  - ./opengist/ks.yaml
