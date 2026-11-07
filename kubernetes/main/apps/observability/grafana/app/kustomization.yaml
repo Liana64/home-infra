@@ -9,6 +9,7 @@ resources:
   - ./dashboard-m1-nix-cache.yaml
   - ./dashboard-tetragon.yaml
   - ./dashboard-selinux.yaml
+  - ./dashboard-crowdsec.yaml
   - ./networkpolicy.yaml
   - ./secret.sops.yaml
   - ./helmrelease.yaml

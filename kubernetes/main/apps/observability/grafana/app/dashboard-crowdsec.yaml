@@ -1,0 +1,141 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crowdsec-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Security
+data:
+  crowdsec.json: |
+    {
+      "annotations": {"list": []},
+      "editable": false,
+      "graphTooltip": 1,
+      "panels": [
+        {
+          "type": "stat",
+          "title": "Local bans",
+          "description": "Active decisions from local scenarios",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "short", "noValue": "0", "color": {"mode": "fixed", "fixedColor": "orange"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "area"},
+          "targets": [
+            {"expr": "sum(cs_active_decisions{origin=\"crowdsec\"})", "refId": "A"}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Community bans",
+          "description": "Active decisions pulled from the community blocklist (CAPI)",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "short", "noValue": "0", "color": {"mode": "fixed", "fixedColor": "blue"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "sum(cs_active_decisions{origin=\"CAPI\"})", "refId": "A"}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "403 responses",
+          "description": "External websecure 403s in range; includes bouncer drops and any other 403",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+          "fieldConfig": {"defaults": {"unit": "short", "noValue": "0", "decimals": 0, "color": {"mode": "fixed", "fixedColor": "red"}}, "overrides": []},
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "sum(increase(traefik_entrypoint_requests_total{job=\"traefik-external-metrics\", entrypoint=\"websecure\", code=\"403\"}[$__range]))", "instant": true, "refId": "A"}
+          ]
+        },
+        {
+          "type": "stat",
+          "title": "Last CAPI pull",
+          "description": "Time since the community blocklist was last pulled",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "color": {"mode": "thresholds"},
+              "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 9000}, {"color": "red", "value": 14400}]}
+            },
+            "overrides": []
+          },
+          "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "graphMode": "none"},
+          "targets": [
+            {"expr": "time() - max(cs_capi_last_pull_timestamp{job=\"crowdsec-lapi\"})", "refId": "A"}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Bucket overflows",
+          "description": "Scenario overflows before blackhole and postoverflow whitelists; exceeds alert count",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "interval": "5m",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+          "fieldConfig": {"defaults": {"unit": "short", "custom": {"drawStyle": "bars", "fillOpacity": 80, "stacking": {"mode": "normal"}}}, "overrides": []},
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+          "targets": [
+            {"expr": "sum by (name) (increase(cs_bucket_overflowed_total[$__interval])) > 0", "legendFormat": "{{name}}", "refId": "A"}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "403s by router",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+          "fieldConfig": {"defaults": {"unit": "reqps", "custom": {"fillOpacity": 20, "stacking": {"mode": "normal"}}}, "overrides": []},
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+          "targets": [
+            {"expr": "sum by (router) (rate(traefik_router_requests_total{job=\"traefik-external-metrics\", code=\"403\"}[$__rate_interval])) > 0", "legendFormat": "{{router}}", "refId": "A"}
+          ]
+        },
+        {
+          "type": "bargauge",
+          "title": "Active bans by reason",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 12, "x": 0, "y": 12},
+          "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "palette-classic"}}, "overrides": []},
+          "options": {"orientation": "horizontal", "displayMode": "basic", "reduceOptions": {"calcs": ["lastNotNull"]}},
+          "targets": [
+            {"expr": "sort_desc(sum by (origin, reason) (cs_active_decisions))", "legendFormat": "{{origin}} · {{reason}}", "instant": true, "refId": "A"}
+          ]
+        },
+        {
+          "type": "bargauge",
+          "title": "Alerts by scenario",
+          "description": "Local alerts stored in LAPI",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 9, "w": 12, "x": 12, "y": 12},
+          "fieldConfig": {"defaults": {"unit": "short", "color": {"mode": "palette-classic"}}, "overrides": []},
+          "options": {"orientation": "horizontal", "displayMode": "basic", "reduceOptions": {"calcs": ["lastNotNull"]}},
+          "targets": [
+            {"expr": "sort_desc(sum by (reason) (cs_alerts))", "legendFormat": "{{reason}}", "instant": true, "refId": "A"}
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "Log lines parsed",
+          "description": "Agent parser throughput; unparsed lines indicate acquisition or parser mismatch",
+          "datasource": {"type": "prometheus", "uid": "prometheus"},
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 21},
+          "fieldConfig": {"defaults": {"unit": "cps", "custom": {"fillOpacity": 10}}, "overrides": []},
+          "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+          "targets": [
+            {"expr": "sum(rate(cs_parser_hits_ok_total[$__rate_interval]))", "legendFormat": "parsed", "refId": "A"},
+            {"expr": "sum(rate(cs_parser_hits_total[$__rate_interval])) - sum(rate(cs_parser_hits_ok_total[$__rate_interval]))", "legendFormat": "unparsed", "refId": "B"}
+          ]
+        }
+      ],
+      "refresh": "1m",
+      "schemaVersion": 39,
+      "tags": ["security", "crowdsec"],
+      "templating": {"list": []},
+      "time": {"from": "now-24h", "to": "now"},
+      "title": "CrowdSec",
+      "uid": "crowdsec"
+    }

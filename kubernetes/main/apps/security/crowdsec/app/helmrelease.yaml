@@ -20,7 +20,7 @@ spec:
             # renovate: datasource=docker depName=ghcr.io/liana64/crowdsec
             image: &image
               repository: ghcr.io/liana64/crowdsec
-              tag: 1.8.2@sha256:f89ecc38df61df2866d15ee544f920ed88b93574a69ced256105800b28407990
+              tag: 1.8.2@sha256:78ebc91b6a198a6c667e6fafafe8cbddcf6de563bebd12893b40d38c6d52168e
             args: ["lapi"]
             env:
               TZ: "${TIMEZONE}"
