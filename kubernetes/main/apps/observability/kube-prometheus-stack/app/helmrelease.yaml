@@ -116,6 +116,10 @@ spec:
             - receiver: "null"
               matchers:
                 - alertname = Watchdog
+            - receiver: "null"
+              matchers:
+                - alertname = TargetDown
+                - job = scrapeConfig/observability/catbox
             - receiver: ntfy-events
               group_by: [alertname, namespace, machine]
               matchers:
