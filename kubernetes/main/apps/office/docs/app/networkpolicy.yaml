@@ -36,6 +36,9 @@ spec:
         - matchLabels:
             app.kubernetes.io/name: docs
             app.kubernetes.io/controller: y-provider
+        - matchLabels:
+            app.kubernetes.io/name: docs
+            app.kubernetes.io/controller: valkey
   egress:
     - toEndpoints:
         - matchLabels:
