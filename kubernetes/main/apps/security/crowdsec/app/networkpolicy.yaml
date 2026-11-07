@@ -21,6 +21,14 @@ spec:
         - ports:
             - port: "8080"
               protocol: TCP
+  egress:
+    - toFQDNs:
+        - matchName: api.crowdsec.net
+        - matchPattern: "*.crowdsec.net"
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP
 ---
 apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
