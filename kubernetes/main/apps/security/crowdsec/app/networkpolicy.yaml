@@ -23,7 +23,6 @@ spec:
               protocol: TCP
   egress:
     - toFQDNs:
-        - matchName: api.crowdsec.net
         - matchPattern: "*.crowdsec.net"
       toPorts:
         - ports:
