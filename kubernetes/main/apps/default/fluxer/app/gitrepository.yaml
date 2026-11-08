@@ -6,10 +6,10 @@ metadata:
   name: fluxer
 spec:
   interval: 1h
+  timeout: 5m
   url: https://github.com/fluxerapp/fluxer
   ref:
     branch: main
     commit: 2b51f463d3722d5174312788c2a073bc26b55b39
-  ignore: |
-    /*
-    !/deploy/helm/fluxer/
+  sparseCheckout:
+    - deploy/helm/fluxer
