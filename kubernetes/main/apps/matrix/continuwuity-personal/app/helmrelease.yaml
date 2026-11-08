@@ -27,6 +27,7 @@ spec:
             # landrun scrubs the environment: every env and secret key must be listed in --env
             args:
               - --best-effort
+              - --log-level=info
               - --rox=/sbin,/lib64,/usr
               - --ro=/etc
               - --rw=/data,/tmp
