@@ -22,6 +22,23 @@ spec:
             image:
               repository: docker.io/alangrainger/immich-public-proxy
               tag: 4.1.2@sha256:d6480d1e6beb3da661cb895e1b368340df48904ecbfe53ece2d5da343e78b857
+            command: ["/landlock/landrun"]
+            # landrun scrubs the environment: every env key must be listed in --env
+            args:
+              - --best-effort
+              - --log-level=info
+              - --rox=/usr,/lib,/sbin
+              - --ro=/app,/etc,/proc,/sys/fs/cgroup
+              - --rw=/tmp
+              - --bind-tcp=3000
+              - --connect-tcp=2283,53
+              - --env=PATH,NODE_ENV,APP_VERSION,TZ,IMMICH_URL,PUBLIC_BASE_URL,CONFIG
+              - --
+              - /sbin/tini
+              - -s
+              - --
+              - node
+              - dist/index.js
             env:
               TZ: "${TIMEZONE}"
               IMMICH_URL: http://immich.home.svc.cluster.local:2283
@@ -119,3 +136,9 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
+      landlock:
+        type: image
+        # renovate: datasource=docker depName=ghcr.io/liana64/landrun
+        image: ghcr.io/liana64/landrun:0.1.17
+        globalMounts:
+          - path: /landlock
