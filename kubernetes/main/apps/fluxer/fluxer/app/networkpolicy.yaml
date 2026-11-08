@@ -54,7 +54,7 @@ spec:
     - fromEndpoints:
         - matchLabels: &postgres
             io.kubernetes.pod.namespace: database
-            cnpg.io/cluster: postgres-1
+            cnpg.io/cluster: postgres-org
   egress:
     - toEndpoints:
         - matchLabels: *postgres

@@ -16,12 +16,14 @@ spec:
         name: fluxer
   maxHistory: 2
   install:
-    remediation:
-      retries: 3
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 5m
   upgrade:
     cleanupOnFail: true
-    remediation:
-      retries: 3
+    strategy:
+      name: RetryOnFailure
+      retryInterval: 5m
   values:
     domain: "chat.${ORG_DOMAIN}"
     publicOrigin: "https://chat.${ORG_DOMAIN}"
@@ -55,6 +57,8 @@ spec:
       FLUXER_MEDIA_PROXY_CORS_MODE: enforce
     postgres:
       enabled: false
+      external:
+        ssl: "true"
     seaweedfs:
       enabled: false
     s3:

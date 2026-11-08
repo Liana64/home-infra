@@ -12,7 +12,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: traefik
-    - name: cloudnative-pg-cluster
+    - name: cloudnative-pg-org
     - name: s3
   path: ./kubernetes/main/apps/fluxer/fluxer/app
   prune: true
