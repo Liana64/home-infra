@@ -1,0 +1,45 @@
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: postgres-org
+spec:
+  endpointSelector:
+    matchLabels: &cluster
+      cnpg.io/cluster: postgres-org
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: fluxer
+            app.kubernetes.io/instance: fluxer
+            app.kubernetes.io/part-of: fluxer
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/name: cloudnative-pg
+      toPorts:
+        - ports:
+            - port: "8000"
+              protocol: TCP
+    - fromEndpoints:
+        - matchLabels: *cluster
+  egress:
+    - toEndpoints:
+        - matchLabels: *cluster
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+            - port: "8000"
+              protocol: TCP
+    - toEntities:
+        - kube-apiserver
+    - toCIDR:
+        - 149.137.128.0/20
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

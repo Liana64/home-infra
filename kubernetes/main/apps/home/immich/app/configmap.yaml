@@ -9,9 +9,6 @@ data:
   IMMICH_LOG_LEVEL: log
   IMMICH_MEDIA_LOCATION: /library
   IMMICH_TELEMETRY_INCLUDE: all
-  DB_HOSTNAME: postgres-1-rw.database.svc.cluster.local
-  DB_PORT: "5432"
-  DB_DATABASE_NAME: immich
   DB_VECTOR_EXTENSION: pgvector
   REDIS_HOSTNAME: immich-dragonfly.database.svc.cluster.local
   REDIS_PORT: "6379"

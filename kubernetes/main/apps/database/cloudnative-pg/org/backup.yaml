@@ -1,0 +1,39 @@
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: postgres-org-backup
+spec:
+  configuration:
+    destinationPath: "s3://${CNPG_BUCKET}/postgres-org"
+    endpointURL: "https://s3.${CNPG_B2_REGION:=us-east-005}.backblazeb2.com"
+    s3Credentials:
+      accessKeyId:
+        name: postgres-1-backup-secret
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: postgres-1-backup-secret
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+      encryption: AES256
+      maxParallel: 2
+    data:
+      compression: gzip
+      encryption: AES256
+      jobs: 2
+  retentionPolicy: "30d"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: postgres-org-daily
+spec:
+  schedule: "0 30 9 * * *"
+  immediate: true
+  backupOwnerReference: cluster
+  cluster:
+    name: postgres-org
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

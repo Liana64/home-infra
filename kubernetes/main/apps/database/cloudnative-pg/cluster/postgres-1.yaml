@@ -82,10 +82,7 @@ spec:
         passwordSecret:
           name: postgres-role-docs-yhub
       - name: fluxer
-        ensure: present
-        login: true
-        passwordSecret:
-          name: postgres-role-fluxer
+        ensure: absent
   postgresql:
     extensions:
       - name: vector
@@ -95,6 +92,8 @@ spec:
     parameters:
       max_connections: "100"
       shared_buffers: 256MB
+      log_connections: "on"
+      log_disconnections: "on"
   nodeMaintenanceWindow:
     inProgress: false
     reusePVC: true

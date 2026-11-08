@@ -1,0 +1,91 @@
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: postgres-org-ca
+spec:
+  refreshPolicy: OnChange
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: bitwarden-secrets-manager
+  target:
+    name: postgres-org-ca
+    template:
+      engineVersion: v2
+      type: kubernetes.io/tls
+      data:
+        tls.crt: "{{ .crt }}"
+        tls.key: "{{ .key }}"
+  data:
+    - secretKey: crt
+      remoteRef:
+        key: "995a398b-75d4-40ee-b9a7-b4fc015dbbf7"
+    - secretKey: key
+      remoteRef:
+        key: "17f9747d-84a9-4fd7-a926-b4fc015dde22"
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: postgres-org-ca
+spec:
+  ca:
+    secretName: postgres-org-ca
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: postgres-org-server
+spec:
+  secretName: postgres-org-server
+  secretTemplate:
+    labels:
+      cnpg.io/reload: ""
+  duration: 2160h
+  renewBefore: 720h
+  usages:
+    - server auth
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  dnsNames:
+    - postgres-org-rw
+    - postgres-org-rw.database
+    - postgres-org-rw.database.svc
+    - postgres-org-rw.database.svc.cluster.local
+    - postgres-org-ro
+    - postgres-org-ro.database
+    - postgres-org-ro.database.svc
+    - postgres-org-ro.database.svc.cluster.local
+    - postgres-org-r
+    - postgres-org-r.database
+    - postgres-org-r.database.svc
+    - postgres-org-r.database.svc.cluster.local
+  issuerRef:
+    name: postgres-org-ca
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: postgres-org-replication
+spec:
+  secretName: postgres-org-replication
+  secretTemplate:
+    labels:
+      cnpg.io/reload: ""
+  commonName: streaming_replica
+  duration: 2160h
+  renewBefore: 720h
+  usages:
+    - client auth
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  issuerRef:
+    name: postgres-org-ca
+    kind: Issuer
+    group: cert-manager.io

@@ -23,4 +23,3 @@ resources:
   - ./service.yaml
   - ./docs-database.yaml
   - ./docs-yhub-database.yaml
-  - ./fluxer-database.yaml
