@@ -33,7 +33,7 @@ spec:
               - --rw=/tmp,/dev/null
               - --rwx=/config
               - --bind-tcp=80
-              - --connect-tcp=443,53
+              - --connect-tcp=443,53,80
               - --env=PATH,HOME,TZ,OG_HTTP_PORT,OG_OPENGIST_HOME,OG_CUSTOM_NAME,OG_EXTERNAL_URL,OG_SSH_GIT_ENABLED,OG_OIDC_PROVIDER_NAME,OG_OIDC_CLIENT_KEY,OG_OIDC_DISCOVERY_URL,OG_OIDC_GROUP_CLAIM_NAME,OG_OIDC_ADMIN_GROUP,OG_SECRET_KEY,OG_OIDC_SECRET
               - --
               - /app/opengist/opengist
