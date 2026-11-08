@@ -6,7 +6,7 @@ metadata:
   name: &app fluxer
   namespace: flux-system
 spec:
-  targetNamespace: default
+  targetNamespace: fluxer
   commonMetadata:
     labels:
       app.kubernetes.io/name: *app
@@ -14,7 +14,7 @@ spec:
     - name: traefik
     - name: cloudnative-pg-cluster
     - name: s3
-  path: ./kubernetes/main/apps/default/fluxer/app
+  path: ./kubernetes/main/apps/fluxer/fluxer/app
   prune: true
   sourceRef:
     kind: GitRepository

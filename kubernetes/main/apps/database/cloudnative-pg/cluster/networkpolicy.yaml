@@ -51,7 +51,7 @@ spec:
             io.kubernetes.pod.namespace: office
             app.kubernetes.io/name: docs
         - matchLabels:
-            io.kubernetes.pod.namespace: default
+            io.kubernetes.pod.namespace: fluxer
             app.kubernetes.io/instance: fluxer
             app.kubernetes.io/part-of: fluxer
       toPorts:

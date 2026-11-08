@@ -10,4 +10,3 @@ resources:
   - ./web-check/ks.yaml
   - ./blog/ks.yaml
   - ./opengist-org/ks.yaml
-  - ./fluxer/ks.yaml
