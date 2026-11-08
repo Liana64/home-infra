@@ -28,6 +28,7 @@ spec:
     deployment:
       enabled: true
       kind: DaemonSet
+      hostUsers: false
       additionalVolumes:
         - name: crowdsec-bouncer-plugin
           image:
