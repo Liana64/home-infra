@@ -81,6 +81,11 @@ spec:
         login: true
         passwordSecret:
           name: postgres-role-docs-yhub
+      - name: fluxer
+        ensure: present
+        login: true
+        passwordSecret:
+          name: postgres-role-fluxer
   postgresql:
     extensions:
       - name: vector

@@ -1,0 +1,159 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: fluxer
+spec:
+  endpointSelector:
+    matchLabels: &release
+      app.kubernetes.io/instance: fluxer
+      app.kubernetes.io/part-of: fluxer
+  ingress:
+    - fromEndpoints:
+        - matchLabels: *release
+  egress:
+    - toEndpoints:
+        - matchLabels: *release
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: fluxer-edge
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: fluxer
+      app.kubernetes.io/name: edge
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: traefik
+            app.kubernetes.io/instance: traefik-external-networking
+      toPorts:
+        - ports:
+            - port: "8080"
+              protocol: TCP
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: fluxer-postgres
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: fluxer
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: ["api", "worker", "users-shard", "messages-shard"]
+  ingress:
+    - fromEndpoints:
+        - matchLabels: &postgres
+            io.kubernetes.pod.namespace: database
+            cnpg.io/cluster: postgres-1
+  egress:
+    - toEndpoints:
+        - matchLabels: *postgres
+      toPorts:
+        - ports:
+            - port: "5432"
+              protocol: TCP
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: fluxer-s3
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: fluxer
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: ["api", "worker", "media-proxy"]
+  egress:
+    - toCIDR:
+        - ${M1_HOST}/32
+      toPorts:
+        - ports:
+            - port: "8333"
+              protocol: TCP
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: fluxer-smtp
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: fluxer
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: ["api", "worker"]
+  ingress:
+    - fromEndpoints:
+        - matchLabels: &smtp
+            io.kubernetes.pod.namespace: networking
+            app.kubernetes.io/name: smtp-relay
+  egress:
+    - toEndpoints:
+        - matchLabels: *smtp
+      toPorts:
+        - ports:
+            - port: "25"
+              protocol: TCP
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: fluxer-livekit
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: fluxer
+      app.kubernetes.io/name: livekit
+  ingress:
+    - fromEntities:
+        - world
+        - host
+        - remote-node
+      toPorts:
+        - ports:
+            - port: "7881"
+              protocol: TCP
+            - port: "7882"
+              protocol: UDP
+  egress:
+    - toFQDNs:
+        - matchName: stun.l.google.com
+        - matchName: stun1.l.google.com
+      toPorts:
+        - ports:
+            - port: "19302"
+              protocol: UDP
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: fluxer-push
+spec:
+  endpointSelector:
+    matchLabels:
+      app.kubernetes.io/instance: fluxer
+      app.kubernetes.io/name: push
+  egress:
+    - toEntities:
+        - world
+      toPorts:
+        - ports:
+            - port: "443"
+              protocol: TCP

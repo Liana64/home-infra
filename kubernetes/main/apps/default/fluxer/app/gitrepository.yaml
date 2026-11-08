@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/source.toolkit.fluxcd.io/gitrepository_v1.json
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: fluxer
+spec:
+  interval: 1h
+  url: https://github.com/fluxerapp/fluxer
+  ref:
+    branch: main
+    commit: 2b51f463d3722d5174312788c2a073bc26b55b39
+  ignore: |
+    /*
+    !/deploy/helm/fluxer/

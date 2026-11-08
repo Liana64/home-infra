@@ -1,0 +1,36 @@
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: postgres-role-fluxer
+spec:
+  refreshPolicy: OnChange
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: bitwarden-secrets-manager
+  target:
+    name: postgres-role-fluxer
+    template:
+      engineVersion: v2
+      type: kubernetes.io/basic-auth
+      metadata:
+        labels:
+          cnpg.io/reload: "true"
+      data:
+        username: fluxer
+        password: "{{ .password }}"
+  data:
+    - secretKey: password
+      remoteRef:
+        key: "e909a2b6-18cc-4d29-8e31-b4fc0140d2e3"
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: fluxer
+spec:
+  name: fluxer
+  owner: fluxer
+  cluster:
+    name: postgres-1
+  ensure: present

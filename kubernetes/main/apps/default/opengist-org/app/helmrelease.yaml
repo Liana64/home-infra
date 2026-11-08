@@ -1,0 +1,141 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/bjw-s-labs/helm-charts/main/charts/other/app-template/schemas/helmrelease-helm-v2.schema.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: &app opengist-org
+spec:
+  interval: 1h
+  chartRef:
+    kind: OCIRepository
+    name: app-template
+    namespace: flux-system
+  values:
+    controllers:
+      opengist-org:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        strategy: Recreate
+        containers:
+          app:
+            # renovate: datasource=docker depName=ghcr.io/thomiceli/opengist
+            image:
+              repository: ghcr.io/thomiceli/opengist
+              tag: 1.15.3@sha256:f5dd39cc9409b4006f8b090e5f9ed042cdb736d28a06b4f985c674dacafc94d5
+            command: ["/landlock/landrun"]
+            # landrun scrubs the environment: every env and secret key must be listed in --env
+            # git runs the per-repo pre/post-receive hooks from /config/repos, hence rwx there
+            args:
+              - --best-effort
+              - --log-level=info
+              - --rox=/usr,/lib,/bin,/app
+              - --ro=/etc,/proc,/sys/fs/cgroup
+              - --rw=/config,/tmp
+              - --rwx=/config/repos
+              - --bind-tcp=80
+              - --connect-tcp=443,53
+              - --env=PATH,HOME,TZ,OG_HTTP_PORT,OG_OPENGIST_HOME,OG_CUSTOM_NAME,OG_EXTERNAL_URL,OG_SSH_GIT_ENABLED,OG_OIDC_PROVIDER_NAME,OG_OIDC_CLIENT_KEY,OG_OIDC_DISCOVERY_URL,OG_OIDC_GROUP_CLAIM_NAME,OG_OIDC_ADMIN_GROUP,OG_SECRET_KEY,OG_OIDC_SECRET
+              - --
+              - /app/opengist/opengist
+            env:
+              HOME: /config
+              OG_HTTP_PORT: &port 80
+              OG_OPENGIST_HOME: /config
+              OG_CUSTOM_NAME: milberry gists
+              OG_EXTERNAL_URL: "https://gist.${ORG_DOMAIN}"
+              OG_SSH_GIT_ENABLED: false
+              OG_OIDC_PROVIDER_NAME: Pocket-ID
+              OG_OIDC_DISCOVERY_URL: "https://id.${ORG_DOMAIN}/.well-known/openid-configuration"
+              OG_OIDC_GROUP_CLAIM_NAME: groups
+              OG_OIDC_ADMIN_GROUP: opengist-admins
+              TZ: ${TIMEZONE}
+            envFrom:
+              - secretRef:
+                  name: "{{ .Release.Name }}-secret"
+            probes:
+              liveness:
+                enabled: true
+                spec:
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /healthcheck
+                    port: *port
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+              startup:
+                enabled: true
+                spec:
+                  failureThreshold: 30
+                  periodSeconds: 10
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 100m
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      automountServiceAccountToken: false
+      hostUsers: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
+    service:
+      app:
+        controller: *app
+        ports:
+          http:
+            port: *port
+    ingress:
+      app:
+        className: traefik-external
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit@kubernetescrd,networking-traefik-middleware-chain-no-auth-anubis-org@kubernetescrd"
+          gethomepage.dev/enabled: "true"
+          gethomepage.dev/group: Tools
+          gethomepage.dev/name: Opengist (org)
+          gethomepage.dev/description: Public code snippet hosting
+          gethomepage.dev/icon: opengist
+        hosts:
+          - host: &host "gist.${ORG_DOMAIN}"
+            paths:
+              - path: /
+                service:
+                  identifier: app
+                  port: http
+        tls:
+          - secretName: opengist-org-tls
+            hosts: [*host]
+    persistence:
+      config:
+        storageClass: cluster-nvme
+        accessMode: ReadWriteOnce
+        size: 5Gi
+        retain: true
+        globalMounts:
+          - path: /config
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+      landlock:
+        type: image
+        # renovate: datasource=docker depName=ghcr.io/liana64/landrun
+        image: ghcr.io/liana64/landrun:0.1.17
+        globalMounts:
+          - path: /landlock

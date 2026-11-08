@@ -1,0 +1,178 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: fluxer
+spec:
+  interval: 1h
+  timeout: 15m
+  chart:
+    spec:
+      chart: ./deploy/helm/fluxer
+      reconcileStrategy: Revision
+      sourceRef:
+        kind: GitRepository
+        name: fluxer
+  maxHistory: 2
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    domain: "chat.${ORG_DOMAIN}"
+    publicOrigin: "https://chat.${ORG_DOMAIN}"
+    image:
+      pullPolicy: IfNotPresent
+      digests:
+        fluxer-api: sha256:3bddfe0f01eb9d0480057330060bff7e3bf8f758943706086ea9e0bb14a8a696
+        fluxer-gateway: sha256:c7078d6a83589b6577e33d219562dfdc9cbaaa89de3f824062efdcababdfd5e5
+        fluxer-media-proxy: sha256:7e49bd20a44d0a651e07de663fcd6a66dfc772b0e2993e90c24777a0df170d26
+        fluxer-push: sha256:cd3df1bed09948a8cd9da694b97eb8525f7b2adfbd3f0616f77b90b14459faf3
+        fluxer-admin: sha256:18f34516b62aec8f75db3fc7538066463fd863da678f3b83cf09addda15fd7d0
+        fluxer-app-proxy-self-hosted: sha256:54d88a3349792971c2a7d09c1200a531fcb6612a4de4e8c653b41a6f3b5ae4ae
+        fluxer-static: sha256:45a41ecd317768fe7e4fbeb9fa4da8439077fbbe41e3702763149b1894ee9585
+        fluxer-gifs: sha256:997adcf4ee48bdfadbf18bacc1ec59816a44842df09d352a339f63059028057e
+        fluxer-messages: sha256:e822550b17d2cdfc5222f1591e7f2a56da75d5cd83cb5bd047c653bfc67c4863
+        fluxer-snowflakes: sha256:0d07f43a28e1bfadb7fe2db161355a5f84add3147dc3cb51abc03706cae15bdf
+        fluxer-unfurl: sha256:4c1007587bf73c3096413f1a5d9a14aefff31b5ce7811838184c7dac14fb6ed2
+        fluxer-users: sha256:4990bd5549a24039c7e4fbb51e6b11150b494862f2d0563b41bf300a5f3376f5
+    initImage:
+      digest: sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+    secrets:
+      existingSecret: fluxer-secret
+      generate: false
+    env:
+      FLUXER_EMAIL_DELIVERY: smtp
+      FLUXER_EMAIL_SMTP_HOST: smtp-relay.networking.svc.cluster.local
+      FLUXER_EMAIL_SMTP_PORT: 25
+      FLUXER_EMAIL_SMTP_TLS_MODE: none
+      FLUXER_EMAIL_FROM_EMAIL: "${SECRET_SMTP_FROM}"
+      FLUXER_MEDIA_PROXY_ATTACHMENT_SIGNATURE_MODE: enforce
+      FLUXER_MEDIA_PROXY_CORS_MODE: enforce
+    postgres:
+      enabled: false
+    seaweedfs:
+      enabled: false
+    s3:
+      endpoint: http://s3.database.svc.cluster.local:8333
+    livekit:
+      expose: loadBalancer
+      nodeIP: "${LB_FLUXER_LIVEKIT}"
+      serviceAnnotations:
+        lbipam.cilium.io/ips: "${LB_FLUXER_LIVEKIT}"
+      extraConfig:
+        rtc:
+          use_external_ip: true
+      image:
+        digest: sha256:b1281e66e35e8f9749ffbcf0fe6ab4d40d1438aa00f36c2ea7e6975e5e261e2e
+    api: &tmp
+      extraVolumes: &tmpVolumes
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi
+      extraVolumeMounts: &tmpMounts
+        - name: tmp
+          mountPath: /tmp
+    worker: *tmp
+    push: *tmp
+    admin: *tmp
+    appProxy: *tmp
+    gateway:
+      env:
+        RELX_OUT_FILE_PATH: /tmp
+      extraVolumes: *tmpVolumes
+      extraVolumeMounts: *tmpMounts
+    staticProxy:
+      env:
+        XDG_CONFIG_HOME: /tmp/config
+        XDG_DATA_HOME: /tmp/data
+      extraVolumes: *tmpVolumes
+      extraVolumeMounts: *tmpMounts
+    mediaProxy:
+      extraVolumes:
+        - name: tmp
+          emptyDir:
+            sizeLimit: 4Gi
+      extraVolumeMounts: *tmpMounts
+    svc:
+      gifs: { router: *tmp, shard: *tmp }
+      messages: { router: *tmp, shard: *tmp }
+      snowflakes: { router: *tmp, shard: *tmp }
+      unfurl: { router: *tmp, shard: *tmp }
+      users: { router: *tmp, shard: *tmp }
+    valkey:
+      image:
+        digest: sha256:bf09d58e96d6b4524a15396b65b242bbe18beebbcc15a04d8ee75ddac62fae0b
+      persistence:
+        storageClassName: cluster-nvme
+    nats:
+      image:
+        digest: sha256:c9706755679d8bcf05b4ce275fdd2ac8890058b1535881208a65b3cd613f00bd
+      persistence:
+        storageClassName: cluster-nvme
+    meilisearch:
+      image:
+        digest: sha256:cf9bb47e8ecf080f0b3ca33f58a2f9d1e382d5479d360541df05e1c49841e4a9
+      persistence:
+        storageClassName: cluster-nvme
+    edge:
+      image:
+        digest: sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9
+      env:
+        FLUXER_EDGE_TRUSTED_PROXIES: "${CLUSTER_CIDR}"
+      ingress:
+        className: traefik-external
+        annotations:
+          cert-manager.io/cluster-issuer: "letsencrypt-production"
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit@kubernetescrd"
+        tls:
+          mode: existingSecret
+          secretName: fluxer-tls
+    networkPolicy:
+      enabled: false
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              kind: Deployment|StatefulSet
+            patch: |
+              - op: add
+                path: /spec/template/spec/hostUsers
+                value: false
+              - op: add
+                path: /spec/template/spec/containers/0/securityContext/readOnlyRootFilesystem
+                value: true
+          - target:
+              kind: Deployment|StatefulSet
+              name: (api|worker|gateway|media-proxy|push)|(gifs|messages|snowflakes|unfurl|users)(-shard)?
+            patch: |
+              - op: add
+                path: /spec/template/spec/initContainers/0/securityContext/readOnlyRootFilesystem
+                value: true
+          - target:
+              kind: StatefulSet
+              name: meilisearch
+            patch: |
+              - op: add
+                path: /spec/template/spec/volumes
+                value:
+                  - name: tmp
+                    emptyDir:
+                      sizeLimit: 1Gi
+              - op: add
+                path: /spec/template/spec/containers/0/volumeMounts/-
+                value:
+                  name: tmp
+                  mountPath: /tmp
+          - target:
+              kind: Service
+              name: livekit-rtc
+            patch: |
+              - op: replace
+                path: /spec/externalTrafficPolicy
+                value: Cluster
