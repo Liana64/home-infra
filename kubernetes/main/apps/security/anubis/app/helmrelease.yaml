@@ -21,6 +21,18 @@ spec:
             image:
               repository: ghcr.io/techarohq/anubis
               tag: v1.28.2@sha256:5fcbce70ee6168be5b226d19bec90111d0acd0daf13028fa06b044cf3ebbbd5f
+            command: &command ["/landlock/landrun"]
+            # landrun scrubs the environment: every env and secret key must be listed in --env
+            args: &args
+              - --best-effort
+              - --log-level=info
+              - --rox=/ko-app
+              - --ro=/etc,/config,/var/run/ko,/proc,/sys/fs/cgroup
+              - --bind-tcp=8080,9090
+              - --connect-tcp=53
+              - --env=BIND,METRICS_BIND,TZ,COOKIE_DOMAIN,PUBLIC_URL,REDIRECT_DOMAINS,SERVE_ROBOTS_TXT,POLICY_FNAME,TARGET,ED25519_PRIVATE_KEY_HEX,SSL_CERT_FILE,KO_DATA_PATH
+              - --
+              - /ko-app/anubis
             env:
               BIND: ":8080"
               METRICS_BIND: ":9090"
@@ -56,6 +68,8 @@ spec:
             image:
               repository: ghcr.io/techarohq/anubis
               tag: v1.28.2@sha256:5fcbce70ee6168be5b226d19bec90111d0acd0daf13028fa06b044cf3ebbbd5f
+            command: *command
+            args: *args
             env:
               BIND: ":8080"
               METRICS_BIND: ":9090"
@@ -157,3 +171,9 @@ spec:
           - path: /config/botPolicies.yaml
             subPath: botPolicies.yaml
             readOnly: true
+      landlock:
+        type: image
+        # renovate: datasource=docker depName=ghcr.io/liana64/landrun
+        image: ghcr.io/liana64/landrun:0.1.17
+        globalMounts:
+          - path: /landlock
