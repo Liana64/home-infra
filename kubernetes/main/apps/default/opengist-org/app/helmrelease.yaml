@@ -24,14 +24,14 @@ spec:
               tag: 1.15.3@sha256:f5dd39cc9409b4006f8b090e5f9ed042cdb736d28a06b4f985c674dacafc94d5
             command: ["/landlock/landrun"]
             # landrun scrubs the environment: every env and secret key must be listed in --env
-            # git runs the per-repo pre/post-receive hooks from /config/repos, hence rwx there
+            # git runs the per-repo hooks from /config/repos, which is absent on a fresh volume; landrun rejects missing paths, hence rwx on /config
             args:
               - --best-effort
               - --log-level=info
               - --rox=/usr,/lib,/bin,/app
               - --ro=/etc,/proc,/sys/fs/cgroup
-              - --rw=/config,/tmp
-              - --rwx=/config/repos
+              - --rw=/tmp
+              - --rwx=/config
               - --bind-tcp=80
               - --connect-tcp=443,53
               - --env=PATH,HOME,TZ,OG_HTTP_PORT,OG_OPENGIST_HOME,OG_CUSTOM_NAME,OG_EXTERNAL_URL,OG_SSH_GIT_ENABLED,OG_OIDC_PROVIDER_NAME,OG_OIDC_CLIENT_KEY,OG_OIDC_DISCOVERY_URL,OG_OIDC_GROUP_CLAIM_NAME,OG_OIDC_ADMIN_GROUP,OG_SECRET_KEY,OG_OIDC_SECRET
