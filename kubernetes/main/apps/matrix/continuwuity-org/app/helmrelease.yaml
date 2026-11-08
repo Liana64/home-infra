@@ -112,7 +112,24 @@ spec:
                   identifier: app
                   port: http
         tls:
-          - secretName: continuwuity-org-tls
+          - secretName: &tls continuwuity-org-tls
+            hosts: [*host]
+      login:
+        className: traefik-external
+        annotations:
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-auth@kubernetescrd,networking-traefik-middleware-chain-matrix@kubernetescrd"
+        hosts:
+          - host: *host
+            paths:
+              - path: /_matrix/client/v3/login
+                service: &svc
+                  identifier: app
+                  port: http
+              - path: /_matrix/client/r0/login
+                service: *svc
+        tls:
+          - secretName: *tls
             hosts: [*host]
       # delegation for the apex server_name; the blog serves / on this host
       wellknown:

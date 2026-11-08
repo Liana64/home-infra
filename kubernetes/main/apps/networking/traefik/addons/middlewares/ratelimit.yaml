@@ -17,3 +17,13 @@ spec:
   rateLimit:
     average: 100
     burst: 300
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-middleware-ratelimit-auth
+spec:
+  rateLimit:
+    average: 10
+    period: 1m
+    burst: 10
