@@ -132,12 +132,12 @@ spec:
             - port: "7882"
               protocol: UDP
   egress:
-    - toFQDNs:
-        - matchName: stun.l.google.com
-        - matchName: stun1.l.google.com
+    - toEntities:
+        - world
       toPorts:
         - ports:
-            - port: "19302"
+            - port: "1024"
+              endPort: 65535
               protocol: UDP
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cilium.io/ciliumnetworkpolicy_v2.json
