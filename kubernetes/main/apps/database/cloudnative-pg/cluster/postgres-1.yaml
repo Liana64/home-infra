@@ -27,10 +27,9 @@ spec:
         passwordSecret:
           name: postgres-role-linkding
       - name: memos
-        ensure: present
-        login: true
-        passwordSecret:
-          name: postgres-role-memos
+        ensure: absent
+      - name: n8n
+        ensure: absent
       - name: miniflux
         ensure: present
         login: true
@@ -89,6 +88,8 @@ spec:
         image:
           # renovate: datasource=docker depName=ghcr.io/cloudnative-pg/pgvector
           reference: ghcr.io/cloudnative-pg/pgvector:0.8.7-18-trixie@sha256:36dd07720447813c0659c6d8a961e1bc79a4324c6d6de46cd57f6201b70db53a
+    pg_hba:
+      - hostnossl all all all reject
     parameters:
       max_connections: "100"
       shared_buffers: 256MB

@@ -21,9 +21,6 @@ spec:
             app.kubernetes.io/name: linkding
         - matchLabels:
             io.kubernetes.pod.namespace: home
-            app.kubernetes.io/name: memos
-        - matchLabels:
-            io.kubernetes.pod.namespace: home
             app.kubernetes.io/name: miniflux
         - matchLabels:
             io.kubernetes.pod.namespace: labs
