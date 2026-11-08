@@ -30,7 +30,7 @@ spec:
               - --log-level=info
               - --rox=/usr,/lib,/bin,/app
               - --ro=/etc,/proc,/sys/fs/cgroup
-              - --rw=/tmp
+              - --rw=/tmp,/dev/null
               - --rwx=/config
               - --bind-tcp=80
               - --connect-tcp=443,53
