@@ -22,6 +22,20 @@ spec:
             image:
               repository: ghcr.io/seerr-team/seerr
               tag: v3.5.1@sha256:d8fab675b55ad293ded98fd71efcfd46054cbad9746534ae1cc4794a88c0b3be
+            command: ["/landlock/landrun"]
+            # landrun scrubs the environment: every env key must be listed in --env
+            args:
+              - --best-effort
+              - --log-level=info
+              - --rox=/usr,/lib,/bin
+              - --ro=/app,/etc,/proc,/sys/fs/cgroup
+              - --rw=/app/config,/tmp,/app/.next/cache
+              - --bind-tcp=5055
+              - --connect-tcp=443,5055,7878,8096,8989,53
+              - --env=PATH,HOME=/tmp,NODE_ENV,COMMIT_TAG,TZ,PORT,forceIpv4First
+              - --
+              - npm
+              - start
             env:
               TZ: ${TIMEZONE}
               PORT: &port 5055
@@ -190,3 +204,11 @@ spec:
                 subPath: tmp
               - path: /app/.next/cache
                 subPath: next-cache
+      landlock:
+        type: image
+        # renovate: datasource=docker depName=ghcr.io/liana64/landrun
+        image: ghcr.io/liana64/landrun:0.1.17
+        advancedMounts:
+          seerr:
+            app:
+              - path: /landlock
