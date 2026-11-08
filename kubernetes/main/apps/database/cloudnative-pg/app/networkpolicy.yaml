@@ -24,8 +24,9 @@ spec:
     - toEntities:
         - kube-apiserver
     - toEndpoints:
-        - matchLabels:
-            cnpg.io/cluster: postgres-1
+        - matchExpressions:
+            - key: cnpg.io/cluster
+              operator: Exists
       toPorts:
         - ports:
             - port: "8000"
