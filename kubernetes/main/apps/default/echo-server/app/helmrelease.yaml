@@ -19,6 +19,19 @@ spec:
             image:
               repository: ghcr.io/mendhak/http-https-echo
               tag: 43@sha256:c4a81744e620ad3cfbffa97374c9c0e545bb3d132b07ebc7745cce6ddee745a1
+            command: ["/landlock/landrun"]
+            # landrun scrubs the environment: every env key must be listed in --env
+            args:
+              - --best-effort
+              - --log-level=info
+              - --rox=/usr,/lib
+              - --ro=/app,/etc,/proc,/sys/fs/cgroup
+              - --bind-tcp=8080,8443
+              - --connect-tcp=53
+              - --env=HTTP_PORT,HTTPS_PORT,LOG_WITHOUT_NEWLINE,LOG_IGNORE_PATH,PROMETHEUS_ENABLED
+              - --
+              - node
+              - ./index.js
             env:
               HTTP_PORT: &port 8080
               LOG_WITHOUT_NEWLINE: true
@@ -54,6 +67,13 @@ spec:
         runAsUser: 65534
         runAsGroup: 65534
         seccompProfile: { type: RuntimeDefault }
+    persistence:
+      landlock:
+        type: image
+        # renovate: datasource=docker depName=ghcr.io/liana64/landrun
+        image: ghcr.io/liana64/landrun:0.1.17
+        globalMounts:
+          - path: /landlock
     service:
       app:
         controller: echo-server
