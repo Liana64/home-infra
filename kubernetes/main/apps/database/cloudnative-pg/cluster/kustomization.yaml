@@ -20,6 +20,6 @@ resources:
   - ./postgres-1.yaml
   - ./prometheusrule.yaml
   - ./scheduledbackup.yaml
-  - ./service.yaml
+  # - ./service.yaml
   - ./docs-database.yaml
   - ./docs-yhub-database.yaml

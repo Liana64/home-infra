@@ -55,13 +55,13 @@ spec:
             - port: "5432"
               protocol: TCP
     # LAN clients via postgres-lb
-    - fromCIDR:
-        - "${HOME_CIDR}"
-        - "${VPN_CIDR}"
-      toPorts:
-        - ports:
-            - port: "5432"
-              protocol: TCP
+    # - fromCIDR:
+    #     - "${HOME_CIDR}"
+    #     - "${VPN_CIDR}"
+    #   toPorts:
+    #     - ports:
+    #         - port: "5432"
+    #           protocol: TCP
     # operator status probes
     - fromEndpoints:
         - matchLabels:
