@@ -263,18 +263,25 @@ pages:
           - type: custom-api
             title: Requests
             cache: 15m
-            url: https://requests.lianas.org/api/v1/request?filter=pending&take=10
+            url: https://requests.lianas.org/api/v1/request?filter=all&sort=added&take=10
             headers:
               X-Api-Key: $${SEERR_API_KEY}
             template: |
               {{ if eq (len (.JSON.Array "results")) 0 }}
-              <p>No pending requests</p>
+              <p>No requests</p>
               {{ else }}
-              <ul class="list list-gap-10">
+              <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
               {{ range .JSON.Array "results" }}
+                {{ $path := concat (.String "type") "/" (.String "media.tmdbId") }}
+                {{ $item := newRequest (concat "https://requests.lianas.org/api/v1/" $path) | withHeader "X-Api-Key" "$${SEERR_API_KEY}" | getResponse }}
+                {{ $req := .Int "status" }}
+                {{ $media := .Int "media.status" }}
+                {{ $state := "processing" }}
+                {{ if eq $req 1 }}{{ $state = "pending" }}{{ else if eq $req 3 }}{{ $state = "declined" }}{{ else if eq $req 4 }}{{ $state = "failed" }}{{ else if ge $media 6 }}{{ $state = "removed" }}{{ else if eq $media 5 }}{{ $state = "available" }}{{ else if eq $media 4 }}{{ $state = "partial" }}{{ end }}
                 <li>
-                  <a class="size-h4 color-primary-if-not-visited" href="https://requests.lianas.org/{{ .String "type" }}/{{ .String "media.tmdbId" }}" target="_blank">{{ .String "type" }} #{{ .String "media.tmdbId" }}</a>
+                  <a class="size-h4 color-primary-if-not-visited block text-truncate" href="https://requests.lianas.org/{{ $path }}" target="_blank">{{ $item.JSON.StringOr "title" ($item.JSON.StringOr "name" $path) }}</a>
                   <ul class="list-horizontal-text">
+                    <li class="{{ if eq $state "available" }}color-positive{{ else if or (eq $state "declined") (eq $state "failed") }}color-negative{{ end }}">{{ $state }}</li>
                     <li>{{ .String "requestedBy.displayName" }}</li>
                     <li {{ .String "createdAt" | parseTime "rfc3339" | toRelativeTime }}></li>
                   </ul>
@@ -338,3 +345,68 @@ pages:
                 headers:
                   X-Api-Key: $${RADARR_API_KEY}
                 template: *queueTemplate
+          - type: custom-api
+            title: Torrents
+            cache: 5m
+            url: https://qui.labs.lianas.org/api/instances/1/torrents
+            headers: &quiHeaders
+              X-API-Key: $${QUI_API_KEY}
+            parameters:
+              filters: '{"status":["active"]}'
+              sort: added_on
+              limit: "10"
+            subrequests:
+              recent:
+                url: https://qui.labs.lianas.org/api/instances/1/torrents
+                headers: *quiHeaders
+                parameters:
+                  sort: added_on
+                  limit: "10"
+            template: |
+              {{ $torrents := .JSON.Array "torrents" }}
+              {{ $label := "Active" }}
+              {{ if eq (len $torrents) 0 }}
+                {{ $torrents = (.Subrequest "recent").JSON.Array "torrents" }}
+                {{ $label = "Recent" }}
+              {{ end }}
+              <div class="size-h5 color-subdue margin-bottom-10">{{ $label }}</div>
+              <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
+              {{ range $torrents }}
+                <li>
+                  <div class="size-h4 text-truncate">{{ .String "name" }}</div>
+                  <ul class="list-horizontal-text">
+                    <li>{{ .String "state" }}</li>
+                    {{ if lt (.Float "progress") 1.0 }}<li>{{ printf "%.0f%%" (mul (.Float "progress") 100.0) }}</li>{{ end }}
+                    {{ if gt (.Float "upspeed") 0.0 }}<li>↑ {{ printf "%.1f MB/s" (div (.Float "upspeed") 1048576.0) }}</li>{{ end }}
+                    {{ if gt (.Float "dlspeed") 0.0 }}<li>↓ {{ printf "%.1f MB/s" (div (.Float "dlspeed") 1048576.0) }}</li>{{ end }}
+                    <li>ratio {{ printf "%.2f" (.Float "ratio") }}</li>
+                    <li {{ .String "added_on" | parseTime "unix" | toRelativeTime }}></li>
+                  </ul>
+                </li>
+              {{ end }}
+              </ul>
+      - size: small
+        widgets:
+          - type: custom-api
+            title: Indexers
+            cache: 15m
+            url: https://prowlarr.labs.lianas.org/api/v1/indexer
+            headers: &prowlarrHeaders
+              X-Api-Key: $${PROWLARR_API_KEY}
+            subrequests:
+              status:
+                url: https://prowlarr.labs.lianas.org/api/v1/indexerstatus
+                headers: *prowlarrHeaders
+            template: |
+              {{ $status := .Subrequest "status" }}
+              <ul class="list list-gap-10">
+              {{ range sortByString "name" "asc" (.JSON.Array "") }}
+                {{ $until := $status.JSON.String (printf "#(indexerId==%d).disabledTill" (.Int "id")) }}
+                <li class="flex justify-between items-center">
+                  <span class="text-truncate">{{ .String "name" }}</span>
+                  {{ if not (.Bool "enable") }}<span class="color-subdue">disabled</span>
+                  {{ else if and (ne $until "") (($until | parseTime "rfc3339").After now) }}<span class="color-negative">failing</span>
+                  {{ else }}<span class="color-positive">ok</span>{{ end }}
+                </li>
+              {{ end }}
+              </ul>

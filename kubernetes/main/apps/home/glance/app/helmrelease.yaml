@@ -46,6 +46,16 @@ spec:
                   secretKeyRef:
                     name: glance-includes
                     key: seerr-api-key
+              PROWLARR_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: glance-includes
+                    key: prowlarr-api-key
+              QUI_API_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: glance-includes
+                    key: qui-api-key
             probes:
               liveness: &probes
                 enabled: true
