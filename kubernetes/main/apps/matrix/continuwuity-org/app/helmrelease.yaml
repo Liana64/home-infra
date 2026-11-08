@@ -23,6 +23,18 @@ spec:
             image:
               repository: forgejo.ellis.link/continuwuation/continuwuity
               tag: v26.9.1@sha256:c9c62bc5c0a641f3f713945c701b069c7bc30d2612b54d4a5de80a5be19d5420
+            command: ["/landlock/landrun"]
+            # landrun scrubs the environment: every env and secret key must be listed in --env
+            args:
+              - --best-effort
+              - --rox=/sbin,/lib64,/usr
+              - --ro=/etc
+              - --rw=/data,/tmp
+              - --bind-tcp=8008
+              - --connect-tcp=443,8448,53
+              - --env=TZ,TOKIO_WORKER_THREADS,CONTINUWUITY_SERVER_NAME,CONTINUWUITY_ADDRESS,CONTINUWUITY_PORT,CONTINUWUITY_DATABASE_PATH,CONTINUWUITY_DB_CACHE_CAPACITY_MB,CONTINUWUITY_ROCKSDB_PARALLELISM_THREADS,CONTINUWUITY_MAX_REQUEST_SIZE,CONTINUWUITY_ALLOW_FEDERATION,CONTINUWUITY_TRUSTED_SERVERS,CONTINUWUITY_ALLOW_CHECK_FOR_UPDATES,CONTINUWUITY_ALLOW_REGISTRATION,CONTINUWUITY_WELL_KNOWN__SERVER,CONTINUWUITY_WELL_KNOWN__CLIENT,CONTINUWUITY_WELL_KNOWN__SUPPORT_EMAIL,CONTINUWUITY_LOG,CONTINUWUITY_REGISTRATION_TOKEN
+              - --
+              - /sbin/conduwuit
             env:
               TZ: "${TIMEZONE}"
               TOKIO_WORKER_THREADS: "2"
@@ -161,3 +173,9 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
+      landlock:
+        type: image
+        # renovate: datasource=docker depName=ghcr.io/liana64/landrun
+        image: ghcr.io/liana64/landrun:0.1.17
+        globalMounts:
+          - path: /landlock
