@@ -26,6 +26,19 @@ tasks:
           sh: "test -f {{.APPS_DIR}}/{{.NS}}/kustomization.yaml",
         }
 
+  app-landlocked:
+    desc: Scaffold an app wrapped in landrun, e.g. "task template:app-landlocked APP=foo NS=home"
+    requires:
+      vars: [APP, NS]
+    vars:
+      HR: "{{.APPS_DIR}}/{{.NS}}/{{.APP}}/app/helmrelease.yaml"
+    cmds:
+      - task: app
+        vars: { APP: "{{.APP}}", NS: "{{.NS}}" }
+      - sed 's/__APP__/{{.APP}}/g' {{.TEMPLATES_DIR}}/landlock/landrun.snippet.yaml | APP={{.APP}} yq -i 'load("/dev/stdin") as $l | .spec.values.controllers[strenv(APP)].containers.app *= $l.container | .spec.values.persistence *= $l.persistence' {{.HR}}
+    status:
+      - yq -e '.spec.values.persistence.landlock' {{.HR}}
+
   postgres:
     desc: Add a managed postgres role and database for an app, e.g. "task template:postgres APP=foo NS=home [NAME=foo-bar ROLE=foo_bar DB=foo_bar] [BW_ID=uuid]"
     requires:

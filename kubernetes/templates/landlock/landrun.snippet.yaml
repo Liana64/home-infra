@@ -1,0 +1,19 @@
+container:
+  command: ["/landlock/landrun"]
+  args:
+    - --best-effort
+    - --log-level=info
+    - --rox=/usr,/lib,/bin
+    - --ro=/etc,/proc,/sys/fs/cgroup
+    - --rw=/data,/tmp
+    - --bind-tcp=8080
+    - --env=PATH,HOME,TZ
+    - --
+    - /usr/local/bin/__APP__
+persistence:
+  landlock:
+    type: image
+    # renovate: datasource=docker depName=ghcr.io/liana64/landrun
+    image: ghcr.io/liana64/landrun:0.1.17@sha256:33620d9d2ed4e858e549642810895a1fb8f0ff3438fcdf35032e04cdfcf197f5
+    globalMounts:
+      - path: /landlock
