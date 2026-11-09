@@ -5,7 +5,7 @@ version: "3"
 vars:
   TEMPLATES_DIR: "{{.KUBERNETES_DIR}}/templates"
   APPS_DIR: "{{.KUBERNETES_DIR}}/{{.CLUSTER}}/apps"
-  PG_DIR: "{{.APPS_DIR}}/database/cloudnative-pg/cluster"
+  PG_DIR: "{{.APPS_DIR}}/database/cloudnative-pg/home"
 
 tasks:
   app:
@@ -66,12 +66,12 @@ tasks:
         for s in role ingress egress; do render $s.snippet.yaml > "$tmp/$s.yaml"; done
         render database.yaml > {{.PG_DIR}}/$NAME-database.yaml
         yq -i '.resources = (.resources + ["./" + strenv(NAME) + "-database.yaml"] | unique)' {{.PG_DIR}}/kustomization.yaml
-        F=$tmp/role.yaml yq -i '.spec.managed.roles = ((.spec.managed.roles // []) + load(strenv(F)) | unique_by(.name))' {{.PG_DIR}}/postgres-1.yaml
+        F=$tmp/role.yaml yq -i '.spec.managed.roles = ((.spec.managed.roles // []) + load(strenv(F)) | unique_by(.name))' {{.PG_DIR}}/postgres-home.yaml
         F=$tmp/ingress.yaml yq -i '(.spec.ingress[] | select(.fromEndpoints and .toPorts[0].ports[0].port == "5432") | .fromEndpoints) |= (. + load(strenv(F)) | unique)' {{.PG_DIR}}/networkpolicy.yaml
         render externalsecret.yaml >> {{.APP_DIR}}/app/externalsecret.yaml
         yq -i '.resources = (.resources + ["./externalsecret.yaml"] | unique)' {{.APP_DIR}}/app/kustomization.yaml
         F=$tmp/egress.yaml yq -i '(select(.spec.endpointSelector.matchLabels."app.kubernetes.io/name" == strenv(APP)) | .spec.egress) |= (. + load(strenv(F)) | unique)' {{.APP_DIR}}/app/networkpolicy.yaml
-        yq -i '(select(document_index == 0) | .spec.dependsOn) |= ((. // []) + [{"name": "cloudnative-pg-cluster"}] | unique_by(.name))' {{.APP_DIR}}/ks.yaml
+        yq -i '(select(document_index == 0) | .spec.dependsOn) |= ((. // []) + [{"name": "cloudnative-pg-home"}] | unique_by(.name))' {{.APP_DIR}}/ks.yaml
     status:
       - test -f {{.PG_DIR}}/{{.NAME}}-database.yaml
     preconditions:

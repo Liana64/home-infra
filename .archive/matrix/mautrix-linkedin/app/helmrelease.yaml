@@ -25,7 +25,7 @@ spec:
               tag: 16
             env:
               - name: INIT_POSTGRES_HOST
-                value: "postgres-1-rw.database.svc.cluster.local"
+                value: "postgres-home-rw.database.svc.cluster.local"
               - name: INIT_POSTGRES_SUPER_PASS
                 valueFrom:
                   secretKeyRef:

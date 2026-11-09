@@ -32,5 +32,5 @@ spec:
   name: n8n
   owner: n8n
   cluster:
-    name: postgres-1
+    name: postgres-home
   ensure: present

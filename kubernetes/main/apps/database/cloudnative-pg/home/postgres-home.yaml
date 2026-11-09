@@ -19,16 +19,6 @@ spec:
     serverCASecret: postgres-home-server
     clientCASecret: postgres-home-replication
     replicationTLSSecret: postgres-home-replication
-  bootstrap:
-    recovery:
-      source: postgres-1
-  externalClusters:
-    - name: postgres-1
-      plugin:
-        name: barman-cloud.cloudnative-pg.io
-        parameters:
-          barmanObjectName: postgres-1-backup
-          serverName: postgres-1-v18
   managed:
     roles:
       - name: immich

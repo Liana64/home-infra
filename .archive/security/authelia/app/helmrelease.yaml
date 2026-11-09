@@ -23,7 +23,7 @@ spec:
               repository: ghcr.io/liana64/postgres-init
               tag: 16
             env:
-              INIT_POSTGRES_HOST: &dbHost postgres-1-rw.database.svc.cluster.local
+              INIT_POSTGRES_HOST: &dbHost postgres-home-rw.database.svc.cluster.local
               INIT_POSTGRES_DBNAME: &dbName authelia
               INIT_POSTGRES_USER:
                 valueFrom:

@@ -25,7 +25,7 @@ spec:
     # hostNamespaceOnly + endpointRoutes) and hit ingress policy
     - fromEndpoints:
         - matchLabels:
-            cnpg.io/cluster: postgres-1
+            cnpg.io/cluster: postgres-home
             io.kubernetes.pod.namespace: database
         - matchLabels:
             app.kubernetes.io/name: miniflux
@@ -38,7 +38,7 @@ spec:
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: database
-            cnpg.io/cluster: postgres-1
+            cnpg.io/cluster: postgres-home
       toPorts:
         - ports:
             - port: "5432"

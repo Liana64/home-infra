@@ -27,7 +27,7 @@ spec:
               TZ: ${TIMEZONE}
               GENERIC_TIMEZONE: ${TIMEZONE}
               DB_TYPE: postgresdb
-              DB_POSTGRESDB_HOST: postgres-1-rw.database.svc.cluster.local
+              DB_POSTGRESDB_HOST: postgres-home-rw.database.svc.cluster.local
               DB_POSTGRESDB_PORT: "5432"
               DB_POSTGRESDB_DATABASE: n8n
               EXECUTIONS_DATA_PRUNE: "true"

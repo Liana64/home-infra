@@ -8,6 +8,7 @@ resources:
   - ./networkpolicy.yaml
   - ./postgres-home.yaml
   - ./prometheusrule.yaml
+  # - ./service.yaml
   - ./atuin-database.yaml
   - ./docs-database.yaml
   - ./docs-yhub-database.yaml

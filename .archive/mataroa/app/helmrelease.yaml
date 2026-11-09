@@ -36,7 +36,7 @@ spec:
               repository: ghcr.io/liana64/postgres-init
               tag: 16
             env:
-              INIT_POSTGRES_HOST: &dbHost postgres-1-rw.database.svc.cluster.local
+              INIT_POSTGRES_HOST: &dbHost postgres-home-rw.database.svc.cluster.local
               INIT_POSTGRES_DBNAME: &dbName mataroa
               INIT_POSTGRES_USER:
                 valueFrom:
@@ -61,7 +61,7 @@ spec:
               tag: rolling@sha256:702eae37414c0b492b766771a50b9c8490b4a34259699eae3a7bdf284f2abad6
             env:
               DEBUG: 1
-              DATABASE_URL: "postgres://${PGUSER}:${PGPASSWORD}@postgres-1-rw.database.svc.cluster.local:5432/mataroa"
+              DATABASE_URL: "postgres://${PGUSER}:${PGPASSWORD}@postgres-home-rw.database.svc.cluster.local:5432/mataroa"
             envFrom:
               - secretRef:
                   name: *secret

@@ -7,9 +7,9 @@ vars:
 
 tasks:
   postgres:
-    desc: Backup a CNPG cluster on-demand, e.g. "task backup:postgres [PG=postgres-1]"
+    desc: Backup a CNPG cluster on-demand, e.g. "task backup:postgres [PG=postgres-home]"
     vars:
-      PG: '{{.PG | default "postgres-1"}}'
+      PG: '{{.PG | default "postgres-home"}}'
       NAME: '{{.PG}}-{{now | date "20060102-150405"}}'
     cmds:
       - |

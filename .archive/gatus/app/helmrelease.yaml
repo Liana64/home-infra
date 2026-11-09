@@ -35,7 +35,7 @@ spec:
               tag: 16
             # https://github.com/onedr0p/containers/blob/main/apps/postgres-init/entrypoint.sh
             env:
-              INIT_POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
+              INIT_POSTGRES_HOST: postgres-home-rw.database.svc.cluster.local
               INIT_POSTGRES_DBNAME: gatus
               INIT_POSTGRES_USER:
                 valueFrom:
@@ -80,7 +80,7 @@ spec:
               GATUS_CONFIG_PATH: /config
               GATUS_DELAY_START_SECONDS: 5
               CUSTOM_WEB_PORT: &port 80
-              POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
+              POSTGRES_HOST: postgres-home-rw.database.svc.cluster.local
               POSTGRES_DB: gatus
               PERSONAL_DOMAIN: "${PERSONAL_DOMAIN}"
               DISCORD_WEBHOOK_URL: "${SECRET_DISCORD_WEBHOOK_URL}"

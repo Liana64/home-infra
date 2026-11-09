@@ -41,7 +41,7 @@ spec:
     #          protocol: TCP
     - toEndpoints:
         - matchLabels:
-            cnpg.io/cluster: postgres-1
+            cnpg.io/cluster: postgres-home
             io.kubernetes.pod.namespace: database
       toPorts:
         - ports:

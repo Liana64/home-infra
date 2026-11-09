@@ -13,6 +13,9 @@ SELECT format('GRANT CONNECT ON DATABASE %I TO cnpg_metrics_exporter;', datname)
   FROM pg_database WHERE datallowconn AND NOT datistemplate
 UNION ALL
 SELECT 'GRANT CONNECT ON DATABASE postgres TO streaming_replica;'
+UNION ALL
+SELECT format('GRANT CONNECT ON DATABASE postgres TO %I;', rolname)
+  FROM pg_roles WHERE rolname IN ('pinepods', 'docs_yhub')
 SQL
 )
 

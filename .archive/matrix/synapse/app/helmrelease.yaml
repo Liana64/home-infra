@@ -83,7 +83,7 @@ spec:
     redis:
       enabled: false
     externalPostgresql:
-      host: "postgres-1-rw.database.svc.cluster.local"
+      host: "postgres-home-rw.database.svc.cluster.local"
       port: 5432
       username: "synapse"
       existingSecret: "synapse-secret"
