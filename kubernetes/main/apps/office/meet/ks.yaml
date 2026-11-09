@@ -13,7 +13,7 @@ spec:
   dependsOn:
     - name: traefik
     - name: dragonfly-cluster
-    - name: cloudnative-pg-cluster
+    - name: cloudnative-pg-home
   path: ./kubernetes/main/apps/office/meet/app
   prune: true
   sourceRef:

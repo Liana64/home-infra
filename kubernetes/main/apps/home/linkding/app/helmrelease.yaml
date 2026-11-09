@@ -36,7 +36,7 @@ spec:
             env:
               LD_DB_ENGINE: postgres
               LD_DB_DATABASE: linkding
-              LD_DB_HOST: postgres-1-rw.database.svc.cluster.local
+              LD_DB_HOST: postgres-home-rw.database.svc.cluster.local
               LD_DB_PORT: 5432
               LD_ENABLE_OIDC: "True"
               OIDC_OP_AUTHORIZATION_ENDPOINT: "https://id.${ORG_DOMAIN}/authorize"

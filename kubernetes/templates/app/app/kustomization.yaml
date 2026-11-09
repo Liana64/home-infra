@@ -10,3 +10,12 @@ resources:
   # - ./secret.sops.yaml
   # - ./configmap.yaml
   - ./helmrelease.yaml
+patches:
+  - target:
+      group: volsync.backube
+      version: v1alpha1
+      kind: ReplicationSource
+    patch: |
+      - op: replace
+        path: /spec/sourcePVC
+        value: __APP__-data

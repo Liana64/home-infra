@@ -29,7 +29,7 @@ spec:
               DJANGO_SETTINGS_MODULE: impress.settings
               DJANGO_ALLOWED_HOSTS: "docs.${ORG_DOMAIN},docs-backend.office.svc.cluster.local"
               DJANGO_CSRF_TRUSTED_ORIGINS: &url "https://docs.${ORG_DOMAIN}"
-              DB_HOST: postgres-1-rw.database.svc.cluster.local
+              DB_HOST: postgres-home-rw.database.svc.cluster.local
               DB_PORT: "5432"
               DB_NAME: docs
               AWS_S3_ENDPOINT_URL: http://s3.database.svc.cluster.local:8333

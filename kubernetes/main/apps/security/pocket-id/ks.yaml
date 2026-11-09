@@ -14,7 +14,7 @@ spec:
     - name: traefik
     - name: volsync
     - name: kopia
-    - name: cloudnative-pg-cluster
+    - name: cloudnative-pg-home
   path: ./kubernetes/main/apps/security/pocket-id/app
   prune: true
   sourceRef:

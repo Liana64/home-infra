@@ -2,14 +2,14 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: postgres-role-atuin
+  name: postgres-role-grafana
 spec:
   refreshPolicy: OnChange
   secretStoreRef:
     kind: ClusterSecretStore
     name: bitwarden-secrets-manager
   target:
-    name: postgres-role-atuin
+    name: postgres-role-grafana
     template:
       engineVersion: v2
       type: kubernetes.io/basic-auth
@@ -17,20 +17,20 @@ spec:
         labels:
           cnpg.io/reload: "true"
       data:
-        username: atuin
+        username: grafana
         password: "{{ .password }}"
   data:
     - secretKey: password
       remoteRef:
-        key: "d1f95550-a56b-4f5d-a3f9-b4df00f7fe4e"
+        key: "f83be31b-e809-4a1c-961b-b4df00f8edce"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: atuin
+  name: postgres-home-grafana
 spec:
-  name: atuin
-  owner: atuin
+  name: grafana
+  owner: grafana
   cluster:
-    name: postgres-1
+    name: postgres-home
   ensure: present

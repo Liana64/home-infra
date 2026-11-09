@@ -33,7 +33,7 @@ spec:
               SEARCH_API_URL: "https://search.pinepods.online/api/search"
               PEOPLE_API_URL: "https://people.pinepods.online"
               DB_TYPE: postgresql
-              DB_HOST: postgres-1-rw.database.svc.cluster.local
+              DB_HOST: postgres-home-rw.database.svc.cluster.local
               DB_PORT: "5432"
               DB_NAME: pinepods
               DB_USER: pinepods

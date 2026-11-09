@@ -27,10 +27,10 @@ spec:
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: __NAME__
+  name: postgres-home-__NAME__
 spec:
   name: __DB__
   owner: __ROLE__
   cluster:
-    name: postgres-1
+    name: postgres-home
   ensure: present

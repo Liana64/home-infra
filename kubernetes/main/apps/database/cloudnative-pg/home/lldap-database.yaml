@@ -2,14 +2,14 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: postgres-role-linkding
+  name: postgres-role-lldap
 spec:
   refreshPolicy: OnChange
   secretStoreRef:
     kind: ClusterSecretStore
     name: bitwarden-secrets-manager
   target:
-    name: postgres-role-linkding
+    name: postgres-role-lldap
     template:
       engineVersion: v2
       type: kubernetes.io/basic-auth
@@ -17,20 +17,20 @@ spec:
         labels:
           cnpg.io/reload: "true"
       data:
-        username: linkding
+        username: lldap_user
         password: "{{ .password }}"
   data:
     - secretKey: password
       remoteRef:
-        key: "66282c8d-33c0-4e39-984f-b4df00f6ff0e"
+        key: "3c71867e-f081-47c7-a2cb-b3d50167f165"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: linkding
+  name: postgres-home-lldap
 spec:
-  name: linkding
-  owner: linkding
+  name: lldap
+  owner: lldap_user
   cluster:
-    name: postgres-1
+    name: postgres-home
   ensure: present

@@ -2,14 +2,14 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: postgres-role-miniflux
+  name: postgres-role-meet
 spec:
   refreshPolicy: OnChange
   secretStoreRef:
     kind: ClusterSecretStore
     name: bitwarden-secrets-manager
   target:
-    name: postgres-role-miniflux
+    name: postgres-role-meet
     template:
       engineVersion: v2
       type: kubernetes.io/basic-auth
@@ -17,20 +17,20 @@ spec:
         labels:
           cnpg.io/reload: "true"
       data:
-        username: miniflux
+        username: meet
         password: "{{ .password }}"
   data:
     - secretKey: password
       remoteRef:
-        key: "c6ef0e97-2091-44ac-99c2-b4df00f7c083"
+        key: "608ca4b5-aff7-4e27-9305-b4df00f92d8a"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: miniflux
+  name: postgres-home-meet
 spec:
-  name: miniflux
-  owner: miniflux
+  name: meet
+  owner: meet
   cluster:
-    name: postgres-1
+    name: postgres-home
   ensure: present

@@ -45,7 +45,7 @@ spec:
       GF_DATABASE_TYPE: postgres
       GF_DATABASE_SSL_MODE: require
       GF_DATABASE_NAME: &dbName grafana
-      GF_DATABASE_HOST: &dbHost postgres-1-rw.database.svc.cluster.local
+      GF_DATABASE_HOST: &dbHost postgres-home-rw.database.svc.cluster.local
       GF_DATABASE_USER: grafana
     envValueFrom:
       GF_DATABASE_PASSWORD:

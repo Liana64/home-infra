@@ -22,11 +22,11 @@ spec:
     # hostNamespaceOnly + endpointRoutes); pgadmin dials -rw svc
     - fromEndpoints:
         - matchLabels:
-            cnpg.io/cluster: postgres-1
+            cnpg.io/cluster: postgres-home
   egress:
     - toEndpoints:
         - matchLabels:
-            cnpg.io/cluster: postgres-1
+            cnpg.io/cluster: postgres-home
       toPorts:
         - ports:
             - port: "5432"

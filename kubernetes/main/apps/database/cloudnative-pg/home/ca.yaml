@@ -1,0 +1,91 @@
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: postgres-home-ca
+spec:
+  refreshPolicy: OnChange
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: bitwarden-secrets-manager
+  target:
+    name: postgres-home-ca
+    template:
+      engineVersion: v2
+      type: kubernetes.io/tls
+      data:
+        tls.crt: "{{ .crt }}"
+        tls.key: "{{ .key }}"
+  data:
+    - secretKey: crt
+      remoteRef:
+        key: "51f5e6bb-8761-4d1f-a231-b4fd002ae339"
+    - secretKey: key
+      remoteRef:
+        key: "af50879b-9db0-43d5-bead-b4fd002b0eeb"
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: postgres-home-ca
+spec:
+  ca:
+    secretName: postgres-home-ca
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: postgres-home-server
+spec:
+  secretName: postgres-home-server
+  secretTemplate:
+    labels:
+      cnpg.io/reload: ""
+  duration: 2160h
+  renewBefore: 720h
+  usages:
+    - server auth
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  dnsNames:
+    - postgres-home-rw
+    - postgres-home-rw.database
+    - postgres-home-rw.database.svc
+    - postgres-home-rw.database.svc.cluster.local
+    - postgres-home-ro
+    - postgres-home-ro.database
+    - postgres-home-ro.database.svc
+    - postgres-home-ro.database.svc.cluster.local
+    - postgres-home-r
+    - postgres-home-r.database
+    - postgres-home-r.database.svc
+    - postgres-home-r.database.svc.cluster.local
+  issuerRef:
+    name: postgres-home-ca
+    kind: Issuer
+    group: cert-manager.io
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: postgres-home-replication
+spec:
+  secretName: postgres-home-replication
+  secretTemplate:
+    labels:
+      cnpg.io/reload: ""
+  commonName: streaming_replica
+  duration: 2160h
+  renewBefore: 720h
+  usages:
+    - client auth
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  issuerRef:
+    name: postgres-home-ca
+    kind: Issuer
+    group: cert-manager.io

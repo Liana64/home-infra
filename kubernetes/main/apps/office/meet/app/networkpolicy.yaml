@@ -24,7 +24,7 @@ spec:
     - fromEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: database
-            cnpg.io/cluster: postgres-1
+            cnpg.io/cluster: postgres-home
         - matchLabels:
             io.kubernetes.pod.namespace: database
             app: dragonfly
@@ -35,7 +35,7 @@ spec:
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: database
-            cnpg.io/cluster: postgres-1
+            cnpg.io/cluster: postgres-home
       toPorts:
         - ports:
             - port: "5432"

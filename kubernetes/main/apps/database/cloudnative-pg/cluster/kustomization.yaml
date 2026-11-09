@@ -1,24 +1,10 @@
----
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./atuin-database.yaml
   - ./externalsecret.yaml
-  - ./forgejo-database.yaml
-  - ./grafana-database.yaml
-  - ./immich-database.yaml
-  - ./linkding-database.yaml
-  - ./lldap-database.yaml
-  - ./meet-database.yaml
-  - ./miniflux-database.yaml
   - ./networkpolicy.yaml
   - ./objectstore.yaml
-  - ./pinepods-database.yaml
-  - ./pocket-id-database.yaml
   - ./postgres-1.yaml
-  - ./prometheusrule.yaml
   - ./scheduledbackup.yaml
   # - ./service.yaml
-  - ./docs-database.yaml
-  - ./docs-yhub-database.yaml

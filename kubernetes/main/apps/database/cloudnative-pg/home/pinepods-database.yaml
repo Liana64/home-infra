@@ -2,14 +2,14 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: postgres-role-forgejo
+  name: postgres-role-pinepods
 spec:
   refreshPolicy: OnChange
   secretStoreRef:
     kind: ClusterSecretStore
     name: bitwarden-secrets-manager
   target:
-    name: postgres-role-forgejo
+    name: postgres-role-pinepods
     template:
       engineVersion: v2
       type: kubernetes.io/basic-auth
@@ -17,20 +17,20 @@ spec:
         labels:
           cnpg.io/reload: "true"
       data:
-        username: forgejo
+        username: pinepods
         password: "{{ .password }}"
   data:
     - secretKey: password
       remoteRef:
-        key: "2b97cb3d-61a4-4193-92fb-b4df00f84c99"
+        key: "7bb9fb26-61fa-4010-ab95-b4df00f8a970"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: forgejo
+  name: postgres-home-pinepods
 spec:
-  name: forgejo
-  owner: forgejo
+  name: pinepods
+  owner: pinepods
   cluster:
-    name: postgres-1
+    name: postgres-home
   ensure: present

@@ -31,7 +31,7 @@ spec:
               DJANGO_ALLOWED_HOSTS: &host "meet.${ORG_DOMAIN}"
               DJANGO_CSRF_TRUSTED_ORIGINS: &url "https://meet.${ORG_DOMAIN}"
               MEET_BASE_URL: *url
-              DB_HOST: postgres-1-rw.database.svc.cluster.local
+              DB_HOST: postgres-home-rw.database.svc.cluster.local
               DB_PORT: "5432"
               DB_NAME: meet
               OIDC_OP_AUTHORIZATION_ENDPOINT: https://id.${ORG_DOMAIN}/authorize

@@ -14,7 +14,7 @@ spec:
   prune: true
   dependsOn:
     - name: traefik
-    - name: cloudnative-pg-cluster
+    - name: cloudnative-pg-home
   sourceRef:
     kind: GitRepository
     name: home-infra

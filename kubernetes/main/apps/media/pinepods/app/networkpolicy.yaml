@@ -21,7 +21,7 @@ spec:
               protocol: TCP
     - fromEndpoints:
         - matchLabels:
-            cnpg.io/cluster: postgres-1
+            cnpg.io/cluster: postgres-home
             io.kubernetes.pod.namespace: database
   egress:
     - toEndpoints:
@@ -38,7 +38,7 @@ spec:
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: database
-            cnpg.io/cluster: postgres-1
+            cnpg.io/cluster: postgres-home
       toPorts:
         - ports:
             - port: "5432"

@@ -2,14 +2,14 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: postgres-role-grafana
+  name: postgres-role-docs-yhub
 spec:
   refreshPolicy: OnChange
   secretStoreRef:
     kind: ClusterSecretStore
     name: bitwarden-secrets-manager
   target:
-    name: postgres-role-grafana
+    name: postgres-role-docs-yhub
     template:
       engineVersion: v2
       type: kubernetes.io/basic-auth
@@ -17,20 +17,20 @@ spec:
         labels:
           cnpg.io/reload: "true"
       data:
-        username: grafana
+        username: docs_yhub
         password: "{{ .password }}"
   data:
     - secretKey: password
       remoteRef:
-        key: "f83be31b-e809-4a1c-961b-b4df00f8edce"
+        key: "1cdc2b25-1e0c-4f7d-8789-b4e101744980"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: grafana
+  name: postgres-home-docs-yhub
 spec:
-  name: grafana
-  owner: grafana
+  name: docs_yhub
+  owner: docs_yhub
   cluster:
-    name: postgres-1
+    name: postgres-home
   ensure: present

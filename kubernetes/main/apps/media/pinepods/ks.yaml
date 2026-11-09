@@ -11,7 +11,7 @@ spec:
       app.kubernetes.io/name: *app
   dependsOn:
     - name: traefik
-    - name: cloudnative-pg-cluster
+    - name: cloudnative-pg-home
     - name: volsync
     - name: kopia
   path: ./kubernetes/main/apps/media/pinepods/app

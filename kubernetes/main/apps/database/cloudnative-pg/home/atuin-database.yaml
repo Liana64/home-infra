@@ -2,14 +2,14 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: postgres-role-docs
+  name: postgres-role-atuin
 spec:
   refreshPolicy: OnChange
   secretStoreRef:
     kind: ClusterSecretStore
     name: bitwarden-secrets-manager
   target:
-    name: postgres-role-docs
+    name: postgres-role-atuin
     template:
       engineVersion: v2
       type: kubernetes.io/basic-auth
@@ -17,20 +17,20 @@ spec:
         labels:
           cnpg.io/reload: "true"
       data:
-        username: docs
+        username: atuin
         password: "{{ .password }}"
   data:
     - secretKey: password
       remoteRef:
-        key: "886381c0-bed6-4df1-979b-b4e1017419d2"
+        key: "d1f95550-a56b-4f5d-a3f9-b4df00f7fe4e"
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: docs
+  name: postgres-home-atuin
 spec:
-  name: docs
-  owner: docs
+  name: atuin
+  owner: atuin
   cluster:
-    name: postgres-1
+    name: postgres-home
   ensure: present

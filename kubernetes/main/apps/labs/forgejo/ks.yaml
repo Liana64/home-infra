@@ -14,7 +14,7 @@ spec:
     - name: traefik
     - name: volsync
     - name: kopia
-    - name: cloudnative-pg-cluster
+    - name: cloudnative-pg-home
   path: ./kubernetes/main/apps/labs/forgejo/app
   prune: true
   sourceRef:
@@ -28,4 +28,4 @@ spec:
     substitute:
       APP: *app
       VOLSYNC_SCHEDULE: "30 */6 * * *"
-      POSTGRES_HOST: postgres-1-rw.database.svc.cluster.local
+      POSTGRES_HOST: postgres-home-rw.database.svc.cluster.local
