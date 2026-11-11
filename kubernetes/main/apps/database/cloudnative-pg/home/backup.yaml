@@ -23,6 +23,13 @@ spec:
       encryption: AES256
       jobs: 2
   retentionPolicy: "30d"
+  instanceSidecarConfiguration:
+    resources:
+      requests:
+        cpu: 10m
+        memory: 256Mi
+      limits:
+        memory: 256Mi
 ---
 apiVersion: postgresql.cnpg.io/v1
 kind: ScheduledBackup
