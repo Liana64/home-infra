@@ -48,6 +48,26 @@ tasks:
       - kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"trigger":{"manual":"{{.ID}}"}}}'
       - kubectl -n {{.NS}} wait replicationsource/{{.APP}} --for=jsonpath='{.status.lastManualSync}'={{.ID}} --timeout=30m
 
+  all:
+    desc: Snapshot etcd, every CNPG cluster and every unpaused volsync source, e.g. "task backup:all"
+    vars:
+      CLUSTERS:
+        sh: kubectl -n database get clusters.postgresql.cnpg.io -o name | cut -d/ -f2
+      ID: "{{now | unixEpoch}}"
+    cmds:
+      - task: etcd
+      - for: { var: CLUSTERS }
+        task: postgres
+        vars: { PG: "{{.ITEM}}" }
+      - defer: |
+          kubectl get replicationsources -A -o json | jq -r '.items[] | select(.spec.trigger.manual == "{{.ID}}") | "\(.metadata.namespace) \(.metadata.name)"' |
+          while read -r ns n; do kubectl -n "$ns" patch replicationsource "$n" --type json -p '[{"op":"remove","path":"/spec/trigger/manual"}]'; done
+      - |
+        set -eu
+        srcs=$(kubectl get replicationsources -A -o json | jq -r '.items[] | select(.spec.paused != true) | "\(.metadata.namespace) \(.metadata.name)"')
+        echo "$srcs" | while read -r ns n; do kubectl -n "$ns" patch replicationsource "$n" --type merge -p '{"spec":{"trigger":{"manual":"{{.ID}}"}}}'; done
+        echo "$srcs" | while read -r ns n; do kubectl -n "$ns" wait replicationsource/"$n" --for=jsonpath='{.status.lastManualSync}'={{.ID}} --timeout=1h; done
+
   restore:
     desc: Restore a kopia snapshot e.g. "task backup:restore APP=linkding NS=home [PREVIOUS=1]"
     prompt: Scale down {{.NS}}/{{.APP}} and overwrite its PVC with a snapshot?

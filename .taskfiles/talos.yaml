@@ -37,7 +37,7 @@ tasks:
     desc: Render node configs from cluster.yaml, patches, nodes and the sops secrets bundle
     vars:
       IMAGE: &image
-        sh: echo "factory.talos.dev/nocloud-installer-secureboot/$(curl -fsS -X POST --data-binary @{{.TALOS_SCHEMATIC_FILE}} https://factory.talos.dev/schematics | jq -r .id):$(yq .talosVersion {{.TALOS_CLUSTER_FILE}})"
+        sh: id=$(curl -fsS -X POST --data-binary @{{.TALOS_SCHEMATIC_FILE}} https://factory.talos.dev/schematics | jq -er .id) && echo "factory.talos.dev/nocloud-installer-secureboot/$id:$(yq .talosVersion {{.TALOS_CLUSTER_FILE}})"
     cmds:
       - |
         if [ ! -f "{{.TALOS_SECRET_FILE}}" ]; then
@@ -132,6 +132,60 @@ tasks:
       - *talosinfo
       - msg: Node not found
         sh: "talosctl --nodes {{.node}} get machineconfig >/dev/null 2>&1"
+
+  upgrade-all:
+    desc: Optionally back up, then upgrade nodes one at a time (control planes first), skipping current ones eg "task talos:upgrade-all [nodes=n3] [-- --reboot-mode=powercycle]"
+    interactive: true
+    vars:
+      NODES:
+        sh: '{{if .nodes}}echo {{.nodes}}{{else}}yq ".nodes | to_entries | sort_by(.value.role) | .[].key" {{.TALOS_CLUSTER_FILE}}{{end}}'
+    cmds:
+      - task: health
+      - |
+        read -rp "Backup all first? [y/N] " a
+        case $a in [yY]*) {{.TASK_EXE}} -t {{.ROOT_TASKFILE}} backup:all ;; esac
+      - for: { var: NODES }
+        task: upgrade-node
+        vars: { name: "{{.ITEM}}" }
+      - &cnpg kubectl wait clusters.postgresql.cnpg.io -A --all --for=jsonpath='{.status.phase}'='Cluster in healthy state' --timeout=30m
+      - task: health
+    preconditions:
+      - *cluster
+      - *talosconfig
+      - *talosinfo
+
+  upgrade-node:
+    internal: true
+    interactive: true
+    vars:
+      IMAGE: *image
+      IP:
+        sh: yq '.nodes.{{.name}}.ip' {{.TALOS_CLUSTER_FILE}}
+      VERSION:
+        sh: yq .talosVersion {{.TALOS_CLUSTER_FILE}}
+    status:
+      - test "$(talosctl -n {{.IP}} get extensions -o json | jq -r 'select(.spec.metadata.name == "schematic").spec.metadata.version'):$(talosctl -n {{.IP}} version --short | awk '/Tag:/ {print $2}')" = "{{splitList "/" .IMAGE | last}}"
+    preconditions:
+      - msg: "{{.name}} is not in cluster.yaml or unreachable"
+        sh: talosctl -n {{.IP}} version >/dev/null 2>&1
+      - msg: "{{.name}} is more than one minor version behind {{.VERSION}}; enumerate each minor version"
+        sh: test $(( $(echo {{.VERSION}} | cut -d. -f2) - $(talosctl -n {{.IP}} version --short | awk -F. '/Tag:/ {print $2}') )) -le 1
+    cmds:
+      - *cnpg
+      - |
+        set -eu
+        kubectl get clusters.postgresql.cnpg.io -A -o json | jq -r '.items[] | "\(.metadata.namespace) \(.metadata.name) \(.status.currentPrimary)"' |
+        while read -r ns c p; do
+          [ "$(kubectl -n "$ns" get pod "$p" -o jsonpath='{.spec.nodeName}')" = {{.name}} ] || continue
+          t=$(kubectl -n "$ns" get pods -l cnpg.io/cluster="$c",cnpg.io/instanceRole=replica -o json | jq -r --arg n {{.name}} '[.items[]
+            | select(.spec.nodeName != $n and any(.status.conditions[]?; .type == "Ready" and .status == "True"))][0].metadata.name // empty')
+          [ -n "$t" ] || { echo "$ns/$c: no ready replica off {{.name}}" >&2; exit 1; }
+          kubectl -n "$ns" patch clusters.postgresql.cnpg.io "$c" --subresource=status --type=merge \
+            -p "{\"status\":{\"targetPrimary\":\"$t\",\"phase\":\"Switchover in progress\",\"phaseReason\":\"Switching over to $t\"}}"
+          kubectl -n "$ns" wait clusters.postgresql.cnpg.io/"$c" --for=jsonpath='{.status.currentPrimary}'="$t" --timeout=5m
+        done
+      - task: upgrade
+        vars: { node: "{{.IP}}" }
 
   upgrade-k8s:
     desc: Upgrade Kubernetes to cluster.yaml's kubernetesVersion eg "task talos:upgrade-k8s [-- --dry-run]"
