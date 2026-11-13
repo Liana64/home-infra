@@ -142,7 +142,7 @@ spec:
             # renovate: datasource=docker depName=lasuite/impress-frontend
             image:
               repository: lasuite/impress-frontend
-              tag: v6.0.4@sha256:611c6fe647de5975b9c85fa3500188ad49c74c208e32a6470e221f90d1506a31
+              tag: v6.1.0@sha256:35f833d01747f97f042b7bf206b50ed7153da293e1214d212bd6f959e33b18a8
             probes:
               liveness: &frontendProbes
                 enabled: true
