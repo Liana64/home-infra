@@ -7,6 +7,5 @@ resources:
   - ./networkpolicy.yaml
   - ./echo-server/ks.yaml
   - ./it-tools/ks.yaml
-  - ./web-check/ks.yaml
   - ./blog/ks.yaml
   - ./opengist-org/ks.yaml
