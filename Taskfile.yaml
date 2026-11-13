@@ -58,3 +58,18 @@ tasks:
       - task: precommit:run
       - task: kubernetes:kubeconform
       - task: sops:check
+
+  archive:
+    desc: Archive an app, e.g. "task archive APP=foo NS=home"
+    requires:
+      vars: [APP, NS]
+    vars:
+      NS_DIR: "{{.KUBERNETES_DIR}}/{{.CLUSTER}}/apps/{{.NS}}"
+      DEST: "{{.KUBERNETES_DIR}}/archive/{{.NS}}"
+    cmds:
+      - APP={{.APP}} yq -i '.resources -= ["./" + strenv(APP) + "/ks.yaml"]' {{.NS_DIR}}/kustomization.yaml
+      - mkdir -p {{.DEST}}
+      - mv {{.NS_DIR}}/{{.APP}} {{.DEST}}/
+    preconditions:
+      - { msg: "Missing app {{.NS_DIR}}/{{.APP}}", sh: "test -d {{.NS_DIR}}/{{.APP}}" }
+      - { msg: "Already archived {{.DEST}}/{{.APP}}", sh: "test ! -e {{.DEST}}/{{.APP}}" }
