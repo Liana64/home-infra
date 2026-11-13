@@ -39,34 +39,39 @@ tasks:
       - test "$(kubectl -n kube-system get job {{.NAME}} -o jsonpath='{.status.succeeded}')" = 1
 
   volsync:
-    desc: Snapshot an app on-demand, e.g. "task backup:volsync APP=linkding NS=home"
-    requires:
-      vars: [APP, NS]
+    desc: Snapshot unpaused volsync sources via temporary copies, e.g. "task backup:volsync [APP=linkding NS=home]"
     vars:
       ID: "{{now | unixEpoch}}"
     cmds:
-      - kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"trigger":{"manual":"{{.ID}}"}}}'
-      - kubectl -n {{.NS}} wait replicationsource/{{.APP}} --for=jsonpath='{.status.lastManualSync}'={{.ID}} --timeout=30m
+      - defer: kubectl delete replicationsources -A -l backup/run={{.ID}} --ignore-not-found
+      - |
+        kubectl get replicationsources {{if .APP}}-n {{.NS}} --field-selector metadata.name={{.APP}}{{else}}-A{{end}} -o json |
+        jq --arg id {{.ID}} '{apiVersion: "v1", kind: "List", items: [.items[] | select(.spec.paused != true) | .metadata as $m | {apiVersion, kind,
+          metadata: {name: "\($m.name)-manual", namespace: $m.namespace, labels: {"backup/run": $id}},
+          spec: (.spec | .trigger = {manual: $id} | .kopia = {username: $m.name, hostname: $m.namespace} + .kopia)}]}' |
+        kubectl create -f -
+      - kubectl wait replicationsources -A -l backup/run={{.ID}} --for=jsonpath='{.status.lastManualSync}'={{.ID}} --timeout=1h
+      - kubectl wait replicationsources -A -l backup/run={{.ID}} --for=jsonpath='{.status.latestMoverStatus.result}'=Successful --timeout=10s
+    preconditions:
+      - msg: APP requires NS
+        sh: test -z "{{.APP}}" || test -n "{{.NS}}"
 
-  all:
-    desc: Snapshot etcd, every CNPG cluster and every unpaused volsync source, e.g. "task backup:all"
+  data:
+    desc: Snapshot every CNPG cluster and every unpaused volsync source, e.g. "task backup:data"
     vars:
       CLUSTERS:
         sh: kubectl -n database get clusters.postgresql.cnpg.io -o name | cut -d/ -f2
-      ID: "{{now | unixEpoch}}"
     cmds:
-      - task: etcd
       - for: { var: CLUSTERS }
         task: postgres
         vars: { PG: "{{.ITEM}}" }
-      - defer: |
-          kubectl get replicationsources -A -o json | jq -r '.items[] | select(.spec.trigger.manual == "{{.ID}}") | "\(.metadata.namespace) \(.metadata.name)"' |
-          while read -r ns n; do kubectl -n "$ns" patch replicationsource "$n" --type json -p '[{"op":"remove","path":"/spec/trigger/manual"}]'; done
-      - |
-        set -eu
-        srcs=$(kubectl get replicationsources -A -o json | jq -r '.items[] | select(.spec.paused != true) | "\(.metadata.namespace) \(.metadata.name)"')
-        echo "$srcs" | while read -r ns n; do kubectl -n "$ns" patch replicationsource "$n" --type merge -p '{"spec":{"trigger":{"manual":"{{.ID}}"}}}'; done
-        echo "$srcs" | while read -r ns n; do kubectl -n "$ns" wait replicationsource/"$n" --for=jsonpath='{.status.lastManualSync}'={{.ID}} --timeout=1h; done
+      - task: volsync
+
+  all:
+    desc: Snapshot etcd and all data, e.g. "task backup:all"
+    cmds:
+      - task: etcd
+      - task: data
 
   restore:
     desc: Restore a kopia snapshot e.g. "task backup:restore APP=linkding NS=home [PREVIOUS=1]"
@@ -106,7 +111,7 @@ tasks:
           {{- range splitLines .WORKLOADS}}{{if .}}
             kubectl -n {{$.NS}} scale {{splitList "=" . | first}} --replicas={{splitList "=" . | last}}
           {{- end}}{{end}}
-            kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"paused":false}}'
+            kubectl -n {{.NS}} patch replicationsource {{.APP}} --field-manager=backup --type merge -p '{"spec":{"paused":false}}'
           {{- range splitLines .RELEASES}}{{if .}}
             flux -n {{$.NS}} resume helmrelease {{.}}
           {{- end}}{{end}}
@@ -115,7 +120,7 @@ tasks:
         silent: true
       - for: { var: RELEASES }
         cmd: flux -n {{.NS}} suspend helmrelease {{.ITEM}}
-      - kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"paused":true}}'
+      - kubectl -n {{.NS}} patch replicationsource {{.APP}} --field-manager=backup --type merge -p '{"spec":{"paused":true}}'
       - for: { var: WORKLOADS }
         cmd: kubectl -n {{.NS}} scale {{splitList "=" .ITEM | first}} --replicas=0
       - test -z "{{catLines .PODS}}" || kubectl -n {{.NS}} wait {{catLines .PODS}} --for=delete --timeout=5m
@@ -159,7 +164,7 @@ tasks:
       - kubectl -n {{.NS}} delete replicationdestination {{.APP}}-restore
       - for: { var: WORKLOADS }
         cmd: kubectl -n {{.NS}} scale {{splitList "=" .ITEM | first}} --replicas={{splitList "=" .ITEM | last}}
-      - kubectl -n {{.NS}} patch replicationsource {{.APP}} --type merge -p '{"spec":{"paused":false}}'
+      - kubectl -n {{.NS}} patch replicationsource {{.APP}} --field-manager=backup --type merge -p '{"spec":{"paused":false}}'
       - for: { var: RELEASES }
         cmd: flux -n {{.NS}} resume helmrelease {{.ITEM}}
 

@@ -142,8 +142,11 @@ tasks:
     cmds:
       - task: health
       - |
-        read -rp "Backup all first? [y/N] " a
-        case $a in [yY]*) {{.TASK_EXE}} -t {{.ROOT_TASKFILE}} backup:all ;; esac
+        set -e
+        read -rp "Backup etcd? [Y/n] " e
+        read -rp "Backup data (CNPG + volsync)? [y/N] " d
+        case $e in [nN]*) ;; *) {{.TASK_EXE}} -t {{.ROOT_TASKFILE}} backup:etcd ;; esac
+        case $d in [yY]*) {{.TASK_EXE}} -t {{.ROOT_TASKFILE}} backup:data ;; esac
       - for: { var: NODES }
         task: upgrade-node
         vars: { name: "{{.ITEM}}" }
