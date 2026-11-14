@@ -1,0 +1,173 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/v1.26.1-standalone-strict/configmap-v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wan-flows-dashboard
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: Network
+data:
+  wan-flows.json: |
+    {
+      "annotations": { "list": [] },
+      "editable": false,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 1,
+      "id": null,
+      "links": [],
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "WAN throughput",
+          "description": "Flows are exported when they end or hit the active timeout, so long transfers land in bursts.",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "min": 0,
+              "custom": {
+                "drawStyle": "line",
+                "lineWidth": 2,
+                "fillOpacity": 10,
+                "spanNulls": true
+              }
+            },
+            "overrides": [
+              {
+                "matcher": { "id": "byName", "options": "Download" },
+                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#3987e5" } }]
+              },
+              {
+                "matcher": { "id": "byName", "options": "Upload" },
+                "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#199e70" } }]
+              }
+            ]
+          },
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "none" }
+          },
+          "targets": [
+            {
+              "expr": "sum(rate({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__auto])) * 8",
+              "legendFormat": "Download",
+              "refId": "A"
+            },
+            {
+              "expr": "sum(rate({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__auto])) * 8",
+              "legendFormat": "Upload",
+              "refId": "B"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "WAN throughput by IP version",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "gridPos": { "h": 9, "w": 12, "x": 0, "y": 9 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "min": 0,
+              "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 0, "spanNulls": true }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "sum by (etype) (rate({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__auto])) * 8",
+              "legendFormat": "Down {{etype}}",
+              "refId": "A"
+            },
+            {
+              "expr": "sum by (etype) (rate({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__auto])) * 8",
+              "legendFormat": "Up {{etype}}",
+              "refId": "B"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "title": "WAN interface finder",
+          "description": "Bytes from public IPv4 sources by ingress interface. The top in_if is the WAN; set it as wan_if.",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "gridPos": { "h": 9, "w": 12, "x": 12, "y": 9 },
+          "fieldConfig": { "defaults": { "unit": "decbytes" }, "overrides": [] },
+          "options": { "showHeader": true, "sortBy": [{ "displayName": "Last *", "desc": true }] },
+          "transformations": [
+            { "id": "reduce", "options": { "reducers": ["lastNotNull"], "labelsToFields": true } }
+          ],
+          "targets": [
+            {
+              "expr": "sum by (sampler_address, in_if) (sum_over_time({app=\"goflow2\"} | json | etype=\"IPv4\" | src_addr !~ `(10|127|192\\.168|172\\.(1[6-9]|2[0-9]|3[01]))\\..*` | unwrap bytes | __error__=\"\" [$__range]))",
+              "queryType": "instant",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Top local hosts: download",
+          "description": "IPv4 behind NAT shows the WAN address; IPv6 shows the host.",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "gridPos": { "h": 10, "w": 12, "x": 0, "y": 18 },
+          "fieldConfig": { "defaults": { "unit": "decbytes" }, "overrides": [] },
+          "options": { "showHeader": true, "sortBy": [{ "displayName": "Last *", "desc": true }] },
+          "transformations": [
+            { "id": "reduce", "options": { "reducers": ["lastNotNull"], "labelsToFields": true } }
+          ],
+          "targets": [
+            {
+              "expr": "topk(15, sum by (dst_addr) (sum_over_time({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__range])))",
+              "queryType": "instant",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "title": "Top local hosts: upload",
+          "datasource": { "type": "loki", "uid": "loki" },
+          "gridPos": { "h": 10, "w": 12, "x": 12, "y": 18 },
+          "fieldConfig": { "defaults": { "unit": "decbytes" }, "overrides": [] },
+          "options": { "showHeader": true, "sortBy": [{ "displayName": "Last *", "desc": true }] },
+          "transformations": [
+            { "id": "reduce", "options": { "reducers": ["lastNotNull"], "labelsToFields": true } }
+          ],
+          "targets": [
+            {
+              "expr": "topk(15, sum by (src_addr) (sum_over_time({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__range])))",
+              "queryType": "instant",
+              "refId": "A"
+            }
+          ]
+        }
+      ],
+      "schemaVersion": 39,
+      "tags": ["network"],
+      "templating": {
+        "list": [
+          {
+            "name": "wan_if",
+            "label": "WAN ifindex",
+            "type": "textbox",
+            "query": "",
+            "description": "SNMP ifindex of the OPNsense WAN interface; see WAN interface finder"
+          }
+        ]
+      },
+      "time": { "from": "now-24h", "to": "now" },
+      "timepicker": {},
+      "timezone": "browser",
+      "title": "WAN flows",
+      "uid": "wan-flows",
+      "version": 1,
+      "weekStart": ""
+    }
