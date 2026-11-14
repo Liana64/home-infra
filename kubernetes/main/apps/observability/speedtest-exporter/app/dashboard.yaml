@@ -50,7 +50,7 @@ data:
           },
           "targets": [
             {
-              "expr": "max(last_over_time(speedtest_download_bits_per_second[3h]))",
+              "expr": "max(last_over_time(speedtest_download_bits_per_second[8d]))",
               "instant": true,
               "refId": "A"
             }
@@ -76,7 +76,7 @@ data:
           },
           "targets": [
             {
-              "expr": "max(last_over_time(speedtest_upload_bits_per_second[3h]))",
+              "expr": "max(last_over_time(speedtest_upload_bits_per_second[8d]))",
               "instant": true,
               "refId": "A"
             }
@@ -102,7 +102,7 @@ data:
           },
           "targets": [
             {
-              "expr": "max(last_over_time(speedtest_ping_latency_milliseconds[3h]))",
+              "expr": "max(last_over_time(speedtest_ping_latency_milliseconds[8d]))",
               "instant": true,
               "refId": "A"
             }
@@ -128,7 +128,7 @@ data:
           },
           "targets": [
             {
-              "expr": "max(last_over_time(speedtest_jitter_latency_milliseconds[3h]))",
+              "expr": "max(last_over_time(speedtest_jitter_latency_milliseconds[8d]))",
               "instant": true,
               "refId": "A"
             }
@@ -154,7 +154,7 @@ data:
           },
           "targets": [
             {
-              "expr": "time() - max(max_over_time(timestamp(speedtest_up)[24h:1m]))",
+              "expr": "time() - max(max_over_time(timestamp(speedtest_up)[8d:5m]))",
               "instant": true,
               "refId": "A"
             }
@@ -164,7 +164,6 @@ data:
           "type": "timeseries",
           "title": "Bandwidth",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "interval": "1h",
           "gridPos": { "h": 10, "w": 12, "x": 0, "y": 4 },
           "fieldConfig": {
             "defaults": {
@@ -215,7 +214,6 @@ data:
           "type": "timeseries",
           "title": "Latency",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "interval": "1h",
           "gridPos": { "h": 10, "w": 12, "x": 12, "y": 4 },
           "fieldConfig": {
             "defaults": {
@@ -266,7 +264,7 @@ data:
       "schemaVersion": 39,
       "tags": ["network"],
       "templating": { "list": [] },
-      "time": { "from": "now-7d", "to": "now" },
+      "time": { "from": "now-14d", "to": "now" },
       "timepicker": {},
       "timezone": "browser",
       "title": "Speedtest",

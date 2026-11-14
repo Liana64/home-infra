@@ -156,7 +156,7 @@ pages:
           - type: custom-api
             title: Speedtest
             cache: 1h
-            url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090/api/v1/query?query=last_over_time(%7B__name__%3D~%22speedtest_(download_bits_per_second%7Cupload_bits_per_second%7Cping_latency_milliseconds)%22%7D%5B24h%5D)
+            url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090/api/v1/query?query=last_over_time(%7B__name__%3D~%22speedtest_(download_bits_per_second%7Cupload_bits_per_second%7Cping_latency_milliseconds)%22%7D%5B8d%5D)
             template: |
               {{ $down := .JSON.Float `data.result.#(metric.__name__=="speedtest_download_bits_per_second").value.1` }}
               {{ $up := .JSON.Float `data.result.#(metric.__name__=="speedtest_upload_bits_per_second").value.1` }}
@@ -194,7 +194,7 @@ pages:
                   - title: Forgejo
                     url: https://git.milberry.org
                   - title: Speedtest
-                    url: https://grafana.labs.lianas.org/d/speedtest/speedtest?orgId=1&from=now-7d&to=now&timezone=browser
+                    url: https://grafana.labs.lianas.org/d/speedtest/speedtest?orgId=1&from=now-14d&to=now&timezone=browser
               - title: Links
                 links:
                   - title: Weekly Meal Plan
