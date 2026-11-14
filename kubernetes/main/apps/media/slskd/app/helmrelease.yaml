@@ -89,6 +89,7 @@ spec:
               SLSKD_SHARED_DIR: /media/Music
               # KiB/s
               SLSKD_UPLOAD_SPEED_LIMIT: 22700
+              SLSKD_DOWNLOAD_SPEED_LIMIT: 12000
               # minutes
               SLSKD_SHARE_CACHE_RETENTION: 60
               SLSKD_CONFIG: /config/slskd.yml

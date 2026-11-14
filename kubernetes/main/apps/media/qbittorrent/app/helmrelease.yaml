@@ -107,9 +107,9 @@ spec:
               QBT_BitTorrent__Session__MaxUploads: -1
               QBT_BitTorrent__Session__MaxUploadsPerTorrent: -1
               # KiB/s
-              QBT_BitTorrent__Session__GlobalDLSpeedLimit: 52000
+              QBT_BitTorrent__Session__GlobalDLSpeedLimit: 36000
               QBT_BitTorrent__Session__GlobalUPSpeedLimit: 23000
-              QBT_BitTorrent__Session__AlternativeGlobalDLSpeedLimit: 80000
+              QBT_BitTorrent__Session__AlternativeGlobalDLSpeedLimit: 60000
               QBT_BitTorrent__Session__AlternativeGlobalUPSpeedLimit: 35000
               QBT_BitTorrent__Session__GlobalMaxRatio: 4
               QBT_BitTorrent__Session__ShareLimitAction: Stop
