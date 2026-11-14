@@ -65,7 +65,7 @@ tasks:
       vars: [APP, NS]
     vars:
       NS_DIR: "{{.KUBERNETES_DIR}}/{{.CLUSTER}}/apps/{{.NS}}"
-      DEST: "{{.KUBERNETES_DIR}}/archive/{{.NS}}"
+      DEST: "{{.ROOT_DIR}}/.archive/{{.NS}}"
     cmds:
       - APP={{.APP}} yq -i '.resources -= ["./" + strenv(APP) + "/ks.yaml"]' {{.NS_DIR}}/kustomization.yaml
       - mkdir -p {{.DEST}}
