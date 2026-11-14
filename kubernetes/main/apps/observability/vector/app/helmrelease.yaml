@@ -59,6 +59,7 @@ spec:
       app:
         controller: vector
         type: LoadBalancer
+        externalTrafficPolicy: Local
         annotations:
           lbipam.cilium.io/ips: "${LB_VECTOR_TALOS}"
         ports:
