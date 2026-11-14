@@ -221,3 +221,12 @@ spec:
           expr: (kube_pod_container_status_restarts_total - kube_pod_container_status_restarts_total offset 10m >= 1) and ignoring (reason) min_over_time(kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}[10m]) == 1
           labels:
             severity: critical
+    - name: general
+      rules:
+        - alert: TargetDown
+          annotations:
+            summary: "{{ printf \"%.4g\" $value }}% of {{ $labels.job }}/{{ $labels.service }} targets in {{ $labels.namespace }} are down"
+          expr: 100 * (count by (cluster, job, namespace, service) (up{job!="scrapeConfig/observability/catbox"} == 0) / count by (cluster, job, namespace, service) (up)) > 10
+          for: 10m
+          labels:
+            severity: warning
