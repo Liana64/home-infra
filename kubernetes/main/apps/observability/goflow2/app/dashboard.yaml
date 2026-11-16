@@ -158,7 +158,8 @@ data:
             "name": "wan_if",
             "label": "WAN ifindex",
             "type": "textbox",
-            "query": "",
+            "query": "2",
+            "current": { "text": "2", "value": "2" },
             "description": "SNMP ifindex of the OPNsense WAN interface; see WAN interface finder"
           }
         ]
@@ -166,8 +167,8 @@ data:
       "time": { "from": "now-24h", "to": "now" },
       "timepicker": {},
       "timezone": "browser",
-      "title": "WAN flows",
-      "uid": "wan-flows",
+      "title": "Netflow",
+      "uid": "netflow",
       "version": 1,
       "weekStart": ""
     }
