@@ -1,0 +1,31 @@
+---
+formatter:
+  fields:
+    - type
+    - time_received_ns
+    - sampler_address
+    - time_flow_start_ns
+    - time_flow_end_ns
+    - in_bytes
+    - in_packets
+    - src_addr
+    - dst_addr
+    - etype
+    - proto
+    - src_port
+    - dst_port
+    - in_if
+    - out_if
+  protobuf:
+    - name: in_bytes
+      index: 1001
+      type: varint
+    - name: in_packets
+      index: 1002
+      type: varint
+netflowv9:
+  mapping:
+    - field: 1
+      destination: in_bytes
+    - field: 2
+      destination: in_packets

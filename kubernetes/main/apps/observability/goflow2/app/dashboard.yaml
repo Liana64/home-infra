@@ -52,12 +52,12 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__auto])) * 8",
+              "expr": "sum(rate({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__auto])) * 8",
               "legendFormat": "Download",
               "refId": "A"
             },
             {
-              "expr": "sum(rate({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__auto])) * 8",
+              "expr": "sum(rate({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__auto])) * 8",
               "legendFormat": "Upload",
               "refId": "B"
             }
@@ -82,12 +82,12 @@ data:
           },
           "targets": [
             {
-              "expr": "sum by (etype) (rate({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__auto])) * 8",
+              "expr": "sum by (etype) (rate({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__auto])) * 8",
               "legendFormat": "Down {{etype}}",
               "refId": "A"
             },
             {
-              "expr": "sum by (etype) (rate({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__auto])) * 8",
+              "expr": "sum by (etype) (rate({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__auto])) * 8",
               "legendFormat": "Up {{etype}}",
               "refId": "B"
             }
@@ -106,7 +106,7 @@ data:
           ],
           "targets": [
             {
-              "expr": "sum by (sampler_address, in_if) (sum_over_time({app=\"goflow2\"} | json | etype=\"IPv4\" | src_addr !~ `(10|127|192\\.168|172\\.(1[6-9]|2[0-9]|3[01]))\\..*` | unwrap bytes | __error__=\"\" [$__range]))",
+              "expr": "sum by (sampler_address, in_if) (sum_over_time({app=\"goflow2\"} | json | etype=\"IPv4\" | src_addr !~ `(10|127|192\\.168|172\\.(1[6-9]|2[0-9]|3[01]))\\..*` | unwrap in_bytes | __error__=\"\" [$__range]))",
               "queryType": "instant",
               "refId": "A"
             }
@@ -125,7 +125,7 @@ data:
           ],
           "targets": [
             {
-              "expr": "topk(15, sum by (dst_addr) (sum_over_time({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__range])))",
+              "expr": "topk(15, sum by (dst_addr) (sum_over_time({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__range])))",
               "queryType": "instant",
               "refId": "A"
             }
@@ -143,7 +143,7 @@ data:
           ],
           "targets": [
             {
-              "expr": "topk(15, sum by (src_addr) (sum_over_time({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap bytes | __error__=\"\" [$__range])))",
+              "expr": "topk(15, sum by (src_addr) (sum_over_time({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__range])))",
               "queryType": "instant",
               "refId": "A"
             }

@@ -6,3 +6,9 @@ resources:
   - ./networkpolicy.yaml
   - ./helmrelease.yaml
   - ./dashboard.yaml
+configMapGenerator:
+  - name: goflow2-configmap
+    files:
+      - mapping.yaml=./resources/mapping.yaml
+generatorOptions:
+  disableNameSuffixHash: true
