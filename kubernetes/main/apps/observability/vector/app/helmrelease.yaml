@@ -26,7 +26,7 @@ spec:
             # renovate: datasource=docker depName=timberio/vector
             image:
               repository: timberio/vector
-              tag: 0.61.0-distroless-static@sha256:6901c28cc86ed3d41880198dad12ba7b6df83efdf9c61c0c175d23980689a16f
+              tag: 0.62.0-distroless-static@sha256:85c478aa4ab29d17f61aa28afe92da7f506a95cae0ec275ba139558e7816e656
             args: ["--config", "/etc/vector/vector.yaml"]
             probes:
               liveness: &probes
