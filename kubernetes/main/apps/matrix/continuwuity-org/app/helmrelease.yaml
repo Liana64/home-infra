@@ -144,7 +144,22 @@ spec:
         tls:
           - secretName: *tls
             hosts: [*host]
-      # delegation for the apex server_name; the blog serves / on this host
+      version:
+        className: traefik-external
+        annotations:
+          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-chain-matrix@kubernetescrd,matrix-continuwuity-org-hide-version@kubernetescrd"
+        hosts:
+          - host: *host
+            paths:
+              - path: /_matrix/federation/v1/version
+                service: *svc
+              - path: /_continuwuity/server_version
+                service: *svc
+        tls:
+          - secretName: *tls
+            hosts: [*host]
+      # delegation for the apex server_name; landing-org serves / on this host
       wellknown:
         className: traefik-external
         annotations:

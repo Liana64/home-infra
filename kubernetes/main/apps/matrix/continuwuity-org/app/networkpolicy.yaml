@@ -62,6 +62,7 @@ spec:
             - "matrix.${ORG_DOMAIN}"
             - "${PERSONAL_DOMAIN}"
             - "matrix.${PERSONAL_DOMAIN}"
+            - "ntfy.${PERSONAL_DOMAIN}"
     - toEndpoints:
         - matchLabels:
             io.kubernetes.pod.namespace: networking
