@@ -91,24 +91,6 @@ spec:
         tls:
           - secretName: blog-tls
             hosts: [*host]
-      # ORG_DOMAIN split out: anubis pass cookies are per-registrable-domain,
-      # so this host needs the org anubis chain.
-      org:
-        className: traefik-external
-        annotations:
-          cert-manager.io/cluster-issuer: "letsencrypt-production"
-          traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
-          traefik.ingress.kubernetes.io/router.middlewares: "networking-traefik-middleware-ratelimit-streaming@kubernetescrd,networking-traefik-middleware-chain-hugo-org@kubernetescrd"
-        hosts:
-          - host: &orgHost "${ORG_DOMAIN}"
-            paths:
-              - path: /
-                service:
-                  identifier: app
-                  port: http
-        tls:
-          - secretName: blog-org-tls
-            hosts: [*orgHost]
 
     persistence:
       tmp:

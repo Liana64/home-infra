@@ -1,0 +1,14 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./networkpolicy.yaml
+  - ./helmrelease.yaml
+configMapGenerator:
+  - name: landing-org-configmap
+    files:
+      - index.html=./resources/index.html
+      - nginx.conf=./resources/nginx.conf
+generatorOptions:
+  disableNameSuffixHash: true
