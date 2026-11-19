@@ -56,3 +56,21 @@ spec:
     - { kind: HelmRelease, name: "*", namespace: system }
     - { kind: HelmRelease, name: "*", namespace: system-controllers }
     - { kind: HelmRelease, name: "*", namespace: volsync-system }
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/notification.toolkit.fluxcd.io/alert_v1beta3.json
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: continuwuity-upgrades
+  namespace: flux-system
+spec:
+  providerRef:
+    name: alertmanager
+  eventSeverity: info
+  eventMetadata:
+    cluster: "${CLUSTER_NAME}"
+  inclusionList:
+    - "^Helm upgrade succeeded"
+  eventSources:
+    - { kind: HelmRelease, name: continuwuity-org, namespace: matrix }
+    - { kind: HelmRelease, name: continuwuity-personal, namespace: matrix }

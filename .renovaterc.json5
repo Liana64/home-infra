@@ -64,6 +64,13 @@
       groupName: "pgvector",
     },
     {
+      matchPackageNames: ["forgejo.ellis.link/continuwuation/continuwuity"],
+      matchUpdateTypes: ["patch"],
+      minimumReleaseAge: "1 day",
+      automerge: true,
+      ignoreTests: true,
+    },
+    {
       matchPackageNames: [
         "ghcr.io/liana64/mautrix-**",
         "ghcr.io/liana64/sec-tools",
