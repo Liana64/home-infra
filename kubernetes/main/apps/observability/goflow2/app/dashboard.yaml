@@ -97,20 +97,20 @@ data:
               "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 30, "stacking": { "mode": "normal" }, "spanNulls": true }
             },
             "overrides": [
-              { "matcher": { "id": "byName", "options": "8" }, "properties": [{ "id": "displayName", "value": "CLUSTER" }] },
-              { "matcher": { "id": "byName", "options": "9" }, "properties": [{ "id": "displayName", "value": "CLUSTER_STORAGE" }] },
-              { "matcher": { "id": "byName", "options": "10" }, "properties": [{ "id": "displayName", "value": "FAMILY_VPN" }] },
-              { "matcher": { "id": "byName", "options": "11" }, "properties": [{ "id": "displayName", "value": "GUEST" }] },
-              { "matcher": { "id": "byName", "options": "12" }, "properties": [{ "id": "displayName", "value": "HOME" }] },
-              { "matcher": { "id": "byName", "options": "13" }, "properties": [{ "id": "displayName", "value": "IOT" }] },
-              { "matcher": { "id": "byName", "options": "14" }, "properties": [{ "id": "displayName", "value": "LAB" }] },
-              { "matcher": { "id": "byName", "options": "15" }, "properties": [{ "id": "displayName", "value": "LAYER3" }] },
-              { "matcher": { "id": "byName", "options": "16" }, "properties": [{ "id": "displayName", "value": "MX" }] },
-              { "matcher": { "id": "byName", "options": "17" }, "properties": [{ "id": "displayName", "value": "OPS" }] },
-              { "matcher": { "id": "byName", "options": "21" }, "properties": [{ "id": "displayName", "value": "VPN" }] },
-              { "matcher": { "id": "byName", "options": "22" }, "properties": [{ "id": "displayName", "value": "STORAGE" }] },
-              { "matcher": { "id": "byName", "options": "23" }, "properties": [{ "id": "displayName", "value": "VPN_BRIDGE" }] },
-              { "matcher": { "id": "byName", "options": "24" }, "properties": [{ "id": "displayName", "value": "WORK" }] }
+              { "matcher": { "id": "byName", "options": "8" }, "properties": [{ "id": "displayName", "value": "CLUSTER" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#3274d9" } }] },
+              { "matcher": { "id": "byName", "options": "9" }, "properties": [{ "id": "displayName", "value": "CLUSTER_STORAGE" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#8ab8ff" } }] },
+              { "matcher": { "id": "byName", "options": "10" }, "properties": [{ "id": "displayName", "value": "FAMILY_VPN" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#ffb357" } }] },
+              { "matcher": { "id": "byName", "options": "11" }, "properties": [{ "id": "displayName", "value": "GUEST" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#fade2a" } }] },
+              { "matcher": { "id": "byName", "options": "12" }, "properties": [{ "id": "displayName", "value": "HOME" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#73bf69" } }] },
+              { "matcher": { "id": "byName", "options": "13" }, "properties": [{ "id": "displayName", "value": "IOT" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#f2495c" } }] },
+              { "matcher": { "id": "byName", "options": "14" }, "properties": [{ "id": "displayName", "value": "LAB" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#ff7383" } }] },
+              { "matcher": { "id": "byName", "options": "15" }, "properties": [{ "id": "displayName", "value": "LAYER3" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#8f8f8f" } }] },
+              { "matcher": { "id": "byName", "options": "16" }, "properties": [{ "id": "displayName", "value": "MX" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#c8a26b" } }] },
+              { "matcher": { "id": "byName", "options": "17" }, "properties": [{ "id": "displayName", "value": "OPS" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#37872d" } }] },
+              { "matcher": { "id": "byName", "options": "21" }, "properties": [{ "id": "displayName", "value": "VPN" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#ca95e5" } }] },
+              { "matcher": { "id": "byName", "options": "22" }, "properties": [{ "id": "displayName", "value": "STORAGE" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#c4162a" } }] },
+              { "matcher": { "id": "byName", "options": "23" }, "properties": [{ "id": "displayName", "value": "VPN_BRIDGE" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#8f3bb8" } }] },
+              { "matcher": { "id": "byName", "options": "24" }, "properties": [{ "id": "displayName", "value": "WORK" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#46c8c8" } }] }
             ]
           },
           "options": {
@@ -139,20 +139,20 @@ data:
               "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 30, "stacking": { "mode": "normal" }, "spanNulls": true }
             },
             "overrides": [
-              { "matcher": { "id": "byName", "options": "8" }, "properties": [{ "id": "displayName", "value": "CLUSTER" }] },
-              { "matcher": { "id": "byName", "options": "9" }, "properties": [{ "id": "displayName", "value": "CLUSTER_STORAGE" }] },
-              { "matcher": { "id": "byName", "options": "10" }, "properties": [{ "id": "displayName", "value": "FAMILY_VPN" }] },
-              { "matcher": { "id": "byName", "options": "11" }, "properties": [{ "id": "displayName", "value": "GUEST" }] },
-              { "matcher": { "id": "byName", "options": "12" }, "properties": [{ "id": "displayName", "value": "HOME" }] },
-              { "matcher": { "id": "byName", "options": "13" }, "properties": [{ "id": "displayName", "value": "IOT" }] },
-              { "matcher": { "id": "byName", "options": "14" }, "properties": [{ "id": "displayName", "value": "LAB" }] },
-              { "matcher": { "id": "byName", "options": "15" }, "properties": [{ "id": "displayName", "value": "LAYER3" }] },
-              { "matcher": { "id": "byName", "options": "16" }, "properties": [{ "id": "displayName", "value": "MX" }] },
-              { "matcher": { "id": "byName", "options": "17" }, "properties": [{ "id": "displayName", "value": "OPS" }] },
-              { "matcher": { "id": "byName", "options": "21" }, "properties": [{ "id": "displayName", "value": "VPN" }] },
-              { "matcher": { "id": "byName", "options": "22" }, "properties": [{ "id": "displayName", "value": "STORAGE" }] },
-              { "matcher": { "id": "byName", "options": "23" }, "properties": [{ "id": "displayName", "value": "VPN_BRIDGE" }] },
-              { "matcher": { "id": "byName", "options": "24" }, "properties": [{ "id": "displayName", "value": "WORK" }] }
+              { "matcher": { "id": "byName", "options": "8" }, "properties": [{ "id": "displayName", "value": "CLUSTER" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#3274d9" } }] },
+              { "matcher": { "id": "byName", "options": "9" }, "properties": [{ "id": "displayName", "value": "CLUSTER_STORAGE" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#8ab8ff" } }] },
+              { "matcher": { "id": "byName", "options": "10" }, "properties": [{ "id": "displayName", "value": "FAMILY_VPN" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#ffb357" } }] },
+              { "matcher": { "id": "byName", "options": "11" }, "properties": [{ "id": "displayName", "value": "GUEST" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#fade2a" } }] },
+              { "matcher": { "id": "byName", "options": "12" }, "properties": [{ "id": "displayName", "value": "HOME" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#73bf69" } }] },
+              { "matcher": { "id": "byName", "options": "13" }, "properties": [{ "id": "displayName", "value": "IOT" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#f2495c" } }] },
+              { "matcher": { "id": "byName", "options": "14" }, "properties": [{ "id": "displayName", "value": "LAB" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#ff7383" } }] },
+              { "matcher": { "id": "byName", "options": "15" }, "properties": [{ "id": "displayName", "value": "LAYER3" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#8f8f8f" } }] },
+              { "matcher": { "id": "byName", "options": "16" }, "properties": [{ "id": "displayName", "value": "MX" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#c8a26b" } }] },
+              { "matcher": { "id": "byName", "options": "17" }, "properties": [{ "id": "displayName", "value": "OPS" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#37872d" } }] },
+              { "matcher": { "id": "byName", "options": "21" }, "properties": [{ "id": "displayName", "value": "VPN" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#ca95e5" } }] },
+              { "matcher": { "id": "byName", "options": "22" }, "properties": [{ "id": "displayName", "value": "STORAGE" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#c4162a" } }] },
+              { "matcher": { "id": "byName", "options": "23" }, "properties": [{ "id": "displayName", "value": "VPN_BRIDGE" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#8f3bb8" } }] },
+              { "matcher": { "id": "byName", "options": "24" }, "properties": [{ "id": "displayName", "value": "WORK" }, { "id": "color", "value": { "mode": "fixed", "fixedColor": "#46c8c8" } }] }
             ]
           },
           "options": {
