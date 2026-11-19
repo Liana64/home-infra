@@ -10,5 +10,6 @@ configMapGenerator:
   - name: loki-rules
     files:
       - ./rules/alerts.yaml
+      - ./rules/netflow.yaml
 generatorOptions:
   disableNameSuffixHash: true

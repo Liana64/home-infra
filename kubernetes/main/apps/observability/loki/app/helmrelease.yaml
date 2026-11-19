@@ -117,6 +117,13 @@ spec:
             local:
               directory: /var/loki/rules
           rule_path: /var/loki/rules-temp
+          wal:
+            dir: /var/loki/ruler-wal
+          remote_write:
+            enabled: true
+            clients:
+              prometheus:
+                url: http://kube-prometheus-stack-prometheus.observability.svc.cluster.local:9090/api/v1/write
     singleBinary:
       replicas: 1
       resources:

@@ -1,0 +1,8 @@
+---
+groups:
+  - name: netflow
+    interval: 1m
+    rules:
+      - record: netflow:bytes:rate1m
+        expr: |
+          sum by (in_if, out_if, etype) (rate({app="goflow2"} | json in_bytes, in_if, out_if, etype | unwrap in_bytes | __error__="" [1m]))

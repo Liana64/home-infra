@@ -22,7 +22,7 @@ data:
           "type": "timeseries",
           "title": "WAN throughput",
           "description": "Flows are exported when they end or hit the active timeout, so long transfers land in bursts.",
-          "datasource": { "type": "loki", "uid": "loki" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
           "fieldConfig": {
             "defaults": {
@@ -43,6 +43,20 @@ data:
               {
                 "matcher": { "id": "byName", "options": "Upload" },
                 "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#199e70" } }]
+              },
+              {
+                "matcher": { "id": "byName", "options": "VPN download" },
+                "properties": [
+                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "#3987e5" } },
+                  { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [6, 4] } }
+                ]
+              },
+              {
+                "matcher": { "id": "byName", "options": "VPN upload" },
+                "properties": [
+                  { "id": "color", "value": { "mode": "fixed", "fixedColor": "#199e70" } },
+                  { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [6, 4] } }
+                ]
               }
             ]
           },
@@ -52,21 +66,31 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(rate({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__auto])) * 8",
+              "expr": "sum(avg_over_time(netflow:bytes:rate1m{in_if=\"$wan_if\"}[$__rate_interval])) * 8",
               "legendFormat": "Download",
               "refId": "A"
             },
             {
-              "expr": "sum(rate({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__auto])) * 8",
+              "expr": "sum(avg_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\"}[$__rate_interval])) * 8",
               "legendFormat": "Upload",
               "refId": "B"
+            },
+            {
+              "expr": "sum(avg_over_time(netflow:bytes:rate1m{out_if=\"$vpn_if\"}[$__rate_interval])) * 8",
+              "legendFormat": "VPN download",
+              "refId": "C"
+            },
+            {
+              "expr": "sum(avg_over_time(netflow:bytes:rate1m{in_if=\"$vpn_if\", out_if=\"$wan_if\"}[$__rate_interval])) * 8",
+              "legendFormat": "VPN upload",
+              "refId": "D"
             }
           ]
         },
         {
           "type": "timeseries",
           "title": "WAN throughput by IP version",
-          "datasource": { "type": "loki", "uid": "loki" },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 9, "w": 12, "x": 0, "y": 9 },
           "fieldConfig": {
             "defaults": {
@@ -82,32 +106,56 @@ data:
           },
           "targets": [
             {
-              "expr": "sum by (etype) (rate({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__auto])) * 8",
+              "expr": "sum by (etype) (avg_over_time(netflow:bytes:rate1m{in_if=\"$wan_if\"}[$__rate_interval])) * 8",
               "legendFormat": "Down {{etype}}",
               "refId": "A"
             },
             {
-              "expr": "sum by (etype) (rate({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__auto])) * 8",
+              "expr": "sum by (etype) (avg_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\"}[$__rate_interval])) * 8",
               "legendFormat": "Up {{etype}}",
               "refId": "B"
             }
           ]
         },
         {
-          "type": "table",
-          "title": "WAN interface finder",
-          "description": "Bytes from public IPv4 sources by ingress interface. The top in_if is the WAN; set it as wan_if.",
-          "datasource": { "type": "loki", "uid": "loki" },
+          "type": "timeseries",
+          "title": "WAN upload by network",
+          "description": "Source interface of traffic leaving the WAN; VPN_BRIDGE is encapsulated tunnel traffic.",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 9, "w": 12, "x": 12, "y": 9 },
-          "fieldConfig": { "defaults": { "unit": "decbytes" }, "overrides": [] },
-          "options": { "showHeader": true, "sortBy": [{ "displayName": "Last *", "desc": true }] },
-          "transformations": [
-            { "id": "reduce", "options": { "reducers": ["lastNotNull"], "labelsToFields": true } }
-          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "min": 0,
+              "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 30, "stacking": { "mode": "normal" }, "spanNulls": true }
+            },
+            "overrides": [
+              { "matcher": { "id": "byName", "options": "0" }, "properties": [{ "id": "displayName", "value": "Firewall" }] },
+              { "matcher": { "id": "byName", "options": "1" }, "properties": [{ "id": "displayName", "value": "LAN" }] },
+              { "matcher": { "id": "byName", "options": "8" }, "properties": [{ "id": "displayName", "value": "CLUSTER" }] },
+              { "matcher": { "id": "byName", "options": "9" }, "properties": [{ "id": "displayName", "value": "CLUSTER_STORAGE" }] },
+              { "matcher": { "id": "byName", "options": "10" }, "properties": [{ "id": "displayName", "value": "FAMILY_VPN" }] },
+              { "matcher": { "id": "byName", "options": "11" }, "properties": [{ "id": "displayName", "value": "GUEST" }] },
+              { "matcher": { "id": "byName", "options": "12" }, "properties": [{ "id": "displayName", "value": "HOME" }] },
+              { "matcher": { "id": "byName", "options": "13" }, "properties": [{ "id": "displayName", "value": "IOT" }] },
+              { "matcher": { "id": "byName", "options": "14" }, "properties": [{ "id": "displayName", "value": "LAB" }] },
+              { "matcher": { "id": "byName", "options": "15" }, "properties": [{ "id": "displayName", "value": "LAYER3" }] },
+              { "matcher": { "id": "byName", "options": "16" }, "properties": [{ "id": "displayName", "value": "MX" }] },
+              { "matcher": { "id": "byName", "options": "17" }, "properties": [{ "id": "displayName", "value": "OPS" }] },
+              { "matcher": { "id": "byName", "options": "21" }, "properties": [{ "id": "displayName", "value": "VPN" }] },
+              { "matcher": { "id": "byName", "options": "22" }, "properties": [{ "id": "displayName", "value": "STORAGE" }] },
+              { "matcher": { "id": "byName", "options": "23" }, "properties": [{ "id": "displayName", "value": "VPN_BRIDGE" }] },
+              { "matcher": { "id": "byName", "options": "24" }, "properties": [{ "id": "displayName", "value": "WORK" }] }
+            ]
+          },
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
           "targets": [
             {
-              "expr": "sum by (sampler_address, in_if) (sum_over_time({app=\"goflow2\"} | json | etype=\"IPv4\" | src_addr !~ `(10|127|192\\.168|172\\.(1[6-9]|2[0-9]|3[01]))\\..*` | unwrap in_bytes | __error__=\"\" [$__range]))",
-              "queryType": "instant",
+              "expr": "sum by (in_if) (avg_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\"}[$__rate_interval])) * 8",
+              "legendFormat": "{{in_if}}",
               "refId": "A"
             }
           ]
@@ -118,14 +166,19 @@ data:
           "description": "IPv4 behind NAT shows the WAN address; IPv6 shows the host.",
           "datasource": { "type": "loki", "uid": "loki" },
           "gridPos": { "h": 10, "w": 12, "x": 0, "y": 18 },
-          "fieldConfig": { "defaults": { "unit": "decbytes" }, "overrides": [] },
-          "options": { "showHeader": true, "sortBy": [{ "displayName": "Last *", "desc": true }] },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": [{ "matcher": { "id": "byName", "options": "Bytes" }, "properties": [{ "id": "unit", "value": "decbytes" }] }]
+          },
+          "options": { "showHeader": true, "sortBy": [{ "displayName": "Bytes", "desc": true }] },
           "transformations": [
-            { "id": "reduce", "options": { "reducers": ["lastNotNull"], "labelsToFields": true } }
+            { "id": "labelsToFields", "options": { "mode": "columns" } },
+            { "id": "merge", "options": {} },
+            { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "Value #A": "Bytes" } } }
           ],
           "targets": [
             {
-              "expr": "topk(15, sum by (dst_addr) (sum_over_time({app=\"goflow2\"} | json | in_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__range])))",
+              "expr": "topk(15, sum by (dst_addr) (sum_over_time({app=\"goflow2\"} |= `\"in_if\":$wan_if,` | json in_bytes, dst_addr | unwrap in_bytes | __error__=\"\" [$__range])))",
               "queryType": "instant",
               "refId": "A"
             }
@@ -136,14 +189,19 @@ data:
           "title": "Top local hosts: upload",
           "datasource": { "type": "loki", "uid": "loki" },
           "gridPos": { "h": 10, "w": 12, "x": 12, "y": 18 },
-          "fieldConfig": { "defaults": { "unit": "decbytes" }, "overrides": [] },
-          "options": { "showHeader": true, "sortBy": [{ "displayName": "Last *", "desc": true }] },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": [{ "matcher": { "id": "byName", "options": "Bytes" }, "properties": [{ "id": "unit", "value": "decbytes" }] }]
+          },
+          "options": { "showHeader": true, "sortBy": [{ "displayName": "Bytes", "desc": true }] },
           "transformations": [
-            { "id": "reduce", "options": { "reducers": ["lastNotNull"], "labelsToFields": true } }
+            { "id": "labelsToFields", "options": { "mode": "columns" } },
+            { "id": "merge", "options": {} },
+            { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "Value #A": "Bytes" } } }
           ],
           "targets": [
             {
-              "expr": "topk(15, sum by (src_addr) (sum_over_time({app=\"goflow2\"} | json | out_if=\"$wan_if\" | unwrap in_bytes | __error__=\"\" [$__range])))",
+              "expr": "topk(15, sum by (src_addr) (sum_over_time({app=\"goflow2\"} |= `\"out_if\":$wan_if}` | json in_bytes, src_addr | unwrap in_bytes | __error__=\"\" [$__range])))",
               "queryType": "instant",
               "refId": "A"
             }
@@ -160,7 +218,15 @@ data:
             "type": "textbox",
             "query": "2",
             "current": { "text": "2", "value": "2" },
-            "description": "SNMP ifindex of the OPNsense WAN interface; see WAN interface finder"
+            "description": "OPNsense WAN ifindex (vtnet1)"
+          },
+          {
+            "name": "vpn_if",
+            "label": "VPN ifindex",
+            "type": "textbox",
+            "query": "23",
+            "current": { "text": "23", "value": "23" },
+            "description": "OPNsense VPN bridge ifindex (vlan014, VLAN 140)"
           }
         ]
       },

@@ -43,6 +43,14 @@ spec:
         - ports:
             - port: "9093"
               protocol: TCP
+    - toEndpoints:
+        - matchLabels:
+            io.kubernetes.pod.namespace: observability
+            app.kubernetes.io/name: prometheus
+      toPorts:
+        - ports:
+            - port: "9090"
+              protocol: TCP
     - toCIDR:
         - ${M1_HOST}/32
       toPorts:
