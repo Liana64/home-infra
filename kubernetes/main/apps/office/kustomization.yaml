@@ -6,6 +6,5 @@ resources:
   - ./namespace.yaml
   - ./networkpolicy.yaml
   - ./cryptpad/ks.yaml
-  - ./meet/ks.yaml
   - ./docs/ks.yaml
   - ./grist/ks.yaml
