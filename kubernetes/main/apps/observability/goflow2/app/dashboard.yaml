@@ -67,7 +67,7 @@ data:
               "refId": "A"
             },
             {
-              "expr": "sum(sum_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\"}[$__interval])) * 8 * 60000 / $__interval_ms",
+              "expr": "sum(sum_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\", in_if!=\"0\"}[$__interval])) * 8 * 60000 / $__interval_ms",
               "legendFormat": "Upload",
               "refId": "B"
             },
@@ -119,7 +119,7 @@ data:
           },
           "targets": [
             {
-              "expr": "sum by (in_if) (sum_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\"}[$__interval])) * 8 * 60000 / $__interval_ms",
+              "expr": "sum by (in_if) (sum_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\", in_if!=\"0\"}[$__interval])) * 8 * 60000 / $__interval_ms",
               "legendFormat": "{{in_if}}",
               "refId": "A"
             }
@@ -209,7 +209,7 @@ data:
           ],
           "targets": [
             {
-              "expr": "topk(15, sum by (src_addr) (sum_over_time({app=\"goflow2\"} |~ `\"out_if\":$wan_if[,}]` | json in_bytes, src_addr | unwrap in_bytes | __error__=\"\" [$__range])))",
+              "expr": "topk(15, sum by (src_addr) (sum_over_time({app=\"goflow2\"} |~ `\"out_if\":$wan_if[,}]` !~ `\"in_if\":0,` | json in_bytes, src_addr | unwrap in_bytes | __error__=\"\" [$__range])))",
               "queryType": "instant",
               "refId": "A"
             }
