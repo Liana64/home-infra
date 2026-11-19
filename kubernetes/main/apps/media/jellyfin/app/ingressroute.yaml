@@ -1,0 +1,31 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jellyfin
+spec:
+  ingressClassName: traefik-external
+  entryPoints:
+    - websecure
+  # jellyfin routes are case-insensitive and accept legacy /emby/ and /mediabrowser/ prefixes
+  routes:
+    - match: Host(`jellyfin.${PERSONAL_DOMAIN}`) && PathRegexp(`(?i)^/((emby|mediabrowser)/)?(startup|plugins|packages|repositories|environment|scheduledtasks|backup|auth/(keys|providers|passwordresetproviders)|library/virtualfolders|system/(logs|restart|shutdown|activitylog|mediaencoder|info/storage)|api-docs|swagger)`)
+      middlewares:
+        - name: traefik-middleware-only-local
+          namespace: networking
+        - name: traefik-middleware-chain-no-auth
+          namespace: networking
+      services:
+        - name: jellyfin
+          port: 8096
+    - match: Host(`jellyfin.${PERSONAL_DOMAIN}`) && PathRegexp(`(?i)^/((emby|mediabrowser)/)?users/([^/]+/)?(authenticate|forgotpassword)`)
+      middlewares:
+        - name: traefik-middleware-ratelimit-auth
+          namespace: networking
+        - name: traefik-middleware-chain-no-auth
+          namespace: networking
+      services:
+        - name: jellyfin
+          port: 8096
+  tls:
+    secretName: jellyfin-tls

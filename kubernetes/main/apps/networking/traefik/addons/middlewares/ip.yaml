@@ -6,10 +6,10 @@ metadata:
 spec:
   ipAllowList:
     sourceRange:
-      - 192.168.1.0/24
-      - 192.168.40.0/24
-      - 192.168.140.0/24
-      - 192.168.254.0/24
+      - "${HOME_CIDR}"
+      - "${OPS_CIDR}"
+      - "${MGMT_CIDR}"
+      - "${VPN_CIDR}"
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware

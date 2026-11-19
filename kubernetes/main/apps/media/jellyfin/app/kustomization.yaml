@@ -7,3 +7,4 @@ components:
 resources:
   - ./networkpolicy.yaml
   - ./helmrelease.yaml
+  - ./ingressroute.yaml
