@@ -6,6 +6,7 @@ metadata:
   name: immich-configmap
 data:
   TZ: "${TIMEZONE}"
+  IMMICH_HOST: 0.0.0.0
   IMMICH_LOG_LEVEL: log
   IMMICH_MEDIA_LOCATION: /library
   IMMICH_TELEMETRY_INCLUDE: all
