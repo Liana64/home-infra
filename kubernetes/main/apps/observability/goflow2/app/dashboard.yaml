@@ -3,13 +3,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: wan-flows-dashboard
+  name: netflow-dashboard
   labels:
     grafana_dashboard: "1"
   annotations:
     grafana_folder: Network
 data:
-  wan-flows.json: |
+  netflow.json: |
     {
       "annotations": { "list": [] },
       "editable": false,
@@ -21,19 +21,15 @@ data:
         {
           "type": "timeseries",
           "title": "WAN throughput",
-          "description": "Flows are exported when they end or hit the active timeout, so long transfers land in bursts.",
+          "description": "Flows captured at VLAN interfaces: upload as it enters a VLAN (pre-NAT), download as it leaves into one. VPN-bound upload counts toward Upload without WireGuard overhead; VPN download arrives from the Proton tunnels. Data before 2026-11-18 double counts upload.",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "interval": "1m",
           "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
           "fieldConfig": {
             "defaults": {
               "unit": "bps",
               "min": 0,
-              "custom": {
-                "drawStyle": "line",
-                "lineWidth": 2,
-                "fillOpacity": 10,
-                "spanNulls": true
-              }
+              "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 10, "spanNulls": true }
             },
             "overrides": [
               {
@@ -66,22 +62,22 @@ data:
           },
           "targets": [
             {
-              "expr": "sum(avg_over_time(netflow:bytes:rate1m{in_if=\"$wan_if\"}[$__rate_interval])) * 8",
+              "expr": "sum(sum_over_time(netflow:bytes:rate1m{in_if=~\"$wan_if|$vpn_tunnels\"}[$__interval])) * 8 * 60000 / $__interval_ms",
               "legendFormat": "Download",
               "refId": "A"
             },
             {
-              "expr": "sum(avg_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\"}[$__rate_interval])) * 8",
+              "expr": "sum(sum_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\"}[$__interval])) * 8 * 60000 / $__interval_ms",
               "legendFormat": "Upload",
               "refId": "B"
             },
             {
-              "expr": "sum(avg_over_time(netflow:bytes:rate1m{out_if=\"$vpn_if\"}[$__rate_interval])) * 8",
+              "expr": "sum(sum_over_time(netflow:bytes:rate1m{in_if=~\"$vpn_tunnels\"}[$__interval])) * 8 * 60000 / $__interval_ms",
               "legendFormat": "VPN download",
               "refId": "C"
             },
             {
-              "expr": "sum(avg_over_time(netflow:bytes:rate1m{in_if=\"$vpn_if\", out_if=\"$wan_if\"}[$__rate_interval])) * 8",
+              "expr": "sum(sum_over_time(netflow:bytes:rate1m{in_if=\"$vpn_if\", out_if=\"$wan_if\"}[$__interval])) * 8 * 60000 / $__interval_ms",
               "legendFormat": "VPN upload",
               "refId": "D"
             }
@@ -89,40 +85,11 @@ data:
         },
         {
           "type": "timeseries",
-          "title": "WAN throughput by IP version",
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "gridPos": { "h": 9, "w": 12, "x": 0, "y": 9 },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "bps",
-              "min": 0,
-              "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 0, "spanNulls": true }
-            },
-            "overrides": []
-          },
-          "options": {
-            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-            "tooltip": { "mode": "multi", "sort": "desc" }
-          },
-          "targets": [
-            {
-              "expr": "sum by (etype) (avg_over_time(netflow:bytes:rate1m{in_if=\"$wan_if\"}[$__rate_interval])) * 8",
-              "legendFormat": "Down {{etype}}",
-              "refId": "A"
-            },
-            {
-              "expr": "sum by (etype) (avg_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\"}[$__rate_interval])) * 8",
-              "legendFormat": "Up {{etype}}",
-              "refId": "B"
-            }
-          ]
-        },
-        {
-          "type": "timeseries",
           "title": "WAN upload by network",
-          "description": "Source interface of traffic leaving the WAN; VPN_BRIDGE is encapsulated tunnel traffic.",
+          "description": "Source VLAN of traffic routed to the WAN.",
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "gridPos": { "h": 9, "w": 12, "x": 12, "y": 9 },
+          "interval": "1m",
+          "gridPos": { "h": 9, "w": 12, "x": 0, "y": 9 },
           "fieldConfig": {
             "defaults": {
               "unit": "bps",
@@ -130,8 +97,6 @@ data:
               "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 30, "stacking": { "mode": "normal" }, "spanNulls": true }
             },
             "overrides": [
-              { "matcher": { "id": "byName", "options": "0" }, "properties": [{ "id": "displayName", "value": "Firewall" }] },
-              { "matcher": { "id": "byName", "options": "1" }, "properties": [{ "id": "displayName", "value": "LAN" }] },
               { "matcher": { "id": "byName", "options": "8" }, "properties": [{ "id": "displayName", "value": "CLUSTER" }] },
               { "matcher": { "id": "byName", "options": "9" }, "properties": [{ "id": "displayName", "value": "CLUSTER_STORAGE" }] },
               { "matcher": { "id": "byName", "options": "10" }, "properties": [{ "id": "displayName", "value": "FAMILY_VPN" }] },
@@ -154,8 +119,50 @@ data:
           },
           "targets": [
             {
-              "expr": "sum by (in_if) (avg_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\"}[$__rate_interval])) * 8",
+              "expr": "sum by (in_if) (sum_over_time(netflow:bytes:rate1m{out_if=\"$wan_if\"}[$__interval])) * 8 * 60000 / $__interval_ms",
               "legendFormat": "{{in_if}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "type": "timeseries",
+          "title": "WAN download by network",
+          "description": "Destination VLAN of traffic arriving from the WAN or the Proton tunnels.",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "interval": "1m",
+          "gridPos": { "h": 9, "w": 12, "x": 12, "y": 9 },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "min": 0,
+              "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 30, "stacking": { "mode": "normal" }, "spanNulls": true }
+            },
+            "overrides": [
+              { "matcher": { "id": "byName", "options": "8" }, "properties": [{ "id": "displayName", "value": "CLUSTER" }] },
+              { "matcher": { "id": "byName", "options": "9" }, "properties": [{ "id": "displayName", "value": "CLUSTER_STORAGE" }] },
+              { "matcher": { "id": "byName", "options": "10" }, "properties": [{ "id": "displayName", "value": "FAMILY_VPN" }] },
+              { "matcher": { "id": "byName", "options": "11" }, "properties": [{ "id": "displayName", "value": "GUEST" }] },
+              { "matcher": { "id": "byName", "options": "12" }, "properties": [{ "id": "displayName", "value": "HOME" }] },
+              { "matcher": { "id": "byName", "options": "13" }, "properties": [{ "id": "displayName", "value": "IOT" }] },
+              { "matcher": { "id": "byName", "options": "14" }, "properties": [{ "id": "displayName", "value": "LAB" }] },
+              { "matcher": { "id": "byName", "options": "15" }, "properties": [{ "id": "displayName", "value": "LAYER3" }] },
+              { "matcher": { "id": "byName", "options": "16" }, "properties": [{ "id": "displayName", "value": "MX" }] },
+              { "matcher": { "id": "byName", "options": "17" }, "properties": [{ "id": "displayName", "value": "OPS" }] },
+              { "matcher": { "id": "byName", "options": "21" }, "properties": [{ "id": "displayName", "value": "VPN" }] },
+              { "matcher": { "id": "byName", "options": "22" }, "properties": [{ "id": "displayName", "value": "STORAGE" }] },
+              { "matcher": { "id": "byName", "options": "23" }, "properties": [{ "id": "displayName", "value": "VPN_BRIDGE" }] },
+              { "matcher": { "id": "byName", "options": "24" }, "properties": [{ "id": "displayName", "value": "WORK" }] }
+            ]
+          },
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "expr": "sum by (out_if) (sum_over_time(netflow:bytes:rate1m{in_if=~\"$wan_if|$vpn_tunnels\"}[$__interval])) * 8 * 60000 / $__interval_ms",
+              "legendFormat": "{{out_if}}",
               "refId": "A"
             }
           ]
@@ -163,7 +170,7 @@ data:
         {
           "type": "table",
           "title": "Top local hosts: download",
-          "description": "IPv4 behind NAT shows the WAN address; IPv6 shows the host.",
+          "description": "Includes VPN download.",
           "datasource": { "type": "loki", "uid": "loki" },
           "gridPos": { "h": 10, "w": 12, "x": 0, "y": 18 },
           "fieldConfig": {
@@ -178,7 +185,7 @@ data:
           ],
           "targets": [
             {
-              "expr": "topk(15, sum by (dst_addr) (sum_over_time({app=\"goflow2\"} |= `\"in_if\":$wan_if,` | json in_bytes, dst_addr | unwrap in_bytes | __error__=\"\" [$__range])))",
+              "expr": "topk(15, sum by (dst_addr) (sum_over_time({app=\"goflow2\"} |~ `\"in_if\":($wan_if|$vpn_tunnels),` | json in_bytes, dst_addr | unwrap in_bytes | __error__=\"\" [$__range])))",
               "queryType": "instant",
               "refId": "A"
             }
@@ -187,6 +194,7 @@ data:
         {
           "type": "table",
           "title": "Top local hosts: upload",
+          "description": "Includes VPN-bound traffic.",
           "datasource": { "type": "loki", "uid": "loki" },
           "gridPos": { "h": 10, "w": 12, "x": 12, "y": 18 },
           "fieldConfig": {
@@ -201,7 +209,7 @@ data:
           ],
           "targets": [
             {
-              "expr": "topk(15, sum by (src_addr) (sum_over_time({app=\"goflow2\"} |= `\"out_if\":$wan_if}` | json in_bytes, src_addr | unwrap in_bytes | __error__=\"\" [$__range])))",
+              "expr": "topk(15, sum by (src_addr) (sum_over_time({app=\"goflow2\"} |~ `\"out_if\":$wan_if[,}]` | json in_bytes, src_addr | unwrap in_bytes | __error__=\"\" [$__range])))",
               "queryType": "instant",
               "refId": "A"
             }
@@ -222,11 +230,19 @@ data:
           },
           {
             "name": "vpn_if",
-            "label": "VPN ifindex",
+            "label": "VPN bridge ifindex",
             "type": "textbox",
             "query": "23",
             "current": { "text": "23", "value": "23" },
             "description": "OPNsense VPN bridge ifindex (vlan014, VLAN 140)"
+          },
+          {
+            "name": "vpn_tunnels",
+            "label": "Proton tunnel ifindexes",
+            "type": "textbox",
+            "query": "18|19|20",
+            "current": { "text": "18|19|20", "value": "18|19|20" },
+            "description": "OPNsense Proton WireGuard ifindexes (wg4, wg2, wg3), regex alternation"
           }
         ]
       },
