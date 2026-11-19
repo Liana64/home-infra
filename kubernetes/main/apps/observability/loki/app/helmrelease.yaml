@@ -91,7 +91,6 @@ spec:
           reject_old_samples: true
           reject_old_samples_max_age: 168h
           retention_period: 30d
-          ruler_evaluation_delay_duration: 30s
           retention_stream:
             - selector: '{job=~"kernel|talos|syslog"}'
               priority: 1
