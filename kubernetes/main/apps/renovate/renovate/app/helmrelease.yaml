@@ -15,7 +15,7 @@ spec:
       renovate:
         type: cronjob
         cronjob:
-          schedule: "0 8 * * *"
+          schedule: "0 5 * * *"
           timeZone: "${TIMEZONE}"
           backoffLimit: 0
           concurrencyPolicy: Forbid
