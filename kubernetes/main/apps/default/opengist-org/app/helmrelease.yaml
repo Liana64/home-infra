@@ -18,25 +18,10 @@ spec:
         strategy: Recreate
         containers:
           app:
-            # renovate: datasource=docker depName=ghcr.io/thomiceli/opengist
+            # renovate: datasource=docker depName=ghcr.io/liana64/opengist
             image:
-              repository: ghcr.io/thomiceli/opengist
-              tag: 1.15.3@sha256:f5dd39cc9409b4006f8b090e5f9ed042cdb736d28a06b4f985c674dacafc94d5
-            command: ["/landlock/landrun"]
-            # landrun scrubs the environment: every env and secret key must be listed in --env
-            # git runs the per-repo hooks from /config/repos, which is absent on a fresh volume; landrun rejects missing paths, hence rwx on /config
-            args:
-              - --best-effort
-              - --log-level=info
-              - --rox=/usr,/lib,/bin,/app
-              - --ro=/etc,/proc,/sys/fs/cgroup
-              - --rw=/tmp,/dev/null
-              - --rwx=/config
-              - --bind-tcp=80
-              - --connect-tcp=443,53,80
-              - --env=PATH,HOME,TZ,OG_HTTP_PORT,OG_OPENGIST_HOME,OG_CUSTOM_NAME,OG_EXTERNAL_URL,OG_SSH_GIT_ENABLED,OG_OIDC_PROVIDER_NAME,OG_OIDC_CLIENT_KEY,OG_OIDC_DISCOVERY_URL,OG_OIDC_GROUP_CLAIM_NAME,OG_OIDC_ADMIN_GROUP,OG_SECRET_KEY,OG_OIDC_SECRET
-              - --
-              - /app/opengist/opengist
+              repository: ghcr.io/liana64/opengist
+              tag: 1.15.3@sha256:a195c783bfbbf92a817b2caf4bc938605f0c4a62ab3d859defb5d40ddd76d84e
             env:
               HOME: /config
               OG_HTTP_PORT: &port 80
@@ -133,9 +118,3 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
-      landlock:
-        type: image
-        # renovate: datasource=docker depName=ghcr.io/liana64/landrun
-        image: ghcr.io/liana64/landrun:0.1.17
-        globalMounts:
-          - path: /landlock

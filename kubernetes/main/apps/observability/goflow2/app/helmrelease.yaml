@@ -23,10 +23,10 @@ spec:
             capabilities: { drop: ["ALL"] }
         containers:
           app:
-            # renovate: datasource=docker depName=ghcr.io/netsampler/goflow2
+            # renovate: datasource=docker depName=ghcr.io/liana64/goflow2
             image:
-              repository: ghcr.io/netsampler/goflow2
-              tag: v2.2.7@sha256:b8fdc8f3666b05b0022ada3a3c8c50dcde97f7d19e3f42d050695fa0571fb952
+              repository: ghcr.io/liana64/goflow2
+              tag: 2.2.7@sha256:ecc488b61a6531d770ace25722228be51c2c42f234b488876b12507af5b2247a
             args:
               - -listen=netflow://:2055
               - -addr=:8080

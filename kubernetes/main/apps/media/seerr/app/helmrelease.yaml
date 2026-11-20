@@ -18,25 +18,12 @@ spec:
           terminationGracePeriodSeconds: 60
         containers:
           app:
-            # renovate: datasource=docker depName=ghcr.io/seerr-team/seerr
+            # renovate: datasource=docker depName=ghcr.io/liana64/seerr
             image:
-              repository: ghcr.io/seerr-team/seerr
-              tag: v3.5.2@sha256:aadee014b40e28cf9aa4928bc9d1183a6eb08f8c44d543cddc9efdcb16549be2
-            command: ["/landlock/landrun"]
-            # landrun scrubs the environment: every env key must be listed in --env
-            args:
-              - --best-effort
-              - --log-level=info
-              - --rox=/usr,/lib,/bin
-              - --ro=/app,/etc,/proc,/sys/fs/cgroup
-              - --rw=/app/config,/tmp,/app/.next/cache
-              - --bind-tcp=5055
-              - --connect-tcp=443,5055,7878,8096,8989,53
-              - --env=PATH,HOME=/tmp,NODE_ENV,COMMIT_TAG,TZ,PORT,forceIpv4First
-              - --
-              - npm
-              - start
+              repository: ghcr.io/liana64/seerr
+              tag: 3.5.2@sha256:8a4c870400fd8f8dcd9d7199f7ad592e50fb54c4a411823239d687a511dd53b0
             env:
+              HOME: /tmp
               TZ: ${TIMEZONE}
               PORT: &port 5055
               forceIpv4First: true
@@ -204,11 +191,3 @@ spec:
                 subPath: tmp
               - path: /app/.next/cache
                 subPath: next-cache
-      landlock:
-        type: image
-        # renovate: datasource=docker depName=ghcr.io/liana64/landrun
-        image: ghcr.io/liana64/landrun:0.1.17
-        advancedMounts:
-          seerr:
-            app:
-              - path: /landlock

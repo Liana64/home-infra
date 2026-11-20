@@ -18,27 +18,10 @@ spec:
           reloader.stakater.com/auto: "true"
         containers:
           app:
-            # renovate: datasource=docker depName=alangrainger/immich-public-proxy
+            # renovate: datasource=docker depName=ghcr.io/liana64/immich-public-proxy
             image:
-              repository: docker.io/alangrainger/immich-public-proxy
-              tag: 4.2.0@sha256:ebf84972652c4cf5a7ef7d2359db35ddca46a5cf17714975abf5a8674b05935d
-            command: ["/landlock/landrun"]
-            # landrun scrubs the environment: every env key must be listed in --env
-            args:
-              - --best-effort
-              - --log-level=info
-              - --rox=/usr,/lib,/sbin
-              - --ro=/app,/etc,/proc,/sys/fs/cgroup
-              - --rw=/tmp
-              - --bind-tcp=3000
-              - --connect-tcp=2283,53
-              - --env=PATH,NODE_ENV,APP_VERSION,TZ,IMMICH_URL,PUBLIC_BASE_URL,CONFIG
-              - --
-              - /sbin/tini
-              - -s
-              - --
-              - node
-              - dist/index.js
+              repository: ghcr.io/liana64/immich-public-proxy
+              tag: 4.2.0@sha256:8c97c5584ddd120ec88c0179ac796cd47c0d7b621be35ca4f87eec55b8c0cdb1
             env:
               TZ: "${TIMEZONE}"
               IMMICH_URL: http://immich.home.svc.cluster.local:2283
@@ -136,9 +119,3 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
-      landlock:
-        type: image
-        # renovate: datasource=docker depName=ghcr.io/liana64/landrun
-        image: ghcr.io/liana64/landrun:0.1.17
-        globalMounts:
-          - path: /landlock
